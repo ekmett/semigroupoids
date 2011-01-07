@@ -1,0 +1,199 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Data.Functor.Apply
+-- Copyright   :  (C) 2011 Edward Kmett,
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  provisional
+-- Portability :  portable
+--
+----------------------------------------------------------------------------
+module Data.Functor.Apply ( 
+  -- * Functors
+    Functor(..)
+  , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
+  , ( $>)     -- :: Functor f => f a -> b -> f b 
+
+  -- * FunctorApply - strong lax semimonoidal endofunctors
+
+  , FunctorApply(..)
+  , (<..>)    -- :: FunctorApply w => w a -> w (a -> b) -> w b
+  , liftF2    -- :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
+  , liftF3    -- :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+
+  -- * Wrappers
+  , WrappedApplicative(..)
+  , MaybeApply(..)
+  ) where
+
+import Prelude hiding (id, (.))
+import Control.Applicative
+import Control.Arrow
+import Control.Category
+import Control.Monad.Trans.Identity
+import Data.Functor
+import Data.Functor.Identity
+import Data.Monoid
+
+import qualified Data.Map as Map
+import Data.Map (Map)
+
+import qualified Data.IntMap as IntMap
+import Data.IntMap (Map)
+
+import Data.Seq (Seq)
+import Data.Tree (Tree)
+
+infixl 4 <.>, <., .>, <..>, $>
+
+-- | TODO: move into Data.Functor
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
+
+-- | A strong lax semi-monoidal endofunctor
+
+class Functor f => FunctorApply f where
+  (<.>) :: f (a -> b) -> f a -> f b
+
+  -- | a .> b = const id <$> a <.> b
+  (.>) :: f a -> f b -> f b
+  a .> b = const id <$> a <.> b
+
+  -- | a <. b = const <$> a <.> b
+  (<.) :: f a -> f b -> f a
+  a <. b = const    <$> a <.> b
+
+-- this only requires a Semigroup, but those don't exist
+instance Monoid m => FunctorApply ((,)m) where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+-- this only requires a Semigroup, but those don't exist
+instance Monoid m => FunctorApply ((->)m) where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply ZipList where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply [] where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply IO where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply Maybe where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply Identity where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply w => FunctorApply (IdentityT w) where
+  IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
+
+instance Monad m => FunctorApply (WrappedMonad m) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance Monoid m => FunctorApply (Const m) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance Arrow a => FunctorApply (WrappedArrow a b) where
+  (<.>) = (<*>) 
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+-- | A Map is not 'Applicative', but it is an instance of 'FunctorApply'
+instance Ord k => FunctorApply (Map k) where
+  mf <.> ma = Map.intersectionWith id
+  mf <.  ma = Map.intersectionWith const
+  mf  .> ma = Map.intersectionWith (const id)
+
+-- | An IntMap is not Applicative, but it is an instance of 'FunctorApply'
+instance FunctorApply IntMap where
+  mf <.> ma = IntMap.intersectionWith id
+  mf <.  ma = IntMap.intersectionWith const
+  mf  .> ma = IntMap.intersectionWith (const id)
+
+instance FunctorApply Seq where
+  (<.>) = ap
+
+instance FunctorApply Tree where
+  (<.>) = (<*>) 
+  (<. ) = (<* ) 
+  ( .>) = ( *>) 
+
+-- | Wrap an 'Applicative' to be used as a member of 'FunctorApply'
+newtype WrappedApplicative f a = WrappedApplicative { unwrapApplicative :: f a } 
+
+instance Functor f => Functor (WrappedApplicative f) where
+  fmap f (WrappedApplicative a) = WrappedApplicative (f <$> a)
+
+instance Applicative f => FunctorApply (WrappedApplicative f) where
+  WrappedApplicative f <.> WrappedApplicative a = WrappedApplicative (f <*> a)
+  WrappedApplicative a <.  WrappedApplicative b = WrappedApplicative (a <*  b)
+  WrappedApplicative a  .> WrappedApplicative b = WrappedApplicative (a  *> b)
+
+instance Applicative f => Applicative (WrappedApplicative f) where
+  pure = WrappedApplicative . pure
+  WrappedApplicative f <*> WrappedApplicative a = WrappedApplicative (f <*> a)
+  WrappedApplicative a <*  WrappedApplicative b = WrappedApplicative (a <*  b)
+  WrappedApplicative a  *> WrappedApplicative b = WrappedApplicative (a  *> b)
+
+-- | Transform a FunctorApply into an Applicative by adding a unit.
+newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
+
+instance Functor f => Functor (MaybeApply f) where
+  fmap f (MaybeApply (Right a)) = MaybeApply (Right (f     a ))
+  fmap f (MaybeApply (Left fa)) = MaybeApply (Left  (f <$> fa))
+
+instance FunctorApply f => FunctorApply (MaybeApply f) where
+  MaybeApply (Right f) <.> MaybeApply (Right a) = MaybeApply (Right (f        a ))
+  MaybeApply (Right f) <.> MaybeApply (Left fa) = MaybeApply (Left  (f    <$> fa))
+  MaybeApply (Left ff) <.> MaybeApply (Right a) = MaybeApply (Left  (($a) <$> ff))
+  MaybeApply (Left ff) <.> MaybeApply (Left fa) = MaybeApply (Left  (ff   <.> fa))
+
+  MaybeApply a         <. MaybeApply (Right _) = MaybeApply a
+  MaybeApply (Right a) <. MaybeApply (Left fb) = MaybeApply (Left (a  <$ fb))
+  MaybeApply (Left fa) <. MaybeApply (Left fb) = MaybeApply (Left (fa <. fb))
+
+  MaybeApply (Right _) .> MaybeApply b = MaybeApply b
+  MaybeApply (Left fa) .> MaybeApply (Right b) = MaybeApply (Left (fa $> b ))
+  MaybeApply (Left fa) .> MaybeApply (Left fb) = MaybeApply (Left (fa .> fb))
+  
+instance FunctorApply f => Applicative (MaybeApply f) where
+  pure a = MaybeApply (Right a)
+  (<*>) = (<.>)
+  (<* ) = (<. )
+  ( *>) = ( .>)
+
+-- | A variant of '<.>' with the arguments reversed.
+(<..>) :: FunctorApply w => w a -> w (a -> b) -> w b
+(<..>) = liftF2 (flip id)
+{-# INLINE (<..>) #-}
+
+-- | Lift a binary function into a comonad with zipping
+liftF2 :: FunctorApply w => (a -> b -> c) -> w a -> w b -> w c
+liftF2 f a b = f <$> a <.> b
+{-# INLINE liftF2 #-}
+
+-- | Lift a ternary function into a comonad with zipping
+liftF3 :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+liftF3 f a b c = f <$> a <.> b <.> c
+{-# INLINE liftF3 #-}
