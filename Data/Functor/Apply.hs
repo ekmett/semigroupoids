@@ -15,7 +15,7 @@ module Data.Functor.Apply (
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
   , ( $>)     -- :: Functor f => f a -> b -> f b 
 
-  -- * FunctorApply - strong lax semimonoidal endofunctors
+  -- * FunctorApply - a strong lax semimonoidal endofunctor
 
   , FunctorApply(..)
   , (<..>)    -- :: FunctorApply w => w a -> w (a -> b) -> w b
@@ -30,19 +30,20 @@ module Data.Functor.Apply (
 import Prelude hiding (id, (.))
 import Control.Applicative
 import Control.Arrow
+import Control.Comonad
 import Control.Category
-import Control.Monad.Trans.Identity
+import Control.Monad (ap)
 import Data.Functor
-import Data.Functor.Identity
 import Data.Monoid
 
+-- instances
+import Data.Functor.Identity
+import Control.Monad.Trans.Identity
 import qualified Data.Map as Map
 import Data.Map (Map)
-
 import qualified Data.IntMap as IntMap
-import Data.IntMap (Map)
-
-import Data.Seq (Seq)
+import Data.IntMap (IntMap)
+import Data.Sequence (Seq)
 import Data.Tree (Tree)
 
 infixl 4 <.>, <., .>, <..>, $>
@@ -121,15 +122,15 @@ instance Arrow a => FunctorApply (WrappedArrow a b) where
 
 -- | A Map is not 'Applicative', but it is an instance of 'FunctorApply'
 instance Ord k => FunctorApply (Map k) where
-  mf <.> ma = Map.intersectionWith id
-  mf <.  ma = Map.intersectionWith const
-  mf  .> ma = Map.intersectionWith (const id)
+  (<.>) = Map.intersectionWith id
+  (<. ) = Map.intersectionWith const
+  ( .>) = Map.intersectionWith (const id)
 
 -- | An IntMap is not Applicative, but it is an instance of 'FunctorApply'
 instance FunctorApply IntMap where
-  mf <.> ma = IntMap.intersectionWith id
-  mf <.  ma = IntMap.intersectionWith const
-  mf  .> ma = IntMap.intersectionWith (const id)
+  (<.>) = IntMap.intersectionWith id
+  (<. ) = IntMap.intersectionWith const
+  ( .>) = IntMap.intersectionWith (const id)
 
 instance FunctorApply Seq where
   (<.>) = ap
@@ -197,3 +198,12 @@ liftF2 f a b = f <$> a <.> b
 liftF3 :: FunctorApply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftF3 f a b c = f <$> a <.> b <.> c
 {-# INLINE liftF3 #-}
+
+instance Comonad f => Comonad (MaybeApply f) where
+  extract (MaybeApply (Right a)) = a
+  extract (MaybeApply (Left fa)) = extract fa
+  duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
+  duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
+
+instance FunctorApply (Cokleisli w a) where
+  Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
