@@ -34,7 +34,7 @@ import Control.Comonad
 import Control.Category
 import Control.Monad (ap)
 import Data.Functor
-import Data.Monoid
+import Data.Semigroup
 
 -- instances
 import Data.Functor.Identity
@@ -65,14 +65,17 @@ class Functor f => FunctorApply f where
   (<.) :: f a -> f b -> f a
   a <. b = const    <$> a <.> b
 
--- this only requires a Semigroup, but those don't exist
-instance Monoid m => FunctorApply ((,)m) where
-  (<.>) = (<*>)
-  (<. ) = (<* )
-  ( .>) = ( *>)
+instance Semigroup m => FunctorApply ((,)m) where
+  (m, f) <.> (n, a) = (m <> n, f a)
+  (m, a) <.  (n, _) = (m <> n, a) 
+  (m, _)  .> (n, b) = (m <> n, b)
 
--- this only requires a Semigroup, but those don't exist
-instance Monoid m => FunctorApply ((->)m) where
+instance Semigroup m => FunctorApply (Const m) where
+  Const m <.> Const n = Const (m <> n)
+  Const m <.  Const n = Const (m <> n)
+  Const m  .> Const n = Const (m <> n)
+
+instance FunctorApply ((->)m) where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
@@ -106,11 +109,6 @@ instance FunctorApply w => FunctorApply (IdentityT w) where
   IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
 
 instance Monad m => FunctorApply (WrappedMonad m) where
-  (<.>) = (<*>) 
-  (<. ) = (<* )
-  ( .>) = ( *>)
-
-instance Monoid m => FunctorApply (Const m) where
   (<.>) = (<*>) 
   (<. ) = (<* )
   ( .>) = ( *>)

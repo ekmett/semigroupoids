@@ -2,8 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Comonad.Apply
--- Copyright   :  (C) 2008-2011 Edward Kmett,
---                (C) 2004 Dave Menendez
+-- Copyright   :  (C) 2011 Edward Kmett,
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -16,7 +15,6 @@ module Control.Comonad.Apply (
   -- * FunctorApply
     module Control.Comonad
   , module Data.Functor.Apply
-
   -- * ComonadApply - strong lax symmetric semimonoidal comonads
   , ComonadApply
   , liftW2    -- :: ComonadApply w => (a -> b -> c) -> w a -> w b -> w c
@@ -29,7 +27,8 @@ import Control.Comonad
 import Control.Monad.Trans.Identity
 import Data.Functor.Apply
 import Data.Functor.Identity
-import Data.Monoid
+import Data.Monoid (Monoid)
+import Data.Semigroup (Semigroup(..))
 
 {- | 
 
@@ -48,9 +47,8 @@ FunctorApply that:
 -}
 
 class (Comonad w, FunctorApply w) => ComonadApply w
--- | Only requires a Semigroup, but no such class exists
-instance Monoid m => ComonadApply ((,)m)
--- | Only requires a Semigroup, but no such class exists
+-- | Both required because Semigroup is not a superclass of Monoid
+instance (Monoid m, Semigroup m) => ComonadApply ((,)m)
 instance Monoid m => ComonadApply ((->)m)
 instance ComonadApply Identity
 instance ComonadApply w => ComonadApply (IdentityT w)
