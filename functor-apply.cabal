@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.7.0
+version:       0.7.1
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -19,10 +19,12 @@ library
     transformers >= 0.2.0 && < 0.3,
     containers >= 0.4.0 && < 0.5,
     comonad >= 0.6.0 && < 0.7,
-    semigroups >= 0.1 && < 0.2
+    semigroups >= 0.2 && < 0.3
 
   exposed-modules:
     Data.Functor.Apply,
+    Data.Semigroup.Foldable,
+    Data.Semigroup.Traversable,
     Control.Comonad.Apply
 
   ghc-options: -Wall 
