@@ -28,11 +28,13 @@ module Data.Functor.Apply (
   ) where
 
 import Prelude hiding (id, (.))
-import Control.Applicative
+import Control.Applicative hiding (some, many)
+import qualified Control.Applicative as A
 import Control.Arrow
 import Control.Comonad
 import Control.Category
 import Control.Monad (ap)
+import Control.Monad.Instances
 import Data.Functor
 import Data.Semigroup
 
@@ -63,12 +65,25 @@ class Functor f => FunctorApply f where
 
   -- | a <. b = const <$> a <.> b
   (<.) :: f a -> f b -> f a
-  a <. b = const    <$> a <.> b
+  a <. b = const <$> a <.> b
 
 instance Semigroup m => FunctorApply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
   (m, a) <.  (n, _) = (m <> n, a) 
   (m, _)  .> (n, b) = (m <> n, b)
+
+instance FunctorApply (Either a) where
+  Left a  <.> _       = Left a
+  Right _ <.> Left a  = Left a
+  Right f <.> Right b = Right (f b)
+
+  Left a  <.  _       = Left a
+  Right _ <.  Left a  = Left a
+  Right a <.  Right _ = Right a
+
+  Left a   .> _       = Left a
+  Right _  .> Left a  = Left a
+  Right _  .> Right b = Right b
 
 instance Semigroup m => FunctorApply (Const m) where
   Const m <.> Const n = Const (m <> n)
@@ -98,6 +113,11 @@ instance FunctorApply IO where
 instance FunctorApply Maybe where
   (<.>) = (<*>)
   (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance FunctorApply Option where
+  (<.>) = (<*>)
+  (<. ) = (<* ) 
   ( .>) = ( *>)
 
 instance FunctorApply Identity where
@@ -139,21 +159,21 @@ instance FunctorApply Tree where
   ( .>) = ( *>) 
 
 -- | Wrap an 'Applicative' to be used as a member of 'FunctorApply'
-newtype WrappedApplicative f a = WrappedApplicative { unwrapApplicative :: f a } 
+newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a } 
 
 instance Functor f => Functor (WrappedApplicative f) where
-  fmap f (WrappedApplicative a) = WrappedApplicative (f <$> a)
+  fmap f (WrapApplicative a) = WrapApplicative (f <$> a)
 
 instance Applicative f => FunctorApply (WrappedApplicative f) where
-  WrappedApplicative f <.> WrappedApplicative a = WrappedApplicative (f <*> a)
-  WrappedApplicative a <.  WrappedApplicative b = WrappedApplicative (a <*  b)
-  WrappedApplicative a  .> WrappedApplicative b = WrappedApplicative (a  *> b)
+  WrapApplicative f <.> WrapApplicative a = WrapApplicative (f <*> a)
+  WrapApplicative a <.  WrapApplicative b = WrapApplicative (a <*  b)
+  WrapApplicative a  .> WrapApplicative b = WrapApplicative (a  *> b)
 
 instance Applicative f => Applicative (WrappedApplicative f) where
-  pure = WrappedApplicative . pure
-  WrappedApplicative f <*> WrappedApplicative a = WrappedApplicative (f <*> a)
-  WrappedApplicative a <*  WrappedApplicative b = WrappedApplicative (a <*  b)
-  WrappedApplicative a  *> WrappedApplicative b = WrappedApplicative (a  *> b)
+  pure = WrapApplicative . pure
+  WrapApplicative f <*> WrapApplicative a = WrapApplicative (f <*> a)
+  WrapApplicative a <*  WrapApplicative b = WrapApplicative (a <*  b)
+  WrapApplicative a  *> WrapApplicative b = WrapApplicative (a  *> b)
 
 -- | Transform a FunctorApply into an Applicative by adding a unit.
 newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
