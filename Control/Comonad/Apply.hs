@@ -32,7 +32,7 @@ import Data.Semigroup (Semigroup(..))
 
 {- | 
 
-A strong lax symmetric semi-monoidal comonad. As such an instance of 
+A strong lax symmetric semi-monoidal comonad. As such, an instance of 
 'ComonadApply' is required to satisfy:
 
 > extract (a <.> b) = extract a (extract b)
@@ -46,10 +46,10 @@ FunctorApply that:
 
 -}
 
-class (Comonad w, FunctorApply w) => ComonadApply w
+class (Comonad w, Apply w) => ComonadApply w
 -- | Both required because Semigroup is not a superclass of Monoid
 instance (Monoid m, Semigroup m) => ComonadApply ((,)m)
-instance Monoid m => ComonadApply ((->)m)
+instance (Monoid m, Semigroup m)  => ComonadApply ((->)m)
 instance ComonadApply Identity
 instance ComonadApply w => ComonadApply (IdentityT w)
 instance ComonadApply w => ComonadApply (MaybeApply w)

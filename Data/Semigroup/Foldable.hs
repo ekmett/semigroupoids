@@ -32,22 +32,22 @@ class Foldable t => Foldable1 t where
 
 newtype Act f a = Act { getAct :: f a }
 
-instance FunctorApply f => Semigroup (Act f a) where
+instance Apply f => Semigroup (Act f a) where
   Act a <> Act b = Act (a .> b)
 
 instance Functor f => Functor (Act f) where
   fmap f (Act a) = Act (f <$> a)
   b <$ Act a = Act (b <$ a)
 
-traverse1_ :: (Foldable1 t, FunctorApply f) => (a -> f b) -> t a -> f ()
+traverse1_ :: (Foldable1 t, Apply f) => (a -> f b) -> t a -> f ()
 traverse1_ f t = () <$ getAct (foldMap1 (Act . f) t)
 {-# INLINE traverse1_ #-}
 
-for1_ :: (Foldable1 t, FunctorApply f) => t a -> (a -> f b) -> f ()
+for1_ :: (Foldable1 t, Apply f) => t a -> (a -> f b) -> f ()
 for1_ = flip traverse1_
 {-# INLINE for1_ #-}
 
-sequenceA1_ :: (Foldable1 t, FunctorApply f) => t (f a) -> f ()
+sequenceA1_ :: (Foldable1 t, Apply f) => t (f a) -> f ()
 sequenceA1_ t = () <$ getAct (foldMap1 Act t)
 {-# INLINE sequenceA1_ #-}
 

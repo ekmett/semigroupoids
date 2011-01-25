@@ -21,8 +21,8 @@ import Data.Traversable
 import Data.Semigroup
 
 class (Foldable1 t, Traversable t) => Traversable1 t where
-  traverse1 :: FunctorApply f => (a -> f b) -> t a -> f (t b)
-  sequence1 :: FunctorApply f => t (f b) -> f (t b)
+  traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
+  sequence1 :: Apply f => t (f b) -> f (t b)
 
   sequence1 = traverse1 id
   traverse1 f = sequence1 . fmap f
