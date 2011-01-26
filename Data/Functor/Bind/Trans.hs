@@ -34,6 +34,7 @@ import Data.Monoid
 import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
 
+-- | A subset of monad transformers can transform any 'Bind' as well.
 class MonadTrans t => BindTrans t where
   liftB :: Bind b => b a -> t b a
 
