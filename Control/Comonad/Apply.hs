@@ -35,14 +35,14 @@ import Data.Semigroup (Semigroup(..))
 A strong lax symmetric semi-monoidal comonad. As such, an instance of 
 'ComonadApply' is required to satisfy:
 
-> extract (a <.> b) = extract a (extract b)
+> extract (a <.> b) = extract a $ extract b
 
 This class is based on ComonadZip from \"The Essence of Dataflow Programming\" 
 by Tarmo Uustalu and Varmo Vene, but adapted to fit the programming style of
 Control.Applicative. 'Applicative' can be seen as a similar law over and above 
-FunctorApply that:
+Apply that:
 
-> pure (a b) = pure a <.> pure b
+> pure (a $ b) = pure a <.> pure b
 
 -}
 

@@ -32,6 +32,12 @@ import Data.Sequence (Seq)
 
 infixl 3 <!> 
 
+-- | Laws:
+-- 
+-- > <!> is associative:             (a <!> b) <!> c = a <!> (b <!> c)
+-- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
+-- > <$> left-distributes over <!>:  f <$> (a <!> b) = (f <$> a) <!> (f <$> b)
+
 class Apply f => Alt f where
   (<!>) :: f a -> f a -> f a
 
