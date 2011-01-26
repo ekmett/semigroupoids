@@ -41,8 +41,9 @@ import Control.Category
 import Control.Comonad
 import Control.Monad (ap)
 import Control.Monad.Instances
-import Control.Monad.Trans.Identity
+import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
+import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.List
@@ -96,6 +97,7 @@ instance (Apply f, Apply g) => Apply (Compose f g) where
 
 instance (Apply f, Apply g) => Apply (Product f g) where
   Pair f g <.> Pair x y = Pair (f <.> x) (g <.> y)
+
 
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
@@ -192,7 +194,7 @@ instance Apply Tree where
 
 -- instance Applicative m => Applicative (MaybeT m) where
 --   pure = MaybeT . pure . Just
---   f <*> a = MaybeT $ (<*>) <$> runMaybeT f <*> runMaybeT a
+--   MaybeT f <*> MaybeT a = MaybeT $ (<*>) <$> f <*> a
 
 instance Apply m => Apply (MaybeT m) where
   MaybeT f <.> MaybeT a = MaybeT $ (<.>) <$> f <.> a
@@ -227,6 +229,8 @@ instance (Bind m, Semigroup w) => Apply (Strict.RWST r w s m) where
 instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
 
+instance Apply (ContT r m) where
+  ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
 
 -- | Wrap an 'Applicative' to be used as a member of 'Apply'
 newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a } 
@@ -350,6 +354,11 @@ instance Bind (Either a) where
   Left a  >>- _ = Left a
   Right a >>- f = f a 
 
+instance (Bind f, Bind g) => Bind (Product f g) where
+  Pair m n >>- f = Pair (m >>- fstP . f) (n >>- sndP . f) where
+    fstP (Pair a _) = a
+    sndP (Pair _ b) = b
+
 instance Bind ((->)m) where
   f >>- g = \e -> g (f e) e 
 
@@ -423,6 +432,9 @@ instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
     Strict.runRWST m r s >>- \ (a, s', w) ->
     Strict.runRWST (k a) r s' `returning` \ (b, s'', w') -> 
       (b, s'', w <> w')
+
+instance Bind (ContT r m) where
+  m >>- k = ContT $ \c -> runContT m $ \a -> runContT (k a) c
 
 {-
 instance ArrowApply a => Bind (WrappedArrow a b) where

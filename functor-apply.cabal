@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.9.1
+version:       0.9.2
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -9,8 +9,35 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://comonad.com/reader/
 copyright:     Copyright (C) 2011 Edward A. Kmett
-synopsis:      Strong lax semimonoidal endofunctors (Applicative sans pure)
-description:   Strong lax semimonoidal endofunctors (Applicative sans pure)
+synopsis:      Applicative sans pure, Monad sans return, Alternative sans empty
+description:   
+  Provides a wide array of semigroup based Functors.
+  .
+  When working with comonads you often have the @\<*\>@ portion of an @Applicative@, but
+  not the @pure@. This was captured in Uustalu and Vene's \"Essence of Dataflow Programming\"
+  in the form of the @ComonadZip@ class in the days before @Applicative@, manifested here
+  as @ComonadApply@.
+  .
+  Logically:
+  .
+  > Functor -----> Apply -------------> Bind
+  >   |           / |   \                |
+  >   v          /  v    v               v
+  > Extend      /  Alt  Applicative -> Monad
+  >   |        /    |       |            |
+  >   v       /     v       v            |
+  > Comonad  /    ApplicativeAlt         |
+  >   |     /           |                |
+  >   v    v            v                v
+  > ComonadApply   Alternative --> MonadPlus
+  . 
+  This lets us remove many of the restrictions from various (co)monad transformers
+  as in many cases the (co)binding operation or @\<*\>@ operation does not require them.
+  .
+  Finally, to work with these weaker structures it is beneficial to have containers
+  that can provide stronger guarantees about their contents, so versions of 'Traversable'
+  and 'Foldable' that can be folded with just a semigroup are added.
+
 build-type:    Simple
 
 library
@@ -25,6 +52,7 @@ library
     Data.Functor.Alt,
     Data.Functor.Apply,
     Data.Functor.Bind,
+    Data.Functor.Bind.Trans,
     Data.Semigroup.Foldable,
     Data.Semigroup.Traversable,
     Control.Applicative.Alt
