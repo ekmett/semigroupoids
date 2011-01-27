@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.9.2
+version:       0.9.3
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -36,7 +36,7 @@ description:
   .
   Finally, to work with these weaker structures it is beneficial to have containers
   that can provide stronger guarantees about their contents, so versions of 'Traversable'
-  and 'Foldable' that can be folded with just a semigroup are added.
+  and 'Foldable' that can be folded with just a 'Semigroup' are added.
 
 build-type:    Simple
 

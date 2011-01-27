@@ -118,10 +118,10 @@ instance Alt f => Alt (IdentityT f) where
 instance Alt f => Alt (ReaderT e f) where
   ReaderT a <!> ReaderT b = ReaderT $ \e -> a e <!> b e
 
-instance Apply f => Alt (MaybeT f) where
+instance (Bind f, Monad f) => Alt (MaybeT f) where
   MaybeT a <!> MaybeT b = MaybeT $ (<!>) <$> a <.> b
   
-instance Apply f => Alt (ErrorT e f) where
+instance (Bind f, Monad f) => Alt (ErrorT e f) where
   ErrorT a <!> ErrorT b = ErrorT $ (<!>) <$> a <.> b
 
 instance Apply f => Alt (ListT f) where

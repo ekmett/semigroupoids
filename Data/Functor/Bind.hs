@@ -190,17 +190,13 @@ instance Apply Tree where
   (<. ) = (<* ) 
   ( .>) = ( *>) 
 
--- TODO: submit the following replacement to transformers:
+-- MaybeT is _not_ the same as Compose f Maybe
+instance (Bind m, Monad m) => Apply (MaybeT m) where
+  (<.>) = apDefault
 
--- instance Applicative m => Applicative (MaybeT m) where
---   pure = MaybeT . pure . Just
---   MaybeT f <*> MaybeT a = MaybeT $ (<*>) <$> f <*> a
-
-instance Apply m => Apply (MaybeT m) where
-  MaybeT f <.> MaybeT a = MaybeT $ (<.>) <$> f <.> a
-
-instance Apply m => Apply (ErrorT e m) where
-  ErrorT f <.> ErrorT a = ErrorT $ (<.>) <$> f <.> a
+-- ErrorT e is _not_ the same as Compose f (Either e)
+instance (Bind m, Monad m) => Apply (ErrorT e m) where
+  (<.>) = apDefault
 
 instance Apply m => Apply (ReaderT e m) where
   ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e 
@@ -389,7 +385,7 @@ instance (Bind m, Monad m) => Bind (MaybeT m) where
 instance (Bind m, Monad m) => Bind (ListT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @[]@
 
-instance (Apply m, Monad m) => Bind (ErrorT e m) where
+instance (Bind m, Monad m) => Bind (ErrorT e m) where
   m >>- k = ErrorT $ do
     a <- runErrorT m 
     case a of
