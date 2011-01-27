@@ -98,7 +98,6 @@ instance (Apply f, Apply g) => Apply (Compose f g) where
 instance (Apply f, Apply g) => Apply (Product f g) where
   Pair f g <.> Pair x y = Pair (f <.> x) (g <.> y)
 
-
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
   (m, a) <.  (n, _) = (m <> n, a) 
@@ -244,6 +243,10 @@ instance Applicative f => Applicative (WrappedApplicative f) where
   WrapApplicative f <*> WrapApplicative a = WrapApplicative (f <*> a)
   WrapApplicative a <*  WrapApplicative b = WrapApplicative (a <*  b)
   WrapApplicative a  *> WrapApplicative b = WrapApplicative (a  *> b)
+
+instance Alternative f => Alternative (WrappedApplicative f) where
+  empty = WrapApplicative empty
+  WrapApplicative a <|> WrapApplicative b = WrapApplicative (a <|> b)
 
 -- | Transform a Apply into an Applicative by adding a unit.
 newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
@@ -450,3 +453,7 @@ instance Bind Seq where
 
 instance Bind Tree where
   (>>-) = (>>=)
+
+instance (Comonad w, Apply w) => ArrowLoop (Cokleisli w) where
+  loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where
+    f' wa wb = f ((,) <$> wa <.> (snd <$> wb))

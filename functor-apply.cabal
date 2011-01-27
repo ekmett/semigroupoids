@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.9.3
+version:       0.9.4
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -53,9 +53,8 @@ library
     Data.Functor.Apply,
     Data.Functor.Bind,
     Data.Functor.Bind.Trans,
+    Data.Functor.Plus,
     Data.Semigroup.Foldable,
-    Data.Semigroup.Traversable,
-    Control.Applicative.Alt
-    Control.Comonad.Apply
+    Data.Semigroup.Traversable
 
   ghc-options: -Wall 

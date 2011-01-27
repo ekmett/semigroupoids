@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
@@ -51,7 +52,7 @@ infixl 3 <!>
 -- If extended to an 'Alternative' then '<!>' should equal '<|>'.
 --
 -- Ideally, an instance of 'Alt' also satisfies the \"left distributon\" law of 
--- MonadPlus:
+-- MonadPlus with respect to <.>:
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 -- 
@@ -71,9 +72,20 @@ infixl 3 <!>
 -- > (m <!> n) >>- f = (m >>- f) <!> (m >>- f)
 -- > (m <!> n) >>= f = (m >>= f) <!> (m >>= f)
 
-class Apply f => Alt f where
+class Functor f => Alt f where
   -- | @(<|>)@ without a required @empty@
   (<!>) :: f a -> f a -> f a
+
+  some :: Applicative f => f a -> f [a]
+  some v = some_v
+    where many_v = some_v <!> pure []
+          some_v = (:) <$> v <*> many_v
+
+  many :: Applicative f => f a -> f [a]
+  many v = many_v
+    where many_v = some_v <!> pure []
+          some_v = (:) <$> v <*> many_v
+
 
 instance Alt (Either a) where
   Left _ <!> b = b
@@ -119,28 +131,36 @@ instance Alt f => Alt (ReaderT e f) where
   ReaderT a <!> ReaderT b = ReaderT $ \e -> a e <!> b e
 
 instance (Bind f, Monad f) => Alt (MaybeT f) where
-  MaybeT a <!> MaybeT b = MaybeT $ (<!>) <$> a <.> b
+  MaybeT a <!> MaybeT b = MaybeT $ do
+    v <- a
+    case v of
+      Nothing -> b
+      Just _ -> return v
   
 instance (Bind f, Monad f) => Alt (ErrorT e f) where
-  ErrorT a <!> ErrorT b = ErrorT $ (<!>) <$> a <.> b
+  ErrorT m <!> ErrorT n = ErrorT $ do
+    a <- m
+    case a of
+      Left _ -> n
+      Right r -> return (Right r)
 
 instance Apply f => Alt (ListT f) where
   ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
 
-instance (Bind f, Alt f) => Alt (Strict.StateT e f) where
+instance Alt f => Alt (Strict.StateT e f) where
   Strict.StateT m <!> Strict.StateT n = Strict.StateT $ \s -> m s <!> n s
   
-instance (Bind f, Alt f) => Alt (Lazy.StateT e f) where
+instance Alt f => Alt (Lazy.StateT e f) where
   Lazy.StateT m <!> Lazy.StateT n = Lazy.StateT $ \s -> m s <!> n s
 
-instance (Alt f, Semigroup w) => Alt (Strict.WriterT w f) where
+instance Alt f => Alt (Strict.WriterT w f) where
   Strict.WriterT m <!> Strict.WriterT n = Strict.WriterT $ m <!> n
   
-instance (Alt f, Semigroup w) => Alt (Lazy.WriterT w f) where
+instance Alt f => Alt (Lazy.WriterT w f) where
   Lazy.WriterT m <!> Lazy.WriterT n = Lazy.WriterT $ m <!> n
   
-instance (Bind f, Alt f, Semigroup w) => Alt (Strict.RWST r w s f) where
+instance Alt f => Alt (Strict.RWST r w s f) where
   Strict.RWST m <!> Strict.RWST n = Strict.RWST $ \r s -> m r s <!> n r s
 
-instance (Bind f, Alt f, Semigroup w) => Alt (Lazy.RWST r w s f) where
+instance Alt f => Alt (Lazy.RWST r w s f) where
   Lazy.RWST m <!> Lazy.RWST n = Lazy.RWST $ \r s -> m r s <!> n r s

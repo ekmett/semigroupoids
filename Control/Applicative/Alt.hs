@@ -21,7 +21,7 @@ import Data.Functor.Alt
 import Data.Semigroup
 -- import Data.Sequence (Seq)
 
-class (Applicative f, Alt f) => ApplicativeAlt f where
+class (Applicative f, Apply f, Alt f) => ApplicativeAlt f where
   some :: f a -> f [a]
   some v = some_v
     where many_v = some_v <!> pure []
