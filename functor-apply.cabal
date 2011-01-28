@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.10.0.1
+version:       0.10.0.2
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -15,8 +15,7 @@ description:
   .
   When working with comonads you often have the @\<*\>@ portion of an @Applicative@, but
   not the @pure@. This was captured in Uustalu and Vene's \"Essence of Dataflow Programming\"
-  in the form of the @ComonadZip@ class in the days before @Applicative@, manifested here
-  as @ComonadApply@.
+  in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved.
   .
   Logically:
   .
