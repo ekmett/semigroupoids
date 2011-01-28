@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.10.0
+version:       0.10.0.1
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -20,19 +20,16 @@ description:
   .
   Logically:
   .
-  > Functor -----> Apply -------------> Bind
-  >   |           / |   \                |
-  >   v          /  v    v               v
-  > Extend      /  Alt  Applicative -> Monad
-  >   |        /    |       |            |
-  >   v       /     v       v            |
-  > Comonad  /    ApplicativeAlt         |
-  >   |     /           |                |
-  >   v    v            v                v
-  > ComonadApply   Alternative --> MonadPlus
+  > Functor ---> Apply --------> Bind
+  >    |           |              |
+  >    |           v              v
+  >    |      Applicative ---> Monad
+  >    |           |              |
+  >    v           v              v
+  >   Alt ->  Alternative -> MonadPlus
   . 
-  This lets us remove many of the restrictions from various (co)monad transformers
-  as in many cases the (co)binding operation or @\<*\>@ operation does not require them.
+  This lets us remove many of the restrictions from various monad transformers
+  as in many cases the binding operation or @\<*\>@ operation does not require them.
   .
   Finally, to work with these weaker structures it is beneficial to have containers
   that can provide stronger guarantees about their contents, so versions of 'Traversable'
