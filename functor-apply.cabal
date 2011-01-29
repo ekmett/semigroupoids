@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.10.0.2
+version:       0.10.1
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -9,7 +9,7 @@ maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://comonad.com/reader/
 copyright:     Copyright (C) 2011 Edward A. Kmett
-synopsis:      Applicative sans pure, Monad sans return, Alternative sans empty
+synopsis:      Haskell 98: Applicative sans pure, Monad sans return, Alternative sans empty
 description:   
   Provides a wide array of semigroup based Functors.
   .
@@ -21,11 +21,28 @@ description:
   .
   > Functor -> Apply -------> Bind
   >  |           |             |
-  >  |           v             v
-  >  |      Applicative ---> Monad
+  >  v           v             v
+  > Alt     Applicative ---> Monad
   >  |           |             |
   >  v           v             v
-  > Alt --> Alternative -> MonadPlus
+  > Plus -> Alternative -> MonadPlus
+  .
+  > Functor 
+  >    | 
+  >    v     
+  > Foldable ----> Foldable1
+  >    |               |
+  >    v               v
+  > Traversable -> Traversable1
+  .
+  > Bifunctor -----> Biapply
+  >     |
+  >     v
+  > Bifoldable ----> Bifoldable1
+  >     |                  |
+  >     v                  v
+  > Bitraversable -> Bitraversable1
+
   . 
   This lets us remove many of the restrictions from various monad transformers
   as in many cases the binding operation or @\<*\>@ operation does not require them.
@@ -42,14 +59,18 @@ library
     transformers >= 0.2.0 && < 0.3,
     containers >= 0.4.0 && < 0.5,
     comonad >= 0.9.0 && < 1.0,
-    semigroups >= 0.3.2 && < 0.4
+    semigroups >= 0.3.2 && < 0.4,
+    bifunctors >= 0.1 && < 0.2
 
   exposed-modules:
+    Data.Bifunctor.Apply,
     Data.Functor.Alt,
     Data.Functor.Apply,
     Data.Functor.Bind,
     Data.Functor.Bind.Trans,
     Data.Functor.Plus,
+    Data.Semigroup.Bifoldable,
+    Data.Semigroup.Bitraversable
     Data.Semigroup.Foldable,
     Data.Semigroup.Traversable
 
