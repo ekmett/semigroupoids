@@ -1,21 +1,27 @@
-name:          functor-apply
+name:          semigroupoids
 category:      Control, Comonads
-version:       0.10.5
+version:       1.0.0
 license:       BSD3
-cabal-version: >= 1.2
+cabal-version: >= 1.6
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
-homepage:      http://comonad.com/reader/
+homepage:      http://github.com/ekmett/semigroupoids
 copyright:     Copyright (C) 2011 Edward A. Kmett
-synopsis:      Haskell 98: Applicative sans pure, Monad sans return, Alternative sans empty
+build-type:    Simple
+synopsis:      Haskell 98: Semigroupoids: Categories sans id, Applicative sans pure, Monad sans return, Alternative sans empty
 description:   
-  Provides a wide array of semigroup based Functors.
+  Provides a wide array of semigroupoids and operations for working with semigroupds.
+  .
+  A Semigroupoid is a Category without the requirement of identity arrows for every object in the category.
   .
   When working with comonads you often have the @\<*\>@ portion of an @Applicative@, but
   not the @pure@. This was captured in Uustalu and Vene's \"Essence of Dataflow Programming\"
-  in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved.
+  in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved. Applicative function composition forms a semigroupoid. 
+  .
+  Similarly many structures are nearly a comonad, but not quite, for instance lists provide a reasonable 'extend' operation in the form of 'tails', but do not always contain a value.
+  .
   .
   Ideally the following relationships would hold:
   .
@@ -44,7 +50,9 @@ description:
   that can provide stronger guarantees about their contents, so versions of 'Traversable'
   and 'Foldable' that can be folded with just a 'Semigroup' are added.
 
-build-type:    Simple
+source-repository head
+  type: git
+  location: git://github.com/ekmett/semigroupoids.git
 
 library
   build-depends: 
@@ -52,7 +60,7 @@ library
     transformers >= 0.2.0 && < 0.3,
     containers >= 0.4.0 && < 0.5,
     contravariant >= 0.1.2 && < 0.2,
-    comonad >= 0.9.0 && < 1.0,
+    comonad >= 1.0 && < 1.1, 
     semigroups >= 0.3.2 && < 0.4,
     bifunctors >= 0.1 && < 0.2
 
