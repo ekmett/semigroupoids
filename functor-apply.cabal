@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.10.4
+version:       0.10.5
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE

@@ -1,15 +1,18 @@
 {-# LANGUAGE CPP #-}
 module Control.Arrow.Static where
 
+import Control.Arrow
+import Control.Applicative
+import Control.Category
+import Control.Comonad
 import Control.Monad.Instances
 import Control.Monad (ap)
-import Prelude hiding ((.), id)
-import Data.Semigroupoid
-import Control.Applicative
 import Data.Functor.Apply
 import Data.Functor.Plus
-import Control.Category
-import Control.Arrow
+import Data.Monoid
+import Data.Semigroup
+import Data.Semigroupoid
+import Prelude hiding ((.), id)
 
 #ifdef LANGUAGE_DeriveDataTypeable 
 import Data.Typeable
@@ -35,6 +38,12 @@ instance Plus f => Plus (Static f a) where
 instance Applicative f => Applicative (Static f a) where
   pure = Static . pure . const 
   Static f <*> Static g = Static (ap <$> f <*> g)
+
+instance (Extend f, Semigroup a) => Extend (Static f a) where
+  extend f = Static . extend (\wf m -> f (Static (fmap (. (<>) m) wf))) . runStatic
+
+instance (Comonad f, Semigroup a, Monoid a) => Comonad (Static f a) where
+  extract (Static g) = extract g mempty
 
 instance Apply f => Semigroupoid (Static f) where
   Static f `o` Static g = Static ((.) <$> f <.> g)
