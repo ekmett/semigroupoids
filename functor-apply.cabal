@@ -1,6 +1,6 @@
 name:          functor-apply
 category:      Control, Comonads
-version:       0.10.1
+version:       0.10.3
 license:       BSD3
 cabal-version: >= 1.2
 license-file:  LICENSE
@@ -42,6 +42,8 @@ description:
   >     |                  |
   >     v                  v
   > Bitraversable -> Bitraversable1
+  .
+  > Semigroupoid --> Category
 
   . 
   This lets us remove many of the restrictions from various monad transformers
@@ -63,6 +65,7 @@ library
     bifunctors >= 0.1 && < 0.2
 
   exposed-modules:
+    Control.Arrow.Static
     Data.Bifunctor.Apply,
     Data.Functor.Alt,
     Data.Functor.Apply,
@@ -73,5 +76,6 @@ library
     Data.Semigroup.Bitraversable
     Data.Semigroup.Foldable,
     Data.Semigroup.Traversable
+    Data.Semigroupoid
 
   ghc-options: -Wall 
