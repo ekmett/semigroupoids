@@ -17,34 +17,25 @@ description:
   not the @pure@. This was captured in Uustalu and Vene's \"Essence of Dataflow Programming\"
   in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved.
   .
-  Logically:
+  Ideally the following relationships would hold:
   .
-  > Functor -> Apply -------> Bind
-  >  |           |             |
-  >  v           v             v
-  > Alt     Applicative ---> Monad
-  >  |           |             |
-  >  v           v             v
-  > Plus -> Alternative -> MonadPlus
-  .
-  > Functor 
-  >    | 
-  >    v     
-  > Foldable ----> Foldable1
-  >    |               |
-  >    v               v
-  > Traversable -> Traversable1
-  .
-  > Bifunctor -----> Biapply
-  >     |
-  >     v
-  > Bifoldable ----> Bifoldable1
-  >     |                  |
-  >     v                  v
-  > Bitraversable -> Bitraversable1
-  .
-  > Semigroupoid --> Category
-
+  > Traversable <---- Foldable <--- Functor ------> Alt ---------> Plus   
+  >      |               |            |                              |     
+  >      v               v            v                              v       
+  > Traversable1 <--- Foldable1     Apply --------> Applicative -> Alternative
+  >                                   |               |              |        
+  >                                   v               v              v       
+  >                                 Bind ---------> Monad -------> MonadPlus  
+  >                         
+  >                          
+  >
+  > Bitraversable <-- Bifoldable <- Bifunctor                      Semigroupoid
+  >     |                  |          |                              |
+  >     v                  v          v                              v
+  > Bitraversable1 <- Bifoldable1   Biapply                        Category
+  >                                                                  |
+  >                                                                  v
+  >                                                                Arrow
   . 
   This lets us remove many of the restrictions from various monad transformers
   as in many cases the binding operation or @\<*\>@ operation does not require them.
