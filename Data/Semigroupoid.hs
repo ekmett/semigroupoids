@@ -11,12 +11,14 @@
 -- A semigroupoid satisfies all of the requirements to be a Category except 
 -- for the existence of identity arrows.
 ----------------------------------------------------------------------------
-module Data.Semigroupoid (Semigroupoid(..)) where
+module Data.Semigroupoid (Semigroupoid(..), WrappedCategory(..)) where
 
 import Control.Arrow
 import Data.Functor.Bind
 import Control.Comonad
 import Data.Functor.Contravariant
+import Control.Category
+import Prelude hiding (id, (.))
 
 -- | 'Control.Category.Category' sans 'Control.Category.id'
 class Semigroupoid c where
@@ -33,3 +35,12 @@ instance Extend w => Semigroupoid (Cokleisli w) where
 
 instance Semigroupoid Op where
   Op f `o` Op g = Op (g `o` f)
+
+newtype WrappedCategory k a b = WrapCategory { unwrapCategory :: k a b } 
+
+instance Category k => Semigroupoid (WrappedCategory k) where
+  WrapCategory f `o` WrapCategory g = WrapCategory (f . g)
+
+instance Category k => Category (WrappedCategory k) where
+  id = WrapCategory id
+  WrapCategory f . WrapCategory g = WrapCategory (f . g)
