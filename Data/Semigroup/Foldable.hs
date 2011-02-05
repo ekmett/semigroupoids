@@ -17,11 +17,16 @@ module Data.Semigroup.Foldable
   , foldMapDefault1
   ) where
 
-import Prelude hiding (foldr)
+import Control.Monad.Trans.Identity
 import Data.Foldable
+import Data.Functor.Identity
 import Data.Functor.Apply
-import Data.Semigroup
-import Data.Monoid
+import Data.Functor.Product
+import Data.Functor.Compose
+import Data.Semigroup hiding (Product)
+import Data.Monoid hiding (Product)
+import Data.Traversable.Instances ()
+import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
   fold1 :: Semigroup m => t m -> m
@@ -29,6 +34,18 @@ class Foldable t => Foldable1 t where
 
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f) 
   fold1 = foldMap1 id
+
+instance Foldable1 Identity where
+  foldMap1 f = f . runIdentity
+
+instance Foldable1 m => Foldable1 (IdentityT m) where
+  foldMap1 f = foldMap1 f . runIdentityT
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (Compose f g) where
+  foldMap1 f = foldMap1 (foldMap1 f) . getCompose
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (Product f g) where
+  foldMap1 f (Pair a b) = foldMap1 f a <> foldMap1 f b
 
 newtype Act f a = Act { getAct :: f a }
 

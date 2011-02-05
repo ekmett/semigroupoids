@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
-module Control.Arrow.Static where
+module Data.Semigroupoid.Static 
+  ( Static(..)
+  ) where
 
 import Control.Arrow
 import Control.Applicative

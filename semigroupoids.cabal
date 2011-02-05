@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       1.0.1
+version:       1.1.1
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -10,7 +10,7 @@ stability:     provisional
 homepage:      http://github.com/ekmett/semigroupoids
 copyright:     Copyright (C) 2011 Edward A. Kmett
 build-type:    Simple
-synopsis:      Haskell 98: Semigroupoids: Categories sans id, Applicative sans pure, Monad sans return, Alternative sans empty
+synopsis:      Haskell 98 semigroupoids: Category sans id
 description:   
   Provides a wide array of semigroupoids and operations for working with semigroupds.
   .
@@ -35,14 +35,16 @@ description:
   >                         
   >                          
   >
-  > Bitraversable <-- Bifoldable <- Bifunctor                      Semigroupoid
+  > Bitraversable <-- Bifoldable <- Bifunctor                   Semigroupoid
   >     |                  |          |                              |
   >     v                  v          v                              v
-  > Bitraversable1 <- Bifoldable1   Biapply                        Category
+  > Bitraversable1 <- Bifoldable1   Biapply                       Category
   >                                                                  |
   >                                                                  v
   >                                                                Arrow
   . 
+  Apply, Bind, and Extract give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
+  .
   This lets us remove many of the restrictions from various monad transformers
   as in many cases the binding operation or @\<*\>@ operation does not require them.
   .
@@ -65,7 +67,6 @@ library
     bifunctors >= 0.1 && < 0.2
 
   exposed-modules:
-    Control.Arrow.Static
     Data.Bifunctor.Apply,
     Data.Functor.Alt,
     Data.Functor.Apply,
@@ -78,5 +79,7 @@ library
     Data.Semigroup.Traversable
     Data.Semigroupoid
     Data.Semigroupoid.Dual
+    Data.Semigroupoid.Static
+    Data.Traversable.Instances
 
   ghc-options: -Wall 

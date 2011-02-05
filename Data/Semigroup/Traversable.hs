@@ -15,10 +15,15 @@ module Data.Semigroup.Traversable
   ) where
 
 import Control.Applicative
+import Control.Monad.Trans.Identity
+import Data.Functor.Identity
 import Data.Functor.Apply
+import Data.Functor.Product
+import Data.Functor.Compose
 import Data.Semigroup.Foldable
 import Data.Traversable
-import Data.Semigroup
+import Data.Semigroup hiding (Product)
+import Data.Traversable.Instances ()
 
 class (Foldable1 t, Traversable t) => Traversable1 t where
   traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
@@ -29,3 +34,15 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
 
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
+
+instance Traversable1 Identity where
+  traverse1 f = fmap Identity . f . runIdentity
+
+instance Traversable1 f => Traversable1 (IdentityT f) where
+  traverse1 f = fmap IdentityT . traverse1 f . runIdentityT
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
+  traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Product f g) where
+  traverse1 f (Pair a b) = Pair <$> traverse1 f a <.> traverse1 f b

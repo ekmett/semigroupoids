@@ -11,12 +11,18 @@
 -- A semigroupoid satisfies all of the requirements to be a Category except 
 -- for the existence of identity arrows.
 ----------------------------------------------------------------------------
-module Data.Semigroupoid (Semigroupoid(..), WrappedCategory(..)) where
+module Data.Semigroupoid 
+  ( Semigroupoid(..)
+  , WrappedCategory(..)
+  , Semi(..)
+  ) where
 
 import Control.Arrow
 import Data.Functor.Bind
 import Control.Comonad
 import Data.Functor.Contravariant
+import Data.Semigroup
+import Data.Monoid
 import Control.Category
 import Prelude hiding (id, (.))
 
@@ -44,3 +50,12 @@ instance Category k => Semigroupoid (WrappedCategory k) where
 instance Category k => Category (WrappedCategory k) where
   id = WrapCategory id
   WrapCategory f . WrapCategory g = WrapCategory (f . g)
+
+newtype Semi m a b = Semi { getSemi :: m }
+
+instance Semigroup m => Semigroupoid (Semi m) where
+  Semi m `o` Semi n = Semi (m <> n)
+
+instance Monoid m => Category (Semi m) where
+  id = Semi mempty
+  Semi m . Semi n = Semi (m `mappend` n)
