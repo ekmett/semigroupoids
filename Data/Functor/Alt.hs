@@ -36,6 +36,7 @@ import Data.Functor.Bind
 import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
 import Data.Semigroup
+import Data.List.NonEmpty (NonEmpty(..))
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -120,6 +121,9 @@ instance Alt IntMap where
 
 instance Alt Seq where
   (<!>) = mappend
+
+instance Alt NonEmpty where
+  (a :| as) <!> ~(b :| bs) = a :| (as ++ b : bs)
 
 instance Alternative f => Alt (WrappedApplicative f) where
   WrapApplicative a <!> WrapApplicative b = WrapApplicative (a <|> b)

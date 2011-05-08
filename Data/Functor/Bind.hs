@@ -63,6 +63,7 @@ import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
 import qualified Data.Map as Map
 import Data.Map (Map)
+import Data.List.NonEmpty
 import Data.Semigroup hiding (Product)
 import Data.Sequence (Seq)
 import Data.Tree (Tree)
@@ -103,6 +104,9 @@ instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
   (m, a) <.  (n, _) = (m <> n, a) 
   (m, _)  .> (n, b) = (m <> n, b)
+
+instance Apply NonEmpty where
+  (<.>) = ap
 
 instance Apply (Either a) where
   Left a  <.> _       = Left a
@@ -363,6 +367,9 @@ instance Bind ((->)m) where
   f >>- g = \e -> g (f e) e 
 
 instance Bind [] where
+  (>>-) = (>>=)
+
+instance Bind NonEmpty where
   (>>-) = (>>=)
 
 instance Bind IO where
