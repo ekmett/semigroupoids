@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       1.2.1
+version:       1.2.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -25,23 +25,14 @@ description:
   .
   Ideally the following relationships would hold:
   .
-  > Traversable <---- Foldable <--- Functor ------> Alt ---------> Plus   
-  >      |               |            |                              |     
-  >      v               v            v                              v       
-  > Traversable1 <--- Foldable1     Apply --------> Applicative -> Alternative
-  >                                   |               |              |        
-  >                                   v               v              v       
-  >                                 Bind ---------> Monad -------> MonadPlus  
+  > Traversable <---- Foldable <--- Functor ------> Alt ---------> Plus           Semigroupoid
+  >      |               |            |                              |                  |
+  >      v               v            v                              v                  v
+  > Traversable1 <--- Foldable1     Apply --------> Applicative -> Alternative      Category
+  >                                   |               |              |                  |
+  >                                   v               v              v                  v
+  >                                 Bind ---------> Monad -------> MonadPlus          Arrow
   >                         
-  >                          
-  >
-  > Bitraversable <-- Bifoldable <- Bifunctor                   Semigroupoid
-  >     |                  |          |                              |
-  >     v                  v          v                              v
-  > Bitraversable1 <- Bifoldable1   Biapply                       Category
-  >                                                                  |
-  >                                                                  v
-  >                                                                Arrow
   . 
   Apply, Bind, and Extract give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
@@ -63,18 +54,14 @@ library
     containers >= 0.3 && < 0.5,
     contravariant >= 0.1.2 && < 0.2,
     comonad >= 1.1 && < 1.2, 
-    semigroups >= 0.5 && < 0.6,
-    bifunctors >= 0.1 && < 0.2
+    semigroups >= 0.5 && < 0.6
 
   exposed-modules:
-    Data.Bifunctor.Apply,
     Data.Functor.Alt,
     Data.Functor.Apply,
     Data.Functor.Bind,
     Data.Functor.Bind.Trans,
     Data.Functor.Plus,
-    Data.Semigroup.Bifoldable,
-    Data.Semigroup.Bitraversable
     Data.Semigroup.Foldable,
     Data.Semigroup.Traversable
     Data.Semigroupoid
