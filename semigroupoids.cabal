@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       1.2.2
+version:       1.2.2.1
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -49,7 +49,7 @@ source-repository head
 
 library
   build-depends: 
-    base >= 4 && < 4.4,
+    base >= 4 && < 5,
     transformers >= 0.2 && < 0.3,
     containers >= 0.3 && < 0.5,
     contravariant >= 0.1.2 && < 0.2,
