@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       1.2.2.1
+version:       1.2.2.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -54,7 +54,7 @@ library
     containers >= 0.3 && < 0.5,
     contravariant >= 0.1.2 && < 0.2,
     comonad >= 1.1 && < 1.2, 
-    semigroups >= 0.5 && < 0.6
+    semigroups >= 0.5 && < 0.7
 
   exposed-modules:
     Data.Functor.Alt,
