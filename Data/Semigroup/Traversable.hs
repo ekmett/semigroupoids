@@ -22,6 +22,7 @@ import Data.Functor.Product
 import Data.Functor.Compose
 import Data.Semigroup.Foldable
 import Data.Traversable
+import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup hiding (Product)
 import Data.Traversable.Instances ()
@@ -47,6 +48,10 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
 
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Product f g) where
   traverse1 f (Pair a b) = Pair <$> traverse1 f a <.> traverse1 f b
+
+instance Traversable1 Tree where
+  traverse1 f (Node a []) = (`Node`[]) <$> f a
+  traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
 
 instance Traversable1 NonEmpty where
   traverse1 f (a :| []) = (:|[]) <$> f a

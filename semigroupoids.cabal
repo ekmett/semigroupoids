@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       1.2.4
+version:       1.2.5
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE

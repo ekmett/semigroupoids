@@ -23,6 +23,7 @@ import Data.Functor.Identity
 import Data.Functor.Apply
 import Data.Functor.Product
 import Data.Functor.Compose
+import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup hiding (Product)
 import Data.Monoid hiding (Product)
@@ -35,6 +36,10 @@ class Foldable t => Foldable1 t where
 
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f) 
   fold1 = foldMap1 id
+
+instance Foldable1 Tree where
+  foldMap1 f (Node a []) = f a
+  foldMap1 f (Node a (x:xs)) = f a <> foldMap1 (foldMap1 f) (x :| xs)
 
 instance Foldable1 Identity where
   foldMap1 f = f . runIdentity
