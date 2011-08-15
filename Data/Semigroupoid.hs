@@ -22,7 +22,6 @@ import Data.Functor.Bind
 import Control.Comonad
 import Data.Functor.Contravariant
 import Data.Semigroup
-import Data.Monoid
 import Control.Category
 import Prelude hiding (id, (.))
 

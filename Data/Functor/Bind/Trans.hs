@@ -30,7 +30,6 @@ import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 import Data.Functor.Bind
-import Data.Monoid
 import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
 

@@ -40,7 +40,6 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.Monoid
 import Prelude hiding (id, (.))
 
 infixl 3 <!> 

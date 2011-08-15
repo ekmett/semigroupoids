@@ -39,7 +39,6 @@ import Data.Semigroup
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.Monoid
 import Prelude hiding (id, (.))
 
 -- | Laws:
