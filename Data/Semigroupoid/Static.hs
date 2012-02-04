@@ -11,7 +11,6 @@ import Control.Monad.Instances
 import Control.Monad (ap)
 import Data.Functor.Apply
 import Data.Functor.Plus
-import Data.Monoid
 import Data.Semigroup
 import Data.Semigroupoid
 import Prelude hiding ((.), id)
