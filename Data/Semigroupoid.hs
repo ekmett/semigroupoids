@@ -19,8 +19,8 @@ module Data.Semigroupoid
 
 import Control.Arrow
 import Data.Functor.Bind
-import Control.Comonad
 import Data.Functor.Contravariant
+import Control.Comonad
 import Data.Semigroup
 import Control.Category
 import Prelude hiding (id, (.))
