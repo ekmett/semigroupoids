@@ -54,8 +54,6 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
-import Data.Functor
-import Data.Functor.Extend
 import Data.Functor.Compose
 import Data.Functor.Identity
 import Data.Functor.Product

@@ -25,7 +25,6 @@ import Data.Traversable
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup hiding (Product)
-import Data.Traversable.Instances ()
 
 class (Foldable1 t, Traversable t) => Traversable1 t where
   traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)

@@ -26,7 +26,6 @@ import Data.Functor.Compose
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup hiding (Product)
-import Data.Traversable.Instances ()
 import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
