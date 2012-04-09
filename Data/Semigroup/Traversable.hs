@@ -22,6 +22,7 @@ import Data.Functor.Product
 import Data.Functor.Compose
 import Data.Semigroup.Foldable
 import Data.Traversable
+import Data.Traversable.Instances ()
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup hiding (Product)

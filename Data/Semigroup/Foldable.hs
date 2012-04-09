@@ -25,6 +25,7 @@ import Data.Functor.Product
 import Data.Functor.Compose
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
+import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product)
 import Prelude hiding (foldr)
 

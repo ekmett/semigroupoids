@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- A semigroupoid satisfies all of the requirements to be a Category except 
+-- A semigroupoid satisfies all of the requirements to be a Category except
 -- for the existence of identity arrows.
 ----------------------------------------------------------------------------
 module Data.Semigroupoid.Dual (Dual(..)) where
@@ -17,7 +17,7 @@ import Data.Semigroupoid
 import Control.Category
 import Prelude ()
 
-newtype Dual k a b = Dual { getDual :: k b a } 
+newtype Dual k a b = Dual { getDual :: k b a }
 
 instance Semigroupoid k => Semigroupoid (Dual k) where
   Dual f `o` Dual g = Dual (g `o` f)
