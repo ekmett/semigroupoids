@@ -8,17 +8,19 @@ author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
 stability:     provisional
 homepage:      http://github.com/ekmett/semigroupoids
+bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011 Edward A. Kmett
 build-type:    Simple
 synopsis:      Haskell 98 semigroupoids: Category sans id
-description:   
+extra-source-files: .travis.yml
+description:
   Provides a wide array of semigroupoids and operations for working with semigroupds.
   .
   A Semigroupoid is a Category without the requirement of identity arrows for every object in the category.
   .
   When working with comonads you often have the @\<*\>@ portion of an @Applicative@, but
   not the @pure@. This was captured in Uustalu and Vene's \"Essence of Dataflow Programming\"
-  in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved. Applicative function composition forms a semigroupoid. 
+  in the form of the @ComonadZip@ class in the days before @Applicative@. Apply provides a weaker invariant, but for the comonads used for data flow programming (found in the streams package), this invariant is preserved. Applicative function composition forms a semigroupoid.
   .
   Similarly many structures are nearly a comonad, but not quite, for instance lists provide a reasonable 'extend' operation in the form of 'tails', but do not always contain a value.
   .
@@ -32,8 +34,8 @@ description:
   >                                   |               |              |                  |
   >                                   v               v              v                  v
   >                                 Bind ---------> Monad -------> MonadPlus          Arrow
-  >                         
-  . 
+  >
+  .
   Apply, Bind, and Extract give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
   This lets us remove many of the restrictions from various monad transformers
