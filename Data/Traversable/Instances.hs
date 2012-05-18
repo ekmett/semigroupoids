@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.Traversable.Instances where
 
-#if !MIN_VERSION_transformers(0,3,0)
+#if !(MIN_VERSION_transformers(0,3,0))
 import Control.Monad.Trans.Identity
 import Data.Foldable
 import Data.Traversable
