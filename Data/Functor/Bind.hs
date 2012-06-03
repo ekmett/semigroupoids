@@ -84,11 +84,11 @@ infixl 4 <.>, <., .>, <..>, $>
 class Functor f => Apply f where
   (<.>) :: f (a -> b) -> f a -> f b
 
-  -- | a .> b = const id <$> a <.> b
+  -- | > a  .> b = const id <$> a <.> b
   (.>) :: f a -> f b -> f b
   a .> b = const id <$> a <.> b
 
-  -- | a <. b = const <$> a <.> b
+  -- | > a <. b = const <$> a <.> b
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
 
