@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE CPP, FlexibleContexts, ScopedTypeVariables #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
@@ -17,7 +17,7 @@ module Data.Functor.Alt
 
 import Control.Applicative hiding (some, many)
 import Control.Arrow
--- import Control.Exception
+import Control.Exception (catch, SomeException)
 import Control.Monad
 import Control.Monad.Trans.Identity
 -- import Control.Monad.Trans.Cont
@@ -40,7 +40,11 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Prelude hiding (id, (.))
+import Prelude hiding (id,
+#if __GLASGOW_HASKELL__ < 705
+                       catch,
+#endif
+                       (.))
 
 infixl 3 <!> 
 
@@ -94,7 +98,7 @@ instance Alt (Either a) where
 -- | This instance does not actually satisfy the (<.>) right distributive law
 -- It instead satisfies the "Left-Catch" law
 instance Alt IO where
-  m <!> n = m `catch` \_ -> n
+  m <!> n = m `catch` \(_ :: SomeException) -> n
 
 instance Alt [] where
   (<!>) = (++)
