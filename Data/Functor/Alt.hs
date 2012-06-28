@@ -41,7 +41,7 @@ import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
 import Prelude hiding (id,
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 705
+#if !MIN_VERSION_base(4,6,0)
                        catch,
 #endif
                        (.))
