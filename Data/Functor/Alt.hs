@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP, FlexibleContexts, ScopedTypeVariables #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
@@ -20,7 +19,6 @@ import Control.Arrow
 import Control.Exception (catch, SomeException)
 import Control.Monad
 import Control.Monad.Trans.Identity
--- import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
@@ -40,34 +38,30 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Prelude hiding (id,
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 705
-                       catch,
-#endif
-                       (.))
+import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++))
 
-infixl 3 <!> 
+infixl 3 <!>
 
 -- | Laws:
--- 
+--
 -- > <!> is associative:             (a <!> b) <!> c = a <!> (b <!> c)
 -- > <$> left-distributes over <!>:  f <$> (a <!> b) = (f <$> a) <!> (f <$> b)
 --
 -- If extended to an 'Alternative' then '<!>' should equal '<|>'.
 --
--- Ideally, an instance of 'Alt' also satisfies the \"left distributon\" law of 
+-- Ideally, an instance of 'Alt' also satisfies the \"left distributon\" law of
 -- MonadPlus with respect to <.>:
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
--- 
--- But 'Maybe', 'IO', @'Either' a@, @'ErrorT' e m@, and 'STM' satisfy the alternative 
+--
+-- But 'Maybe', 'IO', @'Either' a@, @'ErrorT' e m@, and 'STM' satisfy the alternative
 -- \"left catch\" law instead:
--- 
+--
 -- > pure a <!> b = pure a
 --
 -- However, this variation cannot be stated purely in terms of the dependencies of 'Alt'.
 --
--- When and if MonadPlus is successfully refactored, this class should also 
+-- When and if MonadPlus is successfully refactored, this class should also
 -- be refactored to remove these instances.
 --
 -- The right distributive law should extend in the cases where the a 'Bind' or 'Monad' is
@@ -98,7 +92,9 @@ instance Alt (Either a) where
 -- | This instance does not actually satisfy the (<.>) right distributive law
 -- It instead satisfies the "Left-Catch" law
 instance Alt IO where
-  m <!> n = m `catch` \(_ :: SomeException) -> n
+  m <!> n = catch m (go n) where
+    go :: x -> SomeException -> x
+    go = const
 
 instance Alt [] where
   (<!>) = (++)
@@ -114,7 +110,7 @@ instance MonadPlus m => Alt (WrappedMonad m) where
   (<!>) = (<|>)
 
 instance ArrowPlus a => Alt (WrappedArrow a b) where
-  (<!>) = (<|>) 
+  (<!>) = (<|>)
 
 instance Ord k => Alt (Map k) where
   (<!>) = Map.union
@@ -143,7 +139,7 @@ instance (Bind f, Monad f) => Alt (MaybeT f) where
     case v of
       Nothing -> b
       Just _ -> return v
-  
+
 instance (Bind f, Monad f) => Alt (ErrorT e f) where
   ErrorT m <!> ErrorT n = ErrorT $ do
     a <- m
@@ -156,16 +152,16 @@ instance Apply f => Alt (ListT f) where
 
 instance Alt f => Alt (Strict.StateT e f) where
   Strict.StateT m <!> Strict.StateT n = Strict.StateT $ \s -> m s <!> n s
-  
+
 instance Alt f => Alt (Lazy.StateT e f) where
   Lazy.StateT m <!> Lazy.StateT n = Lazy.StateT $ \s -> m s <!> n s
 
 instance Alt f => Alt (Strict.WriterT w f) where
   Strict.WriterT m <!> Strict.WriterT n = Strict.WriterT $ m <!> n
-  
+
 instance Alt f => Alt (Lazy.WriterT w f) where
   Lazy.WriterT m <!> Lazy.WriterT n = Lazy.WriterT $ m <!> n
-  
+
 instance Alt f => Alt (Strict.RWST r w s f) where
   Strict.RWST m <!> Strict.RWST n = Strict.RWST $ \r s -> m r s <!> n r s
 
