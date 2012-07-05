@@ -8,10 +8,10 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- A semigroupoid satisfies all of the requirements to be a Category except 
+-- A semigroupoid satisfies all of the requirements to be a Category except
 -- for the existence of identity arrows.
 ----------------------------------------------------------------------------
-module Data.Semigroupoid 
+module Data.Semigroupoid
   ( Semigroupoid(..)
   , WrappedCategory(..)
   , Semi(..)
@@ -19,6 +19,7 @@ module Data.Semigroupoid
 
 import Control.Arrow
 import Data.Functor.Bind
+import Data.Functor.Extend
 import Data.Functor.Contravariant
 import Control.Comonad
 import Data.Semigroup
@@ -30,18 +31,18 @@ class Semigroupoid c where
   o :: c j k -> c i j -> c i k
 
 instance Semigroupoid (->) where
-  o = (.) 
+  o = (.)
 
 instance Bind m => Semigroupoid (Kleisli m) where
   Kleisli g `o` Kleisli f = Kleisli $ \a -> f a >>- g
 
 instance Extend w => Semigroupoid (Cokleisli w) where
-  Cokleisli f `o` Cokleisli g = Cokleisli $ f . extend g
+  Cokleisli f `o` Cokleisli g = Cokleisli $ f . extended g
 
 instance Semigroupoid Op where
   Op f `o` Op g = Op (g `o` f)
 
-newtype WrappedCategory k a b = WrapCategory { unwrapCategory :: k a b } 
+newtype WrappedCategory k a b = WrapCategory { unwrapCategory :: k a b }
 
 instance Category k => Semigroupoid (WrappedCategory k) where
   WrapCategory f `o` WrapCategory g = WrapCategory (f . g)

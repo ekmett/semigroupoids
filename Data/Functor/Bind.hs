@@ -9,15 +9,15 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- NB: The definitions exported through "Data.Functor.Apply" need to be 
+-- NB: The definitions exported through "Data.Functor.Apply" need to be
 -- included here because otherwise the instances for the transformers package
 -- have orphaned heads.
 ----------------------------------------------------------------------------
-module Data.Functor.Bind ( 
+module Data.Functor.Bind (
   -- * Functors
     Functor(..)
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
-  , ( $>)     -- :: Functor f => f a -> b -> f b 
+  , ( $>)     -- :: Functor f => f a -> b -> f b
   -- * Applyable functors
   , Apply(..)
   , (<..>)    -- :: Apply w => w a -> w (a -> b) -> w b
@@ -57,6 +57,7 @@ import qualified Control.Monad.Trans.Writer.Strict as Strict
 import Data.Functor.Compose
 import Data.Functor.Identity
 import Data.Functor.Product
+import Data.Functor.Extend
 import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
 import qualified Data.Map as Map
@@ -69,16 +70,12 @@ import Prelude hiding (id, (.))
 
 infixl 1 >>-
 infixr 1 -<<
-infixl 4 <.>, <., .>, <..>, $>
+infixl 4 <.>, <., .>, <..>
 
--- | TODO: move into Data.Functor
-($>) :: Functor f => f a -> b -> f b
-($>) = flip (<$)
-
--- | A strong lax semi-monoidal endofunctor. 
+-- | A strong lax semi-monoidal endofunctor.
 -- This is equivalent to an 'Applicative' without 'pure'.
--- 
--- Laws: 
+--
+-- Laws:
 --
 -- > associative composition: (.) <$> u <.> v <.> w = u <.> (v <.> w)
 class Functor f => Apply f where
@@ -93,14 +90,14 @@ class Functor f => Apply f where
   a <. b = const <$> a <.> b
 
 instance (Apply f, Apply g) => Apply (Compose f g) where
-  Compose f <.> Compose x = Compose ((<.>) <$> f <.> x) 
+  Compose f <.> Compose x = Compose ((<.>) <$> f <.> x)
 
 instance (Apply f, Apply g) => Apply (Product f g) where
   Pair f g <.> Pair x y = Pair (f <.> x) (g <.> y)
 
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
-  (m, a) <.  (n, _) = (m <> n, a) 
+  (m, a) <.  (n, _) = (m <> n, a)
   (m, _)  .> (n, b) = (m <> n, b)
 
 instance Apply NonEmpty where
@@ -151,7 +148,7 @@ instance Apply Maybe where
 
 instance Apply Option where
   (<.>) = (<*>)
-  (<. ) = (<* ) 
+  (<. ) = (<* )
   ( .>) = ( *>)
 
 instance Apply Identity where
@@ -163,12 +160,12 @@ instance Apply w => Apply (IdentityT w) where
   IdentityT wa <.> IdentityT wb = IdentityT (wa <.> wb)
 
 instance Monad m => Apply (WrappedMonad m) where
-  (<.>) = (<*>) 
+  (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
 
 instance Arrow a => Apply (WrappedArrow a b) where
-  (<.>) = (<*>) 
+  (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
 
@@ -188,9 +185,9 @@ instance Apply Seq where
   (<.>) = ap
 
 instance Apply Tree where
-  (<.>) = (<*>) 
-  (<. ) = (<* ) 
-  ( .>) = ( *>) 
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
 
 -- MaybeT is _not_ the same as Compose f Maybe
 instance (Bind m, Monad m) => Apply (MaybeT m) where
@@ -201,7 +198,7 @@ instance (Bind m, Monad m) => Apply (ErrorT e m) where
   (<.>) = apDefault
 
 instance Apply m => Apply (ReaderT e m) where
-  ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e 
+  ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e
 
 instance Apply m => Apply (ListT m) where
   ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
@@ -214,7 +211,7 @@ instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
 instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
-  
+
 instance Bind m => Apply (Strict.StateT s m) where
   (<.>) = apDefault
 
@@ -231,7 +228,7 @@ instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
 
 -- | Wrap an 'Applicative' to be used as a member of 'Apply'
-newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a } 
+newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a }
 
 instance Functor f => Functor (WrappedApplicative f) where
   fmap f (WrapApplicative a) = WrapApplicative (f <$> a)
@@ -271,7 +268,7 @@ instance Apply f => Apply (MaybeApply f) where
   MaybeApply (Right _) .> MaybeApply b = MaybeApply b
   MaybeApply (Left fa) .> MaybeApply (Right b) = MaybeApply (Left (fa $> b ))
   MaybeApply (Left fa) .> MaybeApply (Left fb) = MaybeApply (Left (fa .> fb))
-  
+
 instance Apply f => Applicative (MaybeApply f) where
   pure a = MaybeApply (Right a)
   (<*>) = (<.>)
@@ -294,18 +291,20 @@ liftF3 f a b c = f <$> a <.> b <.> c
 {-# INLINE liftF3 #-}
 
 instance Extend f => Extend (MaybeApply f) where
-  duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
-  duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
+  duplicated w@(MaybeApply Right{}) = MaybeApply (Right w)
+  duplicated (MaybeApply (Left fa)) = MaybeApply (Left (extended (MaybeApply . Left) fa))
 
 instance Comonad f => Comonad (MaybeApply f) where
+  duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
+  duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
   extract (MaybeApply (Left fa)) = extract fa
   extract (MaybeApply (Right a)) = a
 
 instance Apply (Cokleisli w a) where
   Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
 
--- | A 'Monad' sans 'return'. 
--- 
+-- | A 'Monad' sans 'return'.
+--
 -- Minimal definition: Either 'join' or '>>-'
 --
 -- If defining both, then the following laws (the default definitions) must hold:
@@ -316,9 +315,9 @@ instance Apply (Cokleisli w a) where
 -- Laws:
 --
 -- > induced definition of <.>: f <.> x = f >>- (<$> x)
--- 
+--
 -- Finally, there are two associativity conditions:
--- 
+--
 -- > associativity of (>>-):    (m >>- f) >>- g == m >>- (\x -> f x >>- g)
 -- > associativity of join:     join . join = join . fmap join
 --
@@ -354,7 +353,7 @@ instance Semigroup m => Bind ((,)m) where
 
 instance Bind (Either a) where
   Left a  >>- _ = Left a
-  Right a >>- f = f a 
+  Right a >>- f = f a
 
 instance (Bind f, Bind g) => Bind (Product f g) where
   Pair m n >>- f = Pair (m >>- fstP . f) (n >>- sndP . f) where
@@ -362,7 +361,7 @@ instance (Bind f, Bind g) => Bind (Product f g) where
     sndP (Pair _ b) = b
 
 instance Bind ((->)m) where
-  f >>- g = \e -> g (f e) e 
+  f >>- g = \e -> g (f e) e
 
 instance Bind [] where
   (>>-) = (>>=)
@@ -386,7 +385,7 @@ instance Bind m => Bind (IdentityT m) where
   IdentityT m >>- f = IdentityT (m >>- runIdentityT . f)
 
 instance Monad m => Bind (WrappedMonad m) where
-  WrapMonad m >>- f = WrapMonad $ m >>= unwrapMonad . f 
+  WrapMonad m >>- f = WrapMonad $ m >>= unwrapMonad . f
 
 instance (Bind m, Monad m) => Bind (MaybeT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @Nothing@
@@ -396,7 +395,7 @@ instance (Bind m, Monad m) => Bind (ListT m) where
 
 instance (Bind m, Monad m) => Bind (ErrorT e m) where
   m >>- k = ErrorT $ do
-    a <- runErrorT m 
+    a <- runErrorT m
     case a of
       Left l -> return (Left l)
       Right r -> runErrorT (k r)
@@ -406,36 +405,36 @@ instance Bind m => Bind (ReaderT e m) where
 
 instance (Bind m, Semigroup w) => Bind (Lazy.WriterT w m) where
   m >>- k = Lazy.WriterT $
-    Lazy.runWriterT m >>- \ ~(a, w) -> 
-    Lazy.runWriterT (k a) `returning` \ ~(b, w') -> 
+    Lazy.runWriterT m >>- \ ~(a, w) ->
+    Lazy.runWriterT (k a) `returning` \ ~(b, w') ->
       (b, w <> w')
 
 instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
   m >>- k = Strict.WriterT $
-    Strict.runWriterT m >>- \ (a, w) -> 
-    Strict.runWriterT (k a) `returning` \ (b, w') -> 
+    Strict.runWriterT m >>- \ (a, w) ->
+    Strict.runWriterT (k a) `returning` \ (b, w') ->
       (b, w <> w')
 
 instance Bind m => Bind (Lazy.StateT s m) where
-  m >>- k = Lazy.StateT $ \s -> 
+  m >>- k = Lazy.StateT $ \s ->
     Lazy.runStateT m s >>- \ ~(a, s') ->
     Lazy.runStateT (k a) s'
 
 instance Bind m => Bind (Strict.StateT s m) where
-  m >>- k = Strict.StateT $ \s -> 
+  m >>- k = Strict.StateT $ \s ->
     Strict.runStateT m s >>- \ ~(a, s') ->
     Strict.runStateT (k a) s'
-    
+
 instance (Bind m, Semigroup w) => Bind (Lazy.RWST r w s m) where
-  m >>- k = Lazy.RWST $ \r s -> 
+  m >>- k = Lazy.RWST $ \r s ->
     Lazy.runRWST m r s >>- \ ~(a, s', w) ->
-    Lazy.runRWST (k a) r s' `returning` \ ~(b, s'', w') -> 
+    Lazy.runRWST (k a) r s' `returning` \ ~(b, s'', w') ->
       (b, s'', w <> w')
 
 instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
-  m >>- k = Strict.RWST $ \r s -> 
+  m >>- k = Strict.RWST $ \r s ->
     Strict.runRWST m r s >>- \ (a, s', w) ->
-    Strict.runRWST (k a) r s' `returning` \ (b, s'', w') -> 
+    Strict.runRWST (k a) r s' `returning` \ (b, s'', w') ->
       (b, s'', w <> w')
 
 instance Bind (ContT r m) where
@@ -459,7 +458,3 @@ instance Bind Seq where
 
 instance Bind Tree where
   (>>-) = (>>=)
-
-instance (Comonad w, Apply w) => ArrowLoop (Cokleisli w) where
-  loop (Cokleisli f) = Cokleisli (fst . wfix . extend f') where
-    f' wa wb = f ((,) <$> wa <.> (snd <$> wb))

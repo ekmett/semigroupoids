@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP #-}
-module Data.Semigroupoid.Static 
+module Data.Semigroupoid.Static
   ( Static(..)
   ) where
 
@@ -7,19 +7,20 @@ import Control.Arrow
 import Control.Applicative
 import Control.Category
 import Control.Comonad
-import Control.Monad.Instances
+import Control.Monad.Instances ()
 import Control.Monad (ap)
 import Data.Functor.Apply
 import Data.Functor.Plus
+import Data.Functor.Extend
 import Data.Semigroup
 import Data.Semigroupoid
 import Prelude hiding ((.), id)
 
-#ifdef LANGUAGE_DeriveDataTypeable 
+#ifdef LANGUAGE_DeriveDataTypeable
 import Data.Typeable
 #endif
 
-newtype Static f a b = Static { runStatic :: f (a -> b) } 
+newtype Static f a b = Static { runStatic :: f (a -> b) }
 #ifdef LANGUAGE_DeriveDataTypeable
   deriving (Typeable)
 #endif
@@ -37,13 +38,14 @@ instance Plus f => Plus (Static f a) where
   zero = Static zero
 
 instance Applicative f => Applicative (Static f a) where
-  pure = Static . pure . const 
+  pure = Static . pure . const
   Static f <*> Static g = Static (ap <$> f <*> g)
 
 instance (Extend f, Semigroup a) => Extend (Static f a) where
-  extend f = Static . extend (\wf m -> f (Static (fmap (. (<>) m) wf))) . runStatic
+  extended f = Static . extended (\wf m -> f (Static (fmap (. (<>) m) wf))) . runStatic
 
-instance (Comonad f, Semigroup a, Monoid a) => Comonad (Static f a) where
+instance (Comonad f, Monoid a) => Comonad (Static f a) where
+  extend f = Static . extend (\wf m -> f (Static (fmap (. mappend m) wf))) . runStatic
   extract (Static g) = extract g mempty
 
 instance Apply f => Semigroupoid (Static f) where
@@ -54,15 +56,15 @@ instance Applicative f => Category (Static f) where
   Static f . Static g = Static ((.) <$> f <*> g)
 
 instance Applicative f => Arrow (Static f) where
-  arr = Static . pure 
-  first (Static g) = Static (first <$> g) 
-  second (Static g) = Static (second <$> g) 
+  arr = Static . pure
+  first (Static g) = Static (first <$> g)
+  second (Static g) = Static (second <$> g)
   Static g *** Static h = Static ((***) <$> g <*> h)
   Static g &&& Static h = Static ((&&&) <$> g <*> h)
 
 instance Alternative f => ArrowZero (Static f) where
   zeroArrow = Static empty
-  
+
 instance Alternative f => ArrowPlus (Static f) where
   Static f <+> Static g = Static (f <|> g)
 
