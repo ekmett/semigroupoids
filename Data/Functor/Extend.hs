@@ -27,11 +27,11 @@ import Data.Tree
 
 class Functor w => Extend w where
   -- |
-  -- > duplicate = extend id
-  -- > fmap (fmap f) . duplicate = duplicate . fmap f
+  -- > duplicated = extended id
+  -- > fmap (fmap f) . duplicated = duplicated . fmap f
   duplicated :: w a -> w (w a)
   -- |
-  -- > extend f  = fmap f . duplicate
+  -- > extended f  = fmap f . duplicated
   extended    :: (w a -> b) -> w a -> w b
 
   extended f = fmap f . duplicated
