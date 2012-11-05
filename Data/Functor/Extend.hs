@@ -10,7 +10,9 @@
 --
 ----------------------------------------------------------------------------
 module Data.Functor.Extend
-  ( -- * $definition
+  ( -- * Extendable Functors
+   
+    -- $documentation
     Extend(..)
   ) where
 
@@ -103,7 +105,7 @@ satisfying this law:
 > extended f . extended g = extended (f . extended g)
 
 II. Alternately, you may choose to provide definitions for 'duplicate'
-satisfying this laws:
+satisfying this law:
 
 > duplicated . duplicated = fmap duplicated . duplicated
 
