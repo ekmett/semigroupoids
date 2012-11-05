@@ -11,7 +11,6 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Extend
   ( -- * Extendable Functors
-   
     -- $definition
     Extend(..)
   ) where
@@ -96,26 +95,26 @@ instance Extend NonEmpty where
       (a:as) -> toList (extended f (a :| as))
 
 -- $definition
---There are two ways to define an 'Extend' instance:
+-- There are two ways to define an 'Extend' instance:
 --
---I. Provide definitions for 'extend'
---satisfying this law:
+-- I. Provide definitions for 'extend'
+-- satisfying this law:
 --
---> extended f . extended g = extended (f . extended g)
+-- > extended f . extended g = extended (f . extended g)
 --
---II. Alternately, you may choose to provide definitions for 'duplicate'
---satisfying this law:
+-- II. Alternately, you may choose to provide definitions for 'duplicate'
+-- satisfying this law:
 --
---> duplicated . duplicated = fmap duplicated . duplicated
+-- > duplicated . duplicated = fmap duplicated . duplicated
 --
---These are both equivalent to the statement that (->-) is associative
+-- These are both equivalent to the statement that (->-) is associative
 --
---> (f ->- g) ->- h = f ->- (g ->- h)
+-- > (f ->- g) ->- h = f ->- (g ->- h)
 --
---You may of course, choose to define both 'duplicate' /and/ 'extend'.
---In that case you must also satisfy these laws:
+-- You may of course, choose to define both 'duplicate' /and/ 'extend'.
+-- In that case you must also satisfy these laws:
 --
---> extended f = fmap f . duplicated
---> duplicated = extended id
+-- > extended f = fmap f . duplicated
+-- > duplicated = extended id
 --
---These are the default definitions of 'extended' and 'duplicated'.
+-- These are the default definitions of 'extended' and 'duplicated'.
