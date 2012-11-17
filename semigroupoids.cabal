@@ -36,7 +36,7 @@ description:
   >                                 Bind ---------> Monad -------> MonadPlus          Arrow
   >
   .
-  Apply, Bind, and Extract give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
+  Apply, Bind, and Extend (not shown) give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
   This lets us remove many of the restrictions from various monad transformers
   as in many cases the binding operation or @\<*\>@ operation does not require them.
