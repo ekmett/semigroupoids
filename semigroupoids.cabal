@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       3.0.0.2
+version:       3.0.1
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -12,7 +12,11 @@ bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011 Edward A. Kmett
 build-type:    Simple
 synopsis:      Haskell 98 semigroupoids: Category sans id
-extra-source-files: .travis.yml
+extra-source-files:
+  .ghci
+  .travis.yml
+  .gitignore
+  .vim.custom
 description:
   Provides a wide array of semigroupoids and operations for working with semigroupds.
   .
@@ -57,6 +61,8 @@ library
     contravariant >= 0.2.0.1 && < 0.3,
     comonad       >= 3.0,
     semigroups    >= 0.8.3.1
+
+  hs-source-dirs: src
 
   exposed-modules:
     Data.Functor.Alt
