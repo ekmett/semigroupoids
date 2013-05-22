@@ -449,7 +449,7 @@ instance ArrowApply a => Bind (WrappedArrow a b) where
 instance Ord k => Bind (Map k) where
   m >>- f = Map.mapMaybeWithKey (\k -> Map.lookup k . f) m
 
--- | An 'IntMap' is a 'Applicative', but it is an instance of 'Bind'
+-- | An 'IntMap' is not a 'Monad', but it is an instance of 'Bind'
 instance Bind IntMap where
   m >>- f = IntMap.mapMaybeWithKey (\k -> IntMap.lookup k . f) m
 
