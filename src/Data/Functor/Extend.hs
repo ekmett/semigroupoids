@@ -67,7 +67,7 @@ instance Semigroup m => Extend ((->)m) where
   duplicated f m = f . (<>) m
 
 instance Extend Seq where
-  duplicated = Seq.tails
+  duplicated l = Seq.take (Seq.length l) (Seq.tails l)
 
 instance Extend Tree where
   duplicated w@(Node _ as) = Node w (map duplicated as)
