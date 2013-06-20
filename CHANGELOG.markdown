@@ -1,3 +1,7 @@
+3.0.3
+-----
+* Claim to be `Trustworthy` where necessary
+
 3.0.2
 -----
 * Tightened the upper bounds slightly to enable PVP compliance while retaining a flexible development cycle.
