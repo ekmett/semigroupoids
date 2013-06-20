@@ -1,4 +1,12 @@
 {-# LANGUAGE CPP #-}
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
+{-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
+#endif
+
 module Data.Semigroupoid.Static
   ( Static(..)
   ) where
