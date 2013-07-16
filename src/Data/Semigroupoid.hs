@@ -43,6 +43,10 @@ class Semigroupoid c where
 instance Semigroupoid (->) where
   o = (.)
 
+-- | <http://en.wikipedia.org/wiki/Band_(mathematics)#Rectangular_bands>
+instance Semigroupoid (,) where
+  o (_,k) (i,_) = (i,k)
+
 instance Bind m => Semigroupoid (Kleisli m) where
   Kleisli g `o` Kleisli f = Kleisli $ \a -> f a >>- g
 

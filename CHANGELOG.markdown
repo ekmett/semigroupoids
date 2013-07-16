@@ -1,3 +1,7 @@
+3.1
+---
+* Added the [rectangular band](http://en.wikipedia.org/wiki/Band_(mathematics)#Rectangular_bands) `Semigroupoid` for `(,)`. Would that make it a Bandoid?
+
 3.0.3
 -----
 * Claim to be `Trustworthy` where necessary
