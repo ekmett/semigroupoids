@@ -11,6 +11,8 @@
 ----------------------------------------------------------------------------
 module Data.Semigroup.Foldable
   ( Foldable1(..)
+  , intercalate1
+  , intercalateMap1
   , traverse1_
   , for1_
   , sequenceA1_
@@ -55,6 +57,19 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Product f g) where
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a
   foldMap1 f (a :| b : bs) = f a <> foldMap1 f (b :| bs)
+
+newtype JoinWith a = JoinWith {joinee :: (a -> a)}
+
+instance Semigroup a => Semigroup (JoinWith a) where
+  JoinWith a <> JoinWith b = JoinWith $ \j -> a j <> j <> b j
+
+intercalate1 :: (Foldable1 t, Semigroup m) => m -> t m -> m
+intercalate1 = flip intercalateMap1 id
+{-# INLINE intercalate1 #-}
+
+intercalateMap1 :: (Foldable1 t, Semigroup m) => m -> (a -> m) -> t a -> m
+intercalateMap1 j f = flip joinee j . foldMap1 (JoinWith . const . f)
+{-# INLINE intercalateMap1 #-}
 
 newtype Act f a = Act { getAct :: f a }
 
