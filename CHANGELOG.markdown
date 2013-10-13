@@ -1,4 +1,4 @@
-3.2
+4.0
 ---
 * Merged in the contents of the `groupoids` and `semigroupoid-extras` packages.
 
