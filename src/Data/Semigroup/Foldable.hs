@@ -23,6 +23,7 @@ import Data.Functor.Identity
 import Data.Functor.Apply
 import Data.Functor.Product
 import Data.Functor.Compose
+import Data.Functor.Coproduct
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
@@ -51,6 +52,9 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Compose f g) where
 
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Product f g) where
   foldMap1 f (Pair a b) = foldMap1 f a <> foldMap1 f b
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (Coproduct f g) where
+  foldMap1 f = coproduct (foldMap1 f) (foldMap1 f)
 
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a

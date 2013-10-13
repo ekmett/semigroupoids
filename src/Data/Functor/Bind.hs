@@ -52,6 +52,9 @@ import Control.Applicative
 import Control.Arrow
 import Control.Category
 import Control.Comonad
+import Control.Comonad.Trans.Env
+import Control.Comonad.Trans.Store
+import Control.Comonad.Trans.Traced
 import Control.Monad (ap)
 import Control.Monad.Instances
 import Control.Monad.Trans.Cont
@@ -238,6 +241,15 @@ instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
 
 instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
+
+instance (Semigroup e, Apply w) => Apply (EnvT e w) where
+  EnvT ef wf <.> EnvT ea wa = EnvT (ef <> ea) (wf <.> wa)
+
+instance (Apply w, Semigroup s) => Apply (StoreT s w) where
+  StoreT ff m <.> StoreT fa n = StoreT ((<*>) <$> ff <.> fa) (m <> n)
+
+instance Apply w => Apply (TracedT m w) where
+  TracedT wf <.> TracedT wa = TracedT (ap <$> wf <.> wa)
 
 -- | Wrap an 'Applicative' to be used as a member of 'Apply'
 newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a }

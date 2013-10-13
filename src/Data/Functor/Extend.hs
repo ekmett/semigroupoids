@@ -21,7 +21,11 @@ module Data.Functor.Extend
 
 import Prelude hiding (id, (.))
 import Control.Category
+import Control.Comonad.Trans.Env
+import Control.Comonad.Trans.Store
+import Control.Comonad.Trans.Traced
 import Control.Monad.Trans.Identity
+import Data.Functor.Coproduct
 import Data.Functor.Identity
 import Data.Semigroup
 import Data.List (tails)
@@ -75,6 +79,21 @@ instance Extend Seq where
 
 instance Extend Tree where
   duplicated w@(Node _ as) = Node w (map duplicated as)
+
+instance (Extend f, Extend g) => Extend (Coproduct f g) where
+  extended f = Coproduct . coproduct
+    (Left . extended (f . Coproduct . Left))
+    (Right . extended (f . Coproduct . Right))
+
+instance Extend w => Extend (EnvT e w) where
+  duplicated (EnvT e wa) = EnvT e (extended (EnvT e) wa)
+
+instance Extend w => Extend (StoreT s w) where
+  duplicated (StoreT wf s) = StoreT (extended StoreT wf) s
+  extended f (StoreT wf s) = StoreT (extended (\wf' s' -> f (StoreT wf' s')) wf) s
+
+instance (Extend w, Semigroup m) => Extend (TracedT m w) where
+  extended f = TracedT . extended (\wf m -> f (TracedT (fmap (. (<>) m) wf))) . runTracedT
 
 -- I can't fix the world
 -- instance (Monoid m, Extend n) => Extend (ReaderT m n)
