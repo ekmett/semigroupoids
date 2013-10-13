@@ -57,11 +57,12 @@ source-repository head
 library
   build-depends:
     base          >= 4       && < 5,
-    transformers  >= 0.2     && < 0.4,
     containers    >= 0.3     && < 0.6,
     contravariant >= 0.2.0.1 && < 1,
     comonad       == 3.*     && < 4,
-    semigroups    >= 0.8.3.1 && < 1
+    distributive  >= 0.2.2   && < 1,
+    semigroups    >= 0.8.3.1 && < 1,
+    transformers  >= 0.2     && < 0.4
 
   hs-source-dirs: src
 
@@ -70,14 +71,20 @@ library
     Data.Functor.Apply
     Data.Functor.Bind
     Data.Functor.Bind.Trans
-    Data.Functor.Plus
     Data.Functor.Extend
+    Data.Functor.Plus
     Data.Groupoid
     Data.Isomorphism
+    Data.Semifunctor
+    Data.Semifunctor.Associative
+    Data.Semifunctor.Braided
     Data.Semigroup.Foldable
     Data.Semigroup.Traversable
     Data.Semigroupoid
+    Data.Semigroupoid.Coproduct
     Data.Semigroupoid.Dual
+    Data.Semigroupoid.Ob
+    Data.Semigroupoid.Product
     Data.Semigroupoid.Static
     Data.Traversable.Instances
 

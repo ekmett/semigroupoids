@@ -1,6 +1,6 @@
 3.2
 ---
-* Subsumed the `groupoids` package.
+* Merged in the contents of the `groupoids` and `semigroupoid-extras` packages.
 
 3.1
 ---
