@@ -13,11 +13,11 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Functor.Apply ( 
+module Data.Functor.Apply (
   -- * Functors
     Functor(..)
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
-  , ( $>)     -- :: Functor f => f a -> b -> f b 
+  , ( $>)     -- :: Functor f => f a -> b -> f b
 
   -- * Apply - a strong lax semimonoidal endofunctor
 

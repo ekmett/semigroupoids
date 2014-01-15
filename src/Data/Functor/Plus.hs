@@ -46,14 +46,14 @@ import Data.Map (Map)
 import Prelude hiding (id, (.))
 
 -- | Laws:
--- 
+--
 -- > zero <!> m = m
 -- > m <!> zero = m
 --
 -- If extended to an 'Alternative' then 'zero' should equal 'empty'.
 
 class Alt f => Plus f where
-  zero :: f a 
+  zero :: f a
 
 instance Plus IO where
   zero = error "zero"
@@ -93,7 +93,7 @@ instance Plus f => Plus (ReaderT e f) where
 
 instance (Bind f, Monad f) => Plus (MaybeT f) where
   zero = MaybeT $ return zero
-  
+
 instance (Bind f, Monad f, Error e) => Plus (ErrorT e f) where
   zero = ErrorT $ return $ Left noMsg
 
@@ -102,18 +102,18 @@ instance (Apply f, Applicative f) => Plus (ListT f) where
 
 instance (Plus f) => Plus (Strict.StateT e f) where
   zero = Strict.StateT $ \_ -> zero
-  
+
 instance (Plus f) => Plus (Lazy.StateT e f) where
   zero = Lazy.StateT $ \_ -> zero
 
 instance Plus f => Plus (Strict.WriterT w f) where
   zero = Strict.WriterT zero
-  
+
 instance Plus f => Plus (Lazy.WriterT w f) where
   zero = Lazy.WriterT zero
-  
+
 instance Plus f => Plus (Strict.RWST r w s f) where
-  zero = Strict.RWST $ \_ _ -> zero 
+  zero = Strict.RWST $ \_ _ -> zero
 
 instance Plus f => Plus (Lazy.RWST r w s f) where
   zero = Lazy.RWST $ \_ _ -> zero

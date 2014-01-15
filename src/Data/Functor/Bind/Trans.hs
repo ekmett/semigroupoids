@@ -9,7 +9,7 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Functor.Bind.Trans ( 
+module Data.Functor.Bind.Trans (
   BindTrans(..)
   ) where
 
@@ -41,7 +41,7 @@ instance BindTrans IdentityT where
   liftB = IdentityT
 
 instance BindTrans (ReaderT e) where
-  liftB = ReaderT . const 
+  liftB = ReaderT . const
 
 instance (Semigroup w, Monoid w) => BindTrans (Lazy.WriterT w) where
   liftB = Lazy.WriterT . fmap (\a -> (a, mempty))
@@ -50,14 +50,14 @@ instance (Semigroup w, Monoid w) => BindTrans (Strict.WriterT w) where
   liftB = Strict.WriterT . fmap (\a -> (a, mempty))
 
 instance BindTrans (Lazy.StateT s) where
-  liftB m = Lazy.StateT $ \s -> fmap (\a -> (a, s)) m 
+  liftB m = Lazy.StateT $ \s -> fmap (\a -> (a, s)) m
 
 instance BindTrans (Strict.StateT s) where
-  liftB m = Strict.StateT $ \s -> fmap (\a -> (a, s)) m 
+  liftB m = Strict.StateT $ \s -> fmap (\a -> (a, s)) m
 
 instance (Semigroup w, Monoid w) => BindTrans (Lazy.RWST r w s) where
   liftB m = Lazy.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
-  
+
 instance (Semigroup w, Monoid w) => BindTrans (Strict.RWST r w s) where
   liftB m = Strict.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
 

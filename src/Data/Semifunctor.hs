@@ -90,9 +90,9 @@ sndP :: Bi (,) (a, b) -> b
 sndP (Bi (_,b)) = b
 
 left :: a -> Bi Either (a,b)
-left = Bi . Left 
+left = Bi . Left
 
-right :: b -> Bi Either (a,b) 
+right :: b -> Bi Either (a,b)
 right = Bi . Right
 
 instance Semifunctor (Bi (,)) (Product (->) (->)) (->) where

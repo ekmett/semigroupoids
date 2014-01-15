@@ -34,7 +34,7 @@ class Foldable t => Foldable1 t where
   fold1 :: Semigroup m => t m -> m
   foldMap1 :: Semigroup m => (a -> m) -> t a -> m
 
-  foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f) 
+  foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
   fold1 = foldMap1 id
 
 instance Foldable1 Tree where

@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module Data.Semigroupoid.Product 
+module Data.Semigroupoid.Product
   ( Product(..)
   , distributeDualProduct
   , factorDualProduct

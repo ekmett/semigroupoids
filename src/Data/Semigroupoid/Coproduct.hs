@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs, EmptyDataDecls #-}
-module Data.Semigroupoid.Coproduct 
+module Data.Semigroupoid.Coproduct
   ( L, R, Coproduct(..), distributeDualCoproduct, factorDualCoproduct) where
 
 import Data.Semigroupoid
