@@ -120,21 +120,17 @@ instance Extend NonEmpty where
 -- $definition
 -- There are two ways to define an 'Extend' instance:
 --
--- I. Provide definitions for 'extend'
+-- I. Provide definitions for 'extended'
 -- satisfying this law:
 --
 -- > extended f . extended g = extended (f . extended g)
 --
--- II. Alternately, you may choose to provide definitions for 'duplicate'
+-- II. Alternately, you may choose to provide definitions for 'duplicated'
 -- satisfying this law:
 --
 -- > duplicated . duplicated = fmap duplicated . duplicated
 --
--- These are both equivalent to the statement that (->-) is associative
---
--- > (f ->- g) ->- h = f ->- (g ->- h)
---
--- You may of course, choose to define both 'duplicate' /and/ 'extend'.
+-- You may of course, choose to define both 'duplicated' /and/ 'extended'.
 -- In that case you must also satisfy these laws:
 --
 -- > extended f = fmap f . duplicated
