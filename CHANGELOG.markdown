@@ -1,3 +1,8 @@
+4.0.1
+-----
+* Fixed bitrot in the `Data.Functor.Extend` documentation.
+* Fixed warnings on GHC 7.8.1rc2 caused by importing `Control.Monad.Instances`.
+
 4.0
 ---
 * Merged in the contents of the `groupoids` and `semigroupoid-extras` packages.
