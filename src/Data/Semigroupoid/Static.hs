@@ -15,7 +15,9 @@ import Control.Arrow
 import Control.Applicative
 import Control.Category
 import Control.Comonad
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
+#endif
 import Control.Monad (ap)
 import Data.Functor.Apply
 import Data.Functor.Plus

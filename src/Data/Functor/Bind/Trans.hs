@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Bind.Trans
@@ -15,7 +16,9 @@ module Data.Functor.Bind.Trans (
 
 -- import _everything_
 import Control.Category
-import Control.Monad.Instances
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
+import Control.Monad.Instances ()
+#endif
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Cont
 -- import Control.Monad.Trans.Error

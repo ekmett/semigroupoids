@@ -56,7 +56,9 @@ import Control.Comonad.Trans.Env
 import Control.Comonad.Trans.Store
 import Control.Comonad.Trans.Traced
 import Control.Monad (ap)
-import Control.Monad.Instances
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
+import Control.Monad.Instances ()
+#endif
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.Identity
