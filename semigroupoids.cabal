@@ -32,10 +32,10 @@ description:
   .
   Ideally the following relationships would hold:
   .
-  > Traversable <---- Foldable <--- Functor ------> Alt ---------> Plus           Semigroupoid
+  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus           Semigroupoid
   >      |               |            |                              |                  |
   >      v               v            v                              v                  v
-  > Traversable1 <--- Foldable1     Apply --------> Applicative -> Alternative      Category
+  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative      Category
   >                                   |               |              |                  |
   >                                   v               v              v                  v
   >                                 Bind ---------> Monad -------> MonadPlus          Arrow
