@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       4.0.1
+version:       4.0.2
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -62,7 +62,7 @@ library
     comonad       >= 4       && < 5,
     distributive  >= 0.2.2   && < 1,
     semigroups    >= 0.8.3.1 && < 1,
-    transformers  >= 0.2     && < 0.4
+    transformers  >= 0.2     && < 0.6
 
   hs-source-dirs: src
 
