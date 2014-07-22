@@ -40,7 +40,6 @@ import Control.Arrow hiding (first, second, left, right)
 import Control.Category
 import Control.Comonad
 import Control.Monad (liftM)
-import Data.Distributive
 import Data.Functor.Bind
 import Data.Functor.Extend
 import Data.Traversable
@@ -50,6 +49,10 @@ import Data.Semigroupoid.Dual
 import Data.Semigroupoid.Ob
 import Data.Semigroupoid.Product
 import Prelude hiding ((.),id, mapM)
+
+#ifdef MIN_VERSION_distributive
+import Data.Distributive
+#endif
 
 -- | Semifunctors map objects to objects, and arrows to arrows preserving connectivity
 -- as normal functors, but do not purport to preserve identity arrows. We apply them
@@ -65,8 +68,10 @@ instance Functor f => Semifunctor (WrappedFunctor f) (->) (->) where
 instance (Traversable f, Bind m, Monad m) => Semifunctor (WrappedFunctor f) (Kleisli m) (Kleisli m) where
   semimap (Kleisli f) = Kleisli $ liftM WrapFunctor . mapM f . unwrapFunctor
 
+#ifdef MIN_VERSION_distributive
 instance (Distributive f, Extend w) => Semifunctor (WrappedFunctor f) (Cokleisli w) (Cokleisli w) where
   semimap (Cokleisli w) = Cokleisli $ WrapFunctor . cotraverse w . fmap unwrapFunctor
+#endif
 
 data WrappedTraversable1 f a = WrapTraversable1 { unwrapTraversable1 :: f a }
 

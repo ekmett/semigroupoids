@@ -30,11 +30,14 @@ module Data.Semigroupoid
 import Control.Arrow
 import Data.Functor.Bind
 import Data.Functor.Extend
-import Data.Functor.Contravariant
 import Control.Comonad
 import Data.Semigroup
 import Control.Category
 import Prelude hiding (id, (.))
+
+#ifdef MIN_VERSION_contravariant
+import Data.Functor.Contravariant
+#endif
 
 -- | 'Control.Category.Category' sans 'Control.Category.id'
 class Semigroupoid c where
@@ -53,8 +56,10 @@ instance Bind m => Semigroupoid (Kleisli m) where
 instance Extend w => Semigroupoid (Cokleisli w) where
   Cokleisli f `o` Cokleisli g = Cokleisli $ f . extended g
 
+#ifdef MIN_VERSION_contravariant
 instance Semigroupoid Op where
   Op f `o` Op g = Op (g `o` f)
+#endif
 
 newtype WrappedCategory k a b = WrapCategory { unwrapCategory :: k a b }
 
