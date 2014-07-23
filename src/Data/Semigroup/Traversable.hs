@@ -26,7 +26,10 @@ import Data.Semigroup hiding (Product)
 import Data.Semigroup.Foldable
 import Data.Traversable
 import Data.Traversable.Instances ()
+
+#ifdef MIN_VERSION_containers
 import Data.Tree
+#endif
 
 #ifdef MIN_VERSION_comonad
 import Data.Functor.Coproduct
@@ -61,9 +64,11 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (Coproduct f g) where
     (fmap (Coproduct . Right) . traverse1 f)
 #endif
 
+#ifdef MIN_VERSION_containers
 instance Traversable1 Tree where
   traverse1 f (Node a []) = (`Node`[]) <$> f a
   traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
+#endif
 
 instance Traversable1 NonEmpty where
   traverse1 f (a :| []) = (:|[]) <$> f a

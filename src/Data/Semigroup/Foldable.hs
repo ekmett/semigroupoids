@@ -24,11 +24,14 @@ import Data.Functor.Identity
 import Data.Functor.Apply
 import Data.Functor.Product
 import Data.Functor.Compose
-import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product)
 import Prelude hiding (foldr)
+
+#ifdef MIN_VERSION_containers
+import Data.Tree
+#endif
 
 #ifdef MIN_VERSION_comonad
 import Data.Functor.Coproduct
@@ -41,9 +44,11 @@ class Foldable t => Foldable1 t where
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
   fold1 = foldMap1 id
 
+#ifdef MIN_VERSION_containers
 instance Foldable1 Tree where
   foldMap1 f (Node a []) = f a
   foldMap1 f (Node a (x:xs)) = f a <> foldMap1 (foldMap1 f) (x :| xs)
+#endif
 
 instance Foldable1 Identity where
   foldMap1 f = f . runIdentity

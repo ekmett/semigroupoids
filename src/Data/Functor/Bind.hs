@@ -72,15 +72,19 @@ import Data.Functor.Compose
 import Data.Functor.Identity
 import Data.Functor.Product
 import Data.Functor.Extend
+import Data.List.NonEmpty
+import Data.Semigroup hiding (Product)
+import Prelude hiding (id, (.))
+
+
+#ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.List.NonEmpty
-import Data.Semigroup hiding (Product)
 import Data.Sequence (Seq)
 import Data.Tree (Tree)
-import Prelude hiding (id, (.))
+#endif
 
 #ifdef MIN_VERSION_comonad
 import Control.Comonad
@@ -193,6 +197,7 @@ instance Arrow a => Apply (WrappedArrow a b) where
   (<. ) = (<* )
   ( .>) = ( *>)
 
+#ifdef MIN_VERSION_containers
 -- | A Map is not 'Applicative', but it is an instance of 'Apply'
 instance Ord k => Apply (Map k) where
   (<.>) = Map.intersectionWith id
@@ -212,6 +217,7 @@ instance Apply Tree where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
+#endif
 
 -- MaybeT is _not_ the same as Compose f Maybe
 instance (Bind m, Monad m) => Apply (MaybeT m) where
@@ -482,6 +488,7 @@ instance ArrowApply a => Bind (WrappedArrow a b) where
   (>>-) = (>>=)
 -}
 
+#ifdef MIN_VERSION_containers
 -- | A 'Map' is not a 'Monad', but it is an instance of 'Bind'
 instance Ord k => Bind (Map k) where
   m >>- f = Map.mapMaybeWithKey (\k -> Map.lookup k . f) m
@@ -495,3 +502,4 @@ instance Bind Seq where
 
 instance Bind Tree where
   (>>-) = (>>=)
+#endif

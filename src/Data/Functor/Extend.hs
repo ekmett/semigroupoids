@@ -26,9 +26,12 @@ import Data.Functor.Identity
 import Data.Semigroup
 import Data.List (tails)
 import Data.List.NonEmpty (NonEmpty(..), toList)
+
+#ifdef MIN_VERSION_containers
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Tree
+#endif
 
 
 #ifdef MIN_VERSION_comonad
@@ -78,11 +81,13 @@ instance Extend ((,)e) where
 instance Semigroup m => Extend ((->)m) where
   duplicated f m = f . (<>) m
 
+#ifdef MIN_VERSION_containers
 instance Extend Seq where
   duplicated l = Seq.take (Seq.length l) (Seq.tails l)
 
 instance Extend Tree where
   duplicated w@(Node _ as) = Node w (map duplicated as)
+#endif
 
 #ifdef MIN_VERSION_comonad
 instance (Extend f, Extend g) => Extend (Coproduct f g) where
