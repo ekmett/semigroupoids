@@ -48,13 +48,12 @@ import Data.Semigroupoid.Ob
 import Data.Semigroupoid.Product
 import Prelude hiding ((.),id, mapM)
 
-#ifdef MIN_VERSION_distributive
-import Data.Distributive
-#endif
-
 #ifdef MIN_VERSION_comonad
 import Control.Comonad
 import Data.Functor.Extend
+#ifdef MIN_VERSION_distributive
+import Data.Distributive
+#endif
 #endif
 
 -- | Semifunctors map objects to objects, and arrows to arrows preserving connectivity

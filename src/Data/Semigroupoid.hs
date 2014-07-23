@@ -33,7 +33,6 @@ module Data.Semigroupoid
 
 import Control.Arrow
 import Data.Functor.Bind
-import Data.Functor.Extend
 import Data.Semigroup
 import Control.Category
 import Prelude hiding (id, (.))
@@ -43,6 +42,7 @@ import Data.Functor.Contravariant
 #endif
 
 #ifdef MIN_VERSION_comonad
+import Data.Functor.Extend
 import Control.Comonad
 #endif
 
