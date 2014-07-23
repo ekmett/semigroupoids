@@ -7,13 +7,13 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
 
-#ifndef MIN_VERSION_comonad
-#define MIN_VERSION_comonad(x,y,z) 1
-#endif
-
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#ifdef MIN_VERSION_comonad
 #if MIN_VERSION_comonad(3,0,3)
 {-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -38,10 +38,8 @@ module Data.Semifunctor
 
 import Control.Arrow hiding (first, second, left, right)
 import Control.Category
-import Control.Comonad
 import Control.Monad (liftM)
 import Data.Functor.Bind
-import Data.Functor.Extend
 import Data.Traversable
 import Data.Semigroup.Traversable
 import Data.Semigroupoid
@@ -52,6 +50,11 @@ import Prelude hiding ((.),id, mapM)
 
 #ifdef MIN_VERSION_distributive
 import Data.Distributive
+#endif
+
+#ifdef MIN_VERSION_comonad
+import Control.Comonad
+import Data.Functor.Extend
 #endif
 
 -- | Semifunctors map objects to objects, and arrows to arrows preserving connectivity
@@ -68,7 +71,7 @@ instance Functor f => Semifunctor (WrappedFunctor f) (->) (->) where
 instance (Traversable f, Bind m, Monad m) => Semifunctor (WrappedFunctor f) (Kleisli m) (Kleisli m) where
   semimap (Kleisli f) = Kleisli $ liftM WrapFunctor . mapM f . unwrapFunctor
 
-#ifdef MIN_VERSION_distributive
+#if defined(MIN_VERSION_distributive) && defined(MIN_VERSION_comonad)
 instance (Distributive f, Extend w) => Semifunctor (WrappedFunctor f) (Cokleisli w) (Cokleisli w) where
   semimap (Cokleisli w) = Cokleisli $ WrapFunctor . cotraverse w . fmap unwrapFunctor
 #endif
@@ -88,11 +91,13 @@ instance Semifunctor f c d => Semifunctor f (Dual c) (Dual d) where
 (#) :: a -> b -> Bi (,) (a,b)
 a # b = Bi (a,b)
 
+#ifdef MIN_VERSION_comonad
 fstP :: Bi (,) (a, b) -> a
 fstP (Bi (a,_)) = a
 
 sndP :: Bi (,) (a, b) -> b
 sndP (Bi (_,b)) = b
+#endif
 
 left :: a -> Bi Either (a,b)
 left = Bi . Left
@@ -116,10 +121,12 @@ instance Bind m => Semifunctor (Bi Either) (Product (Kleisli m) (Kleisli m)) (Kl
     lr l _ (Bi (Left a))  = left <$> l a
     lr _ r (Bi (Right b)) = right <$> r b
 
+#ifdef MIN_VERSION_comonad
 instance Extend w => Semifunctor (Bi (,)) (Product (Cokleisli w) (Cokleisli w)) (Cokleisli w) where
   semimap (Pair l r) = Cokleisli $ \p -> runCokleisli l (fstP <$> p) # runCokleisli r (sndP <$> p)
 
 -- instance Extend w => Semifunctor (Bi Either)) (Product (Cokleisli w) (Cokleisli w)) (Cokleisli w) where
+#endif
 
 semibimap :: Semifunctor p (Product l r) cod => l a b -> r c d -> cod (p (a,c)) (p (b,d))
 semibimap f g = semimap (Pair f g)

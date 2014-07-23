@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semigroup.Foldable
@@ -23,12 +24,15 @@ import Data.Functor.Identity
 import Data.Functor.Apply
 import Data.Functor.Product
 import Data.Functor.Compose
-import Data.Functor.Coproduct
 import Data.Tree
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product)
 import Prelude hiding (foldr)
+
+#ifdef MIN_VERSION_comonad
+import Data.Functor.Coproduct
+#endif
 
 class Foldable t => Foldable1 t where
   fold1 :: Semigroup m => t m -> m
@@ -53,8 +57,10 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Compose f g) where
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Product f g) where
   foldMap1 f (Pair a b) = foldMap1 f a <> foldMap1 f b
 
+#ifdef MIN_VERSION_comonad
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Coproduct f g) where
   foldMap1 f = coproduct (foldMap1 f) (foldMap1 f)
+#endif
 
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a

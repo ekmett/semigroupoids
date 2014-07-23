@@ -1,11 +1,12 @@
 {-# LANGUAGE CPP #-}
-#ifndef MIN_VERSION_comonad
-#define MIN_VERSION_comonad(x,y,z) 1
-#endif
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#ifdef MIN_VERSION_comonad
 #if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -51,10 +52,6 @@ module Data.Functor.Bind (
 import Control.Applicative
 import Control.Arrow
 import Control.Category
-import Control.Comonad
-import Control.Comonad.Trans.Env
-import Control.Comonad.Trans.Store
-import Control.Comonad.Trans.Traced
 import Control.Monad (ap)
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
@@ -84,6 +81,16 @@ import Data.Semigroup hiding (Product)
 import Data.Sequence (Seq)
 import Data.Tree (Tree)
 import Prelude hiding (id, (.))
+
+#ifdef MIN_VERSION_comonad
+import Control.Comonad
+import Control.Comonad.Trans.Env
+import Control.Comonad.Trans.Store
+import Control.Comonad.Trans.Traced
+#else
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
+#endif
 
 infixl 1 >>-
 infixr 1 -<<
@@ -244,6 +251,7 @@ instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
 instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
 
+#ifdef MIN_VERSION_comonad
 instance (Semigroup e, Apply w) => Apply (EnvT e w) where
   EnvT ef wf <.> EnvT ea wa = EnvT (ef <> ea) (wf <.> wa)
 
@@ -252,6 +260,7 @@ instance (Apply w, Semigroup s) => Apply (StoreT s w) where
 
 instance Apply w => Apply (TracedT m w) where
   TracedT wf <.> TracedT wa = TracedT (ap <$> wf <.> wa)
+#endif
 
 -- | Wrap an 'Applicative' to be used as a member of 'Apply'
 newtype WrappedApplicative f a = WrapApplicative { unwrapApplicative :: f a }
@@ -320,6 +329,7 @@ instance Extend f => Extend (MaybeApply f) where
   duplicated w@(MaybeApply Right{}) = MaybeApply (Right w)
   duplicated (MaybeApply (Left fa)) = MaybeApply (Left (extended (MaybeApply . Left) fa))
 
+#ifdef MIN_VERSION_comonad
 instance Comonad f => Comonad (MaybeApply f) where
   duplicate w@(MaybeApply Right{}) = MaybeApply (Right w)
   duplicate (MaybeApply (Left fa)) = MaybeApply (Left (extend (MaybeApply . Left) fa))
@@ -328,6 +338,7 @@ instance Comonad f => Comonad (MaybeApply f) where
 
 instance Apply (Cokleisli w a) where
   Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
+#endif
 
 -- | A 'Monad' sans 'return'.
 --

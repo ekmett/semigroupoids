@@ -1,6 +1,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE CPP #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semigroup.Ob
@@ -17,10 +19,14 @@ module Data.Semigroupoid.Ob where
 import Data.Semigroupoid
 import Data.Semigroupoid.Product
 import Data.Semigroupoid.Coproduct
-import Control.Comonad
 import Data.Functor.Bind
-import Data.Functor.Extend
 import Control.Arrow
+
+
+#ifdef MIN_VERSION_comonad
+import Data.Functor.Extend
+import Control.Comonad
+#endif
 
 class Semigroupoid k => Ob k a where
   semiid :: k a a
@@ -37,8 +43,11 @@ instance (Semigroupoid l, Ob r a) => Ob (Coproduct l r) (R a) where
 instance (Bind m, Monad m) => Ob (Kleisli m) a where
   semiid = Kleisli return
 
+
+#ifdef MIN_VERSION_comonad
 instance (Extend w, Comonad w) => Ob (Cokleisli w) a where
   semiid = Cokleisli extract
+#endif
 
 instance Ob (->) a where
   semiid = id

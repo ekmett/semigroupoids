@@ -1,7 +1,11 @@
 {-# LANGUAGE CPP #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#ifdef MIN_VERSION_comonad
 #if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -30,13 +34,16 @@ module Data.Semigroupoid
 import Control.Arrow
 import Data.Functor.Bind
 import Data.Functor.Extend
-import Control.Comonad
 import Data.Semigroup
 import Control.Category
 import Prelude hiding (id, (.))
 
 #ifdef MIN_VERSION_contravariant
 import Data.Functor.Contravariant
+#endif
+
+#ifdef MIN_VERSION_comonad
+import Control.Comonad
 #endif
 
 -- | 'Control.Category.Category' sans 'Control.Category.id'
@@ -53,8 +60,10 @@ instance Semigroupoid (,) where
 instance Bind m => Semigroupoid (Kleisli m) where
   Kleisli g `o` Kleisli f = Kleisli $ \a -> f a >>- g
 
+#ifdef MIN_VERSION_comonad
 instance Extend w => Semigroupoid (Cokleisli w) where
   Cokleisli f `o` Cokleisli g = Cokleisli $ f . extended g
+#endif
 
 #ifdef MIN_VERSION_contravariant
 instance Semigroupoid Op where
