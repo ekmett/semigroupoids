@@ -1,3 +1,7 @@
+4.0.3
+---
+* Added flags to provide unsupported cabal sandbox build modes.
+
 4.0.1
 -----
 * Fixed bitrot in the `Data.Functor.Extend` documentation.
