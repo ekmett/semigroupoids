@@ -54,15 +54,65 @@ source-repository head
   type: git
   location: git://github.com/ekmett/semigroupoids.git
 
+flag containers
+  description:
+    You can disable the use of the `containers` package using `-f-containers`.
+    .
+    Disabing this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+  default: True
+  manual: True
+
+flag contravariant
+  description:
+    You can disable the use of the `contravariant` package using `-f-contravariant`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+    .
+    If disabled we will not supply instances of `Contravariant`
+    .
+  default: True
+  manual: True
+
+flag distributive
+  description:
+    You can disable the use of the `distributive` package using `-f-distributive`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+    .
+    If disabled we will not supply instances of `Distributive`
+    .
+  default: True
+  manual: True
+
+flag comonad
+  description:
+    You can disable the use of the `comonad` package using `-f-comonad`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+    .
+    If disabled we will not supply instances of `Comonad`
+    .
+  default: True
+  manual: True
+
+
 library
   build-depends:
     base          >= 4       && < 5,
-    containers    >= 0.3     && < 0.6,
-    contravariant >= 0.2.0.1 && < 1,
-    comonad       >= 4       && < 5,
-    distributive  >= 0.2.2   && < 1,
     semigroups    >= 0.8.3.1 && < 1,
     transformers  >= 0.2     && < 0.6
+
+  if flag(containers)
+    build-depends: containers >= 0.3 && < 0.6
+
+  if flag(contravariant)
+    build-depends: contravariant >= 0.2.0.1 && < 1
+
+  if flag(distributive)
+    build-depends: distributive >= 0.2.2 && < 1
+
+  if flag(comonad)
+    build-depends: comonad      >= 4     && < 5
 
   hs-source-dirs: src
 

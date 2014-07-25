@@ -37,13 +37,16 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Alt
 import Data.Functor.Bind
+import Data.Semigroup
+import Prelude hiding (id, (.))
+
+#ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
-import Data.Semigroup
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Prelude hiding (id, (.))
+#endif
 
 -- | Laws:
 --
@@ -73,6 +76,7 @@ instance MonadPlus m => Plus (WrappedMonad m) where
 instance ArrowPlus a => Plus (WrappedArrow a b) where
   zero = empty
 
+#ifdef MIN_VERSION_containers
 instance Ord k => Plus (Map k) where
   zero = Map.empty
 
@@ -81,6 +85,7 @@ instance Plus IntMap where
 
 instance Plus Seq where
   zero = mempty
+#endif
 
 instance Alternative f => Plus (WrappedApplicative f) where
   zero = empty

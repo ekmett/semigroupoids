@@ -35,14 +35,17 @@ import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Bind
-import qualified Data.IntMap as IntMap
-import Data.IntMap (IntMap)
 import Data.Semigroup
 import Data.List.NonEmpty (NonEmpty(..))
+import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++))
+
+#ifdef MIN_VERSION_containers
+import qualified Data.IntMap as IntMap
+import Data.IntMap (IntMap)
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++))
+#endif
 
 infixl 3 <!>
 
@@ -116,6 +119,7 @@ instance MonadPlus m => Alt (WrappedMonad m) where
 instance ArrowPlus a => Alt (WrappedArrow a b) where
   (<!>) = (<|>)
 
+#ifdef MIN_VERSION_containers
 instance Ord k => Alt (Map k) where
   (<!>) = Map.union
 
@@ -124,6 +128,7 @@ instance Alt IntMap where
 
 instance Alt Seq where
   (<!>) = mappend
+#endif
 
 instance Alt NonEmpty where
   (a :| as) <!> ~(b :| bs) = a :| (as ++ b : bs)

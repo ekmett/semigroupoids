@@ -1,7 +1,11 @@
 {-# LANGUAGE CPP #-}
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#ifdef MIN_VERSION_comonad
 #if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
+#else
+{-# LANGUAGE Trustworthy #-}
+#endif
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -14,7 +18,6 @@ module Data.Semigroupoid.Static
 import Control.Arrow
 import Control.Applicative
 import Control.Category
-import Control.Comonad
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
 #endif
@@ -28,6 +31,10 @@ import Prelude hiding ((.), id)
 
 #ifdef LANGUAGE_DeriveDataTypeable
 import Data.Typeable
+#endif
+
+#ifdef MIN_VERSION_comonad
+import Control.Comonad
 #endif
 
 newtype Static f a b = Static { runStatic :: f (a -> b) }
@@ -54,9 +61,11 @@ instance Applicative f => Applicative (Static f a) where
 instance (Extend f, Semigroup a) => Extend (Static f a) where
   extended f = Static . extended (\wf m -> f (Static (fmap (. (<>) m) wf))) . runStatic
 
+#ifdef MIN_VERSION_comonad
 instance (Comonad f, Monoid a) => Comonad (Static f a) where
   extend f = Static . extend (\wf m -> f (Static (fmap (. mappend m) wf))) . runStatic
   extract (Static g) = extract g mempty
+#endif
 
 instance Apply f => Semigroupoid (Static f) where
   Static f `o` Static g = Static ((.) <$> f <.> g)

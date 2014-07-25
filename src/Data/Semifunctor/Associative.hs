@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semifunctor.Associative
@@ -17,11 +18,14 @@ module Data.Semifunctor.Associative where
 
 import Prelude hiding ((.), id)
 import Control.Arrow
-import Control.Comonad
 import Data.Functor.Bind
-import Data.Functor.Extend
 import Data.Semifunctor
 -- import Data.Isomorphism
+
+#ifdef MIN_VERSION_comonad
+import Data.Functor.Extend
+import Control.Comonad
+#endif
 
 class Semifunctor p (Product k k) k => Associative k p where
   associate :: k (p(p(a,b),c)) (p(a,p(b,c)))
@@ -43,6 +47,7 @@ instance (Bind m, Monad m) => Associative (Kleisli m) (Bi Either) where
 instance (Bind m, Monad m) => Associative (Kleisli m) (Bi (,)) where
   associate = kleisliAssociate
 
+#ifdef MIN_VERSION_comonad
 cokleisliAssociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Associative (->) p) => Cokleisli m (p(p(a,b),c)) (p(a,p(b,c)))
 cokleisliAssociate = Cokleisli (associate . extract)
 
@@ -50,6 +55,7 @@ instance (Extend m, Comonad m) => Associative (Cokleisli m) (Bi (,)) where
   associate = cokleisliAssociate
 
 -- instance Comonad m => Associative (Cokleisli m) (Bi Either) where associate = cokleisliAssociate
+#endif
 
 -- instance Disassociative k p => Associative (Dual k) p
 -- instance (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m) (Kleisli m), Associative (->) p) => Associative (Kleisli m) p) where associate = kleisliAssociate
@@ -74,11 +80,13 @@ instance (Bind m, Monad m) => Disassociative (Kleisli m) (Bi Either) where
 instance (Bind m, Monad m) => Disassociative (Kleisli m) (Bi (,)) where
   disassociate = kleisliDisassociate
 
+#ifdef MIN_VERSION_comonad
 cokleisliDisassociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Disassociative (->) p) => Cokleisli m (p(a,p(b,c))) (p(p(a,b),c))
 cokleisliDisassociate = Cokleisli (disassociate . extract)
 
 instance (Extend m, Comonad m) => Disassociative (Cokleisli m) (Bi (,)) where
   disassociate = cokleisliDisassociate
+#endif
 
 --  instance Associative k p => Disassociative (Dual k) p
 

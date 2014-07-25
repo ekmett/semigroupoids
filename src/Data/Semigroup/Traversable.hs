@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semigroup.Traversable
@@ -18,7 +19,6 @@ import Control.Applicative
 import Control.Monad.Trans.Identity
 import Data.Functor.Apply
 import Data.Functor.Compose
-import Data.Functor.Coproduct
 import Data.Functor.Identity
 import Data.Functor.Product
 import Data.List.NonEmpty (NonEmpty(..))
@@ -26,7 +26,14 @@ import Data.Semigroup hiding (Product)
 import Data.Semigroup.Foldable
 import Data.Traversable
 import Data.Traversable.Instances ()
+
+#ifdef MIN_VERSION_containers
 import Data.Tree
+#endif
+
+#ifdef MIN_VERSION_comonad
+import Data.Functor.Coproduct
+#endif
 
 class (Foldable1 t, Traversable t) => Traversable1 t where
   traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
@@ -50,14 +57,18 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Product f g) where
   traverse1 f (Pair a b) = Pair <$> traverse1 f a <.> traverse1 f b
 
+#ifdef MIN_VERSION_comonad
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Coproduct f g) where
   traverse1 f = coproduct
     (fmap (Coproduct . Left) . traverse1 f)
     (fmap (Coproduct . Right) . traverse1 f)
+#endif
 
+#ifdef MIN_VERSION_containers
 instance Traversable1 Tree where
   traverse1 f (Node a []) = (`Node`[]) <$> f a
   traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
+#endif
 
 instance Traversable1 NonEmpty where
   traverse1 f (a :| []) = (:|[]) <$> f a
