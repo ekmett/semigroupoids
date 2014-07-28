@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       4.0.3
+version:       4.0.4
 license:       BSD3
 cabal-version: >= 1.6
 license-file:  LICENSE
@@ -106,7 +106,7 @@ library
     build-depends: containers >= 0.3 && < 0.6
 
   if flag(contravariant)
-    build-depends: contravariant >= 0.2.0.1 && < 1
+    build-depends: contravariant >= 0.2.0.1 && < 2
 
   if flag(distributive)
     build-depends: distributive >= 0.2.2 && < 1

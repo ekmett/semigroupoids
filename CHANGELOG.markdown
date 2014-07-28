@@ -1,3 +1,7 @@
+4.0.4
+-----
+* `contravariant` 1.0 support.
+
 4.0.3
 ---
 * Added flags to provide unsupported cabal sandbox build modes.
