@@ -73,3 +73,6 @@ instance Traversable1 Tree where
 instance Traversable1 NonEmpty where
   traverse1 f (a :| []) = (:|[]) <$> f a
   traverse1 f (a :| (b: bs)) = (\a' (b':| bs') -> a' :| b': bs') <$> f a <.> traverse1 f (b :| bs)
+
+instance Traversable1 ((,) a) where
+  traverse1 f (a, b) = (,) a <$> f b
