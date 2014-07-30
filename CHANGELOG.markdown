@@ -1,3 +1,7 @@
+4.2
+---
+* Backported `Foldable`/`Traversable` instances from `lens`
+
 4.1
 ---
 * `Foldable1`/`Traversable1` for tuples
