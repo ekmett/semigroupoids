@@ -19,6 +19,7 @@ import Data.Traversable
 #endif
 
 #if !(MIN_VERSION_base(4,7,0))
+import Control.Applicative
 import Data.Monoid
 #endif
 
