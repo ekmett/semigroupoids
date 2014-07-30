@@ -71,6 +71,9 @@ instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a
   foldMap1 f (a :| b : bs) = f a <> foldMap1 f (b :| bs)
 
+instance Foldable1 ((,) a) where
+  foldMap1 f (_, x) = f x
+
 newtype Act f a = Act { getAct :: f a }
 
 instance Apply f => Semigroup (Act f a) where
