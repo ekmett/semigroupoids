@@ -1,3 +1,7 @@
+4.1
+---
+* `Foldable1`/`Traversable1` for tuples
+
 4.0.4
 -----
 * `contravariant` 1.0 support.
