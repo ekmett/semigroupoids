@@ -3,4 +3,6 @@ module Main where
 import System.FilePath.Glob (glob)
 import Test.DocTest (doctest)
 
-main = glob "src/**/*.hs" >>= doctest
+main :: IO ()
+main = glob "src/**/*.hs" >>=
+       doctest . (["-Wall", "-fno-warn-warnings-deprecations"] ++)
