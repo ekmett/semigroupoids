@@ -10,7 +10,7 @@ stability:     provisional
 homepage:      http://github.com/ekmett/semigroupoids
 bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011-2013 Edward A. Kmett
-build-type:    Simple
+build-type:    Custom
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .ghci
