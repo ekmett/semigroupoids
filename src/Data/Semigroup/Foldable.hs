@@ -81,10 +81,28 @@ newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 instance Semigroup a => Semigroup (JoinWith a) where
   JoinWith a <> JoinWith b = JoinWith $ \j -> a j <> j <> b j
 
+-- | Insert an 'm' between each pair of 't m'.  Equivalent to
+-- 'intercalateMap1' with 'id' as the second argument.
+--
+-- >>> intercalate1 ", " $ "hello" :| ["how", "are", "you"]
+-- "hello, how, are, you"
+--
+-- >>> intercalate1 ", " $ "hello" :| []
+-- "hello"
+--
+-- >>> intercalate1 mempty $ "I" :| ["Am", "Fine", "You?"]
+-- "IAmFineYou?"
 intercalate1 :: (Foldable1 t, Semigroup m) => m -> t m -> m
 intercalate1 = flip intercalateMap1 id
 {-# INLINE intercalate1 #-}
 
+-- | Insert 'm' between each pair of 'm' derived from 'a'.
+--
+-- >>> intercalateMap1 " " show $ True :| [False, True]
+-- "True False True"
+--
+-- >>> intercalateMap1 " " show $ True :| []
+-- "True"
 intercalateMap1 :: (Foldable1 t, Semigroup m) => m -> (a -> m) -> t a -> m
 intercalateMap1 j f = flip joinee j . foldMap1 (JoinWith . const . f)
 {-# INLINE intercalateMap1 #-}
