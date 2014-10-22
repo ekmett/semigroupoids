@@ -84,6 +84,12 @@ flag distributive
   default: True
   manual: True
 
+flag doctests
+  description:
+    You can disable testing with doctests using `-f-doctests`.
+  default: True
+  manual: True
+
 flag comonad
   description:
     You can disable the use of the `comonad` package using `-f-comonad`.
@@ -139,3 +145,18 @@ library
     Data.Traversable.Instances
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
+
+
+test-suite doctests
+  type:             exitcode-stdio-1.0
+  main-is:          doctests.hs
+  hs-source-dirs:   test
+  ghc-options:      -Wall -fno-warn-warnings-deprecations
+
+  if !flag(doctests)
+    buildable: False
+  else
+    build-depends:
+      base    >= 4     && < 5,
+      doctest >= 0.9.1 && < 0.10,
+      Glob    >= 0.7   && < 0.8
