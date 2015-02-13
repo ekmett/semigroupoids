@@ -58,6 +58,7 @@ import Control.Monad.Instances ()
 #endif
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
@@ -225,6 +226,9 @@ instance (Bind m, Monad m) => Apply (MaybeT m) where
 
 -- ErrorT e is _not_ the same as Compose f (Either e)
 instance (Bind m, Monad m) => Apply (ErrorT e m) where
+  (<.>) = apDefault
+
+instance (Bind m, Monad m) => Apply (ExceptT e m) where
   (<.>) = apDefault
 
 instance Apply m => Apply (ReaderT e m) where
@@ -442,6 +446,13 @@ instance (Bind m, Monad m) => Bind (ErrorT e m) where
     case a of
       Left l -> return (Left l)
       Right r -> runErrorT (k r)
+
+instance (Bind m, Monad m) => Bind (ExceptT e m) where
+  m >>- k = ExceptT $ do
+    a <- runExceptT m
+    case a of
+      Left l -> return (Left l)
+      Right r -> runExceptT (k r)
 
 instance Bind m => Bind (ReaderT e m) where
   ReaderT m >>- f = ReaderT $ \e -> m e >>- \x -> runReaderT (f x) e
