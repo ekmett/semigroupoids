@@ -221,14 +221,14 @@ instance Apply Tree where
 #endif
 
 -- MaybeT is _not_ the same as Compose f Maybe
-instance (Bind m, Monad m) => Apply (MaybeT m) where
+instance (Functor m, Monad m) => Apply (MaybeT m) where
   (<.>) = apDefault
 
 -- ErrorT e is _not_ the same as Compose f (Either e)
-instance (Bind m, Monad m) => Apply (ErrorT e m) where
+instance (Functor m, Monad m) => Apply (ErrorT e m) where
   (<.>) = apDefault
 
-instance (Bind m, Monad m) => Apply (ExceptT e m) where
+instance (Functor m, Monad m) => Apply (ExceptT e m) where
   (<.>) = apDefault
 
 instance Apply m => Apply (ReaderT e m) where
@@ -434,20 +434,20 @@ instance Bind m => Bind (IdentityT m) where
 instance Monad m => Bind (WrappedMonad m) where
   WrapMonad m >>- f = WrapMonad $ m >>= unwrapMonad . f
 
-instance (Bind m, Monad m) => Bind (MaybeT m) where
+instance (Functor m, Monad m) => Bind (MaybeT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @Nothing@
 
-instance (Bind m, Monad m) => Bind (ListT m) where
+instance (Apply m, Monad m) => Bind (ListT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @[]@
 
-instance (Bind m, Monad m) => Bind (ErrorT e m) where
+instance (Functor m, Monad m) => Bind (ErrorT e m) where
   m >>- k = ErrorT $ do
     a <- runErrorT m
     case a of
       Left l -> return (Left l)
       Right r -> runErrorT (k r)
 
-instance (Bind m, Monad m) => Bind (ExceptT e m) where
+instance (Functor m, Monad m) => Bind (ExceptT e m) where
   m >>- k = ExceptT $ do
     a <- runExceptT m
     case a of
