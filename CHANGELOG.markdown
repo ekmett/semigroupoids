@@ -1,6 +1,7 @@
 4.3
 -----
 * Added missing instances for `ExceptT`. Obtain it via `transformers-compat` if need be for old `transformers` versions.
+* Several `Bind` and `Apply` instances now require somewhat more minimal contexts.
 
 4.2
 ---
