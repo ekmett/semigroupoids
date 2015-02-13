@@ -24,6 +24,7 @@ import Control.Exception (catch, SomeException)
 import Control.Monad
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Error
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
@@ -37,7 +38,7 @@ import Data.Functor.Apply
 import Data.Functor.Bind
 import Data.Semigroup
 import Data.List.NonEmpty (NonEmpty(..))
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++))
+import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either)
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -155,6 +156,13 @@ instance (Bind f, Monad f) => Alt (ErrorT e f) where
     case a of
       Left _ -> n
       Right r -> return (Right r)
+
+instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
+  ExceptT m <!> ExceptT n = ExceptT $ do
+    a <- m
+    case a of
+      Left e -> liftM (either (Left . (<>) e) Right) n
+      Right x -> return (Right x)
 
 instance Apply f => Alt (ListT f) where
   ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b

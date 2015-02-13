@@ -104,9 +104,10 @@ flag comonad
 
 library
   build-depends:
-    base          >= 4       && < 5,
-    semigroups    >= 0.8.3.1 && < 1,
-    transformers  >= 0.2     && < 0.6
+    base                >= 4       && < 5,
+    semigroups          >= 0.8.3.1 && < 1,
+    transformers        >= 0.2     && < 0.6,
+    transformers-compat >= 0.3     && < 0.5
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.6
