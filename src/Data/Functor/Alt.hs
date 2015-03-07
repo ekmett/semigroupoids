@@ -1,11 +1,14 @@
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Safe #-}
+#endif
+#if __GLASGOW_HASKELL__ >= 711
+{-# LANGUAGE ConstrainedClassMethods #-}
 #endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
--- Copyright   :  (C) 2011 Edward Kmett,
+-- Copyright   :  (C) 2011-2015 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
