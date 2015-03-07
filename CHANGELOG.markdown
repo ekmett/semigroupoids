@@ -1,3 +1,7 @@
+4.3.0.1
+-------
+* Support for 'ConstrainedClassMethods' is currently required for GHC HEAD.
+
 4.3
 -----
 * Added missing instances for `ExceptT`. Obtain it via `transformers-compat` if need be for old `transformers` versions.
