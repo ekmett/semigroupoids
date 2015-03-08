@@ -18,10 +18,12 @@ module Data.Semigroup.Foldable
   , for1_
   , sequenceA1_
   , foldMapDefault1
+  , asum1
   ) where
 
 import Control.Monad.Trans.Identity
 import Data.Foldable
+import Data.Functor.Alt (Alt(..))
 import Data.Functor.Identity
 import Data.Functor.Apply
 import Data.Functor.Product
@@ -136,3 +138,12 @@ foldMapDefault1 f = unwrapMonoid . foldMap (WrapMonoid . f)
 -- toStream :: Foldable1 t => t a -> Stream a
 -- concat1 :: Foldable1 t => t (Stream a) -> Stream a
 -- concatMap1 :: Foldable1 t => (a -> Stream b) -> t a -> Stream b
+
+newtype Alt_ f a = Alt_ { getAlt_ :: f a }
+
+instance Alt f => Semigroup (Alt_ f a) where
+  Alt_ a <> Alt_ b = Alt_ (a <!> b)
+
+asum1 :: (Foldable1 t, Alt m) => t (m a) -> m a
+asum1 = getAlt_ . foldMap1 Alt_
+{-# INLINE asum1 #-}
