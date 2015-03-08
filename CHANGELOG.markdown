@@ -1,3 +1,7 @@
+4.3.1
+-----
+* Added `asum1` to `Data.Semigroup.Foldable`.
+
 4.3.0.1
 -------
 * Support for 'ConstrainedClassMethods' is currently required for GHC HEAD.
