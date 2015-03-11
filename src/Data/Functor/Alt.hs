@@ -82,7 +82,7 @@ infixl 3 <!>
 -- > (m <!> n) >>= f = (m >>= f) <!> (m >>= f)
 
 class Functor f => Alt f where
-  -- | @(<|>)@ without a required @empty@
+  -- | '<|>' without a required @empty@
   (<!>) :: f a -> f a -> f a
 
   some :: Applicative f => f a -> f [a]
