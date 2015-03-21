@@ -53,6 +53,10 @@ class Functor w => Extend w where
   extended f = fmap f . duplicated
   duplicated = extended id
 
+#if __GLASGOW_HASKELL__ >= 708
+  {-# MINIMAL duplicated | extended #-}
+#endif
+
 -- * Extends for Prelude types:
 --
 -- Instances: While Data.Functor.Extend.Instances would be symmetric

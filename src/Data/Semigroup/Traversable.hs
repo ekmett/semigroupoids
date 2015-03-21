@@ -42,6 +42,10 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
   sequence1 = traverse1 id
   traverse1 f = sequence1 . fmap f
 
+#if __GLASGOW_HASKELL__ >= 708
+  {-# MINIMAL traverse1 | sequence1 #-}
+#endif
+
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
 

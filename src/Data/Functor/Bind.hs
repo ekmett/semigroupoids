@@ -380,6 +380,10 @@ class Apply m => Bind m where
   join :: m (m a) -> m a
   join = (>>- id)
 
+#if __GLASGOW_HASKELL__ >= 708
+  {-# MINIMAL (>>-) | join #-}
+#endif
+
 returning :: Functor f => f a -> (a -> b) -> f b
 returning = flip fmap
 
