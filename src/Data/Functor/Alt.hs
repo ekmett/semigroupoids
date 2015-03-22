@@ -61,7 +61,7 @@ infixl 3 <!>
 -- If extended to an 'Alternative' then '<!>' should equal '<|>'.
 --
 -- Ideally, an instance of 'Alt' also satisfies the \"left distributon\" law of
--- MonadPlus with respect to <.>:
+-- MonadPlus with respect to '<.>':
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 --
@@ -100,7 +100,7 @@ instance Alt (Either a) where
   Left _ <!> b = b
   a      <!> _ = a
 
--- | This instance does not actually satisfy the (<.>) right distributive law
+-- | This instance does not actually satisfy the ('<.>') right distributive law
 -- It instead satisfies the "Left-Catch" law
 instance Alt IO where
   m <!> n = catch m (go n) where
