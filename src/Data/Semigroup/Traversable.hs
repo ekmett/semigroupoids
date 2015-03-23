@@ -16,13 +16,17 @@ module Data.Semigroup.Traversable
   ) where
 
 import Control.Applicative
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
 import Control.Monad.Trans.Identity
 import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Identity
 import Data.Functor.Product
+import Data.Functor.Reverse
+import Data.Functor.Sum
 import Data.List.NonEmpty (NonEmpty(..))
-import Data.Semigroup hiding (Product)
+import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable
 import Data.Traversable
 import Data.Traversable.Instances ()
@@ -55,11 +59,25 @@ instance Traversable1 Identity where
 instance Traversable1 f => Traversable1 (IdentityT f) where
   traverse1 f = fmap IdentityT . traverse1 f . runIdentityT
 
+instance Traversable1 f => Traversable1 (Backwards f) where
+  traverse1 f = fmap Backwards . traverse1 f . forwards
+
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
   traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
 
+instance Traversable1 f => Traversable1 (Lift f) where
+  traverse1 f (Pure x)  = Pure <$> f x
+  traverse1 f (Other y) = Other <$> traverse1 f y
+
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Product f g) where
   traverse1 f (Pair a b) = Pair <$> traverse1 f a <.> traverse1 f b
+
+instance Traversable1 f => Traversable1 (Reverse f) where
+  traverse1 f = fmap Reverse . forwards . traverse1 (Backwards . f) . getReverse
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Sum f g) where
+  traverse1 f (InL x) = InL <$> traverse1 f x
+  traverse1 f (InR y) = InR <$> traverse1 f y
 
 #ifdef MIN_VERSION_comonad
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Coproduct f g) where
