@@ -21,16 +21,20 @@ module Data.Semigroup.Foldable
   , asum1
   ) where
 
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
 import Control.Monad.Trans.Identity
 import Data.Foldable
 import Data.Functor.Alt (Alt(..))
-import Data.Functor.Identity
 import Data.Functor.Apply
-import Data.Functor.Product
 import Data.Functor.Compose
+import Data.Functor.Identity
+import Data.Functor.Product
+import Data.Functor.Reverse
+import Data.Functor.Sum
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
-import Data.Semigroup hiding (Product)
+import Data.Semigroup hiding (Product, Sum)
 import Prelude hiding (foldr)
 
 #ifdef MIN_VERSION_containers
@@ -60,11 +64,25 @@ instance Foldable1 Identity where
 instance Foldable1 m => Foldable1 (IdentityT m) where
   foldMap1 f = foldMap1 f . runIdentityT
 
+instance Foldable1 f => Foldable1 (Backwards f) where
+  foldMap1 f = foldMap1 f . forwards
+
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Compose f g) where
   foldMap1 f = foldMap1 (foldMap1 f) . getCompose
 
+instance Foldable1 f => Foldable1 (Lift f) where
+  foldMap1 f (Pure x)  = f x
+  foldMap1 f (Other y) = foldMap1 f y
+
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Product f g) where
   foldMap1 f (Pair a b) = foldMap1 f a <> foldMap1 f b
+
+instance Foldable1 f => Foldable1 (Reverse f) where
+  foldMap1 f = getDual . foldMap1 (Dual . f) . getReverse
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (Sum f g) where
+  foldMap1 f (InL x) = foldMap1 f x
+  foldMap1 f (InR y) = foldMap1 f y
 
 #ifdef MIN_VERSION_comonad
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Coproduct f g) where
