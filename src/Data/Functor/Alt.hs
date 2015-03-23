@@ -22,6 +22,8 @@ module Data.Functor.Alt
   ) where
 
 import Control.Applicative hiding (some, many)
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
 import Control.Arrow
 import Control.Exception (catch, SomeException)
 import Control.Monad
@@ -39,7 +41,10 @@ import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Bind
-import Data.Semigroup
+import Data.Functor.Compose
+import Data.Functor.Product
+import Data.Functor.Reverse
+import Data.Semigroup hiding (Product)
 import Data.List.NonEmpty (NonEmpty(..))
 import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either)
 
@@ -187,3 +192,20 @@ instance Alt f => Alt (Strict.RWST r w s f) where
 
 instance Alt f => Alt (Lazy.RWST r w s f) where
   Lazy.RWST m <!> Lazy.RWST n = Lazy.RWST $ \r s -> m r s <!> n r s
+
+instance Alt f => Alt (Backwards f) where
+  Backwards a <!> Backwards b = Backwards (a <!> b)
+
+instance (Alt f, Functor g) => Alt (Compose f g) where
+  Compose a <!> Compose b = Compose (a <!> b)
+
+instance Alt f => Alt (Lift f) where
+  Pure a   <!> _       = Pure a
+  Other _  <!> Pure b  = Pure b
+  Other a  <!> Other b = Other (a <!> b)
+
+instance (Alt f, Alt g) => Alt (Product f g) where
+  Pair a1 b1 <!> Pair a2 b2 = Pair (a1 <!> a2) (b1 <!> b2)
+
+instance Alt f => Alt (Reverse f) where
+  Reverse a <!> Reverse b = Reverse (a <!> b)

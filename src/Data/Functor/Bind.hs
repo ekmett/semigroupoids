@@ -50,6 +50,8 @@ module Data.Functor.Bind (
 
 -- import _everything_
 import Control.Applicative
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
@@ -70,8 +72,10 @@ import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 import Data.Functor.Compose
+import Data.Functor.Constant
 import Data.Functor.Identity
 import Data.Functor.Product
+import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Semigroup hiding (Product)
@@ -118,11 +122,28 @@ class Functor f => Apply f where
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
 
+instance Apply f => Apply (Backwards f) where
+  Backwards f <.> Backwards a = Backwards (a <..> f)
+
 instance (Apply f, Apply g) => Apply (Compose f g) where
   Compose f <.> Compose x = Compose ((<.>) <$> f <.> x)
 
+instance Semigroup f => Apply (Constant f) where
+  Constant a <.> Constant b = Constant (a <> b)
+  Constant a <.  Constant b = Constant (a <> b)
+  Constant a  .> Constant b = Constant (a <> b)
+
+instance Apply f => Apply (Lift f) where
+  Pure f  <.> Pure x  = Pure (f x)
+  Pure f  <.> Other y = Other (f <$> y)
+  Other f <.> Pure x  = Other (($ x) <$> f)
+  Other f <.> Other y = Other (f <.> y)
+
 instance (Apply f, Apply g) => Apply (Product f g) where
   Pair f g <.> Pair x y = Pair (f <.> x) (g <.> y)
+
+instance Apply f => Apply (Reverse f) where
+  Reverse a <.> Reverse b = Reverse (a <.> b)
 
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)

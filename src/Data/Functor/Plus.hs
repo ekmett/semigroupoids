@@ -19,12 +19,15 @@ module Data.Functor.Plus
   ) where
 
 import Control.Applicative hiding (some, many)
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
 import Control.Arrow
 -- import Control.Exception
 import Control.Monad
 import Control.Monad.Trans.Identity
 -- import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
@@ -37,7 +40,10 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Alt
 import Data.Functor.Bind
-import Data.Semigroup
+import Data.Functor.Compose
+import Data.Functor.Product
+import Data.Functor.Reverse
+import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
 
 #ifdef MIN_VERSION_containers
@@ -102,6 +108,9 @@ instance (Bind f, Monad f) => Plus (MaybeT f) where
 instance (Bind f, Monad f, Error e) => Plus (ErrorT e f) where
   zero = ErrorT $ return $ Left noMsg
 
+instance (Bind f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
+  zero = ExceptT $ return $ Left mempty
+
 instance (Apply f, Applicative f) => Plus (ListT f) where
   zero = ListT $ pure []
 
@@ -122,3 +131,18 @@ instance Plus f => Plus (Strict.RWST r w s f) where
 
 instance Plus f => Plus (Lazy.RWST r w s f) where
   zero = Lazy.RWST $ \_ _ -> zero
+
+instance Plus f => Plus (Backwards f) where
+  zero = Backwards zero
+
+instance (Plus f, Functor g) => Plus (Compose f g) where
+  zero = Compose zero
+
+instance Plus f => Plus (Lift f) where
+  zero = Other zero
+
+instance (Plus f, Plus g) => Plus (Product f g) where
+  zero = Pair zero zero
+
+instance Plus f => Plus (Reverse f) where
+  zero = Reverse zero
