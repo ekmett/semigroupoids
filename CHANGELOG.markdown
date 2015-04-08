@@ -1,3 +1,8 @@
+4.4
+---
+* Added dependency on `base-compat`, which contains orphan `Foldable` and `Traversable` instances for `Either`, `Const`, and `(,)`.
+* The `Data.Traversable.Instances` module now reexports the orphan instances from `base-compat`.
+
 4.3.1
 -----
 * Added `asum1` to `Data.Semigroup.Foldable`.
