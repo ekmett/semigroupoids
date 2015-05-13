@@ -6,7 +6,6 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE DataKinds #-}
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 #ifdef MIN_VERSION_comonad
 #if MIN_VERSION_comonad(3,0,3)
 {-# LANGUAGE Safe #-}
@@ -15,7 +14,6 @@
 #endif
 #else
 {-# LANGUAGE Trustworthy #-}
-#endif
 #endif
 
 -----------------------------------------------------------------------------

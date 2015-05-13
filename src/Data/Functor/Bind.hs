@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP #-}
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 #ifdef MIN_VERSION_comonad
 #if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
@@ -10,7 +9,7 @@
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
-#endif
+
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -----------------------------------------------------------------------------
 -- |

@@ -16,7 +16,7 @@ module Data.Functor.Bind.Trans (
 
 -- import _everything_
 import Control.Category
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
+#if __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
 #endif
 import Control.Monad.Trans.Class

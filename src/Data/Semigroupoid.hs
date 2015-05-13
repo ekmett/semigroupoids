@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE PolyKinds #-}
 #ifdef MIN_VERSION_comonad
 #if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
@@ -8,10 +8,6 @@
 #endif
 #else
 {-# LANGUAGE Trustworthy #-}
-#endif
-#endif
-#if __GLASGOW_HASKELL__ >= 706
-{-# LANGUAGE PolyKinds #-}
 #endif
 
 

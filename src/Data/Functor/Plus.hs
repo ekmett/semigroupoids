@@ -1,7 +1,5 @@
 {-# LANGUAGE CPP #-}
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Safe #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Plus
@@ -114,10 +112,10 @@ instance (Bind f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
 instance (Apply f, Applicative f) => Plus (ListT f) where
   zero = ListT $ pure []
 
-instance (Plus f) => Plus (Strict.StateT e f) where
+instance Plus f => Plus (Strict.StateT e f) where
   zero = Strict.StateT $ \_ -> zero
 
-instance (Plus f) => Plus (Lazy.StateT e f) where
+instance Plus f => Plus (Lazy.StateT e f) where
   zero = Lazy.StateT $ \_ -> zero
 
 instance Plus f => Plus (Strict.WriterT w f) where
