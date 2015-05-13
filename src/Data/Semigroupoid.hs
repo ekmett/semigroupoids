@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semigroupoid
--- Copyright   :  (C) 2007-2011 Edward Kmett
+-- Copyright   :  (C) 2007-2015 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>

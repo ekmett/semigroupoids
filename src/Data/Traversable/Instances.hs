@@ -5,7 +5,20 @@
 #ifndef MIN_VERSION_base
 #define MIN_VERSION_base(x,y,z) 1
 #endif
--- | Placeholders for missing instances of Traversable, until base catches up and adds them
+-----------------------------------------------------------------------------
+-- |
+-- Copyright   :  (C) 2011-2015 Edward Kmett
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  provisional
+-- Portability :  polykinds
+--
+-- Placeholders for missing instances of 'Traversable', and 'Foldable' until
+-- base catches up and adds them. Many of these are re-exports from the
+-- `base-orphans` package.
+----------------------------------------------------------------------------
+
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Data.Traversable.Instances where
 

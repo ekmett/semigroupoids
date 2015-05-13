@@ -1,4 +1,15 @@
 {-# LANGUAGE CPP, GADTs, EmptyDataDecls, PolyKinds, DataKinds #-}
+-----------------------------------------------------------------------------
+-- |
+-- Copyright   :  (C) 2011-2015 Edward Kmett
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Edward Kmett <ekmett@gmail.com>
+-- Stability   :  provisional
+-- Portability :  portable
+--
+----------------------------------------------------------------------------
+
 module Data.Semigroupoid.Coproduct
   ( Coproduct(..), distributeDualCoproduct, factorDualCoproduct) where
 
