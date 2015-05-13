@@ -10,7 +10,7 @@ stability:     provisional
 homepage:      http://github.com/ekmett/semigroupoids
 bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011-2015 Edward A. Kmett
-build-type:    Simple
+build-type:    Custom
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .ghci
@@ -148,7 +148,6 @@ library
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
 
-
 test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
@@ -159,6 +158,8 @@ test-suite doctests
     buildable: False
   else
     build-depends:
-      base    >= 4     && < 5,
+      base    >= 4.6   && < 5,
       doctest >= 0.9.1 && < 0.10,
-      Glob    >= 0.7   && < 0.8
+      directory      >= 1.0,
+      filepath
+
