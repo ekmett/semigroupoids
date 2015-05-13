@@ -1,3 +1,7 @@
+4.5
+---
+* Major changes to the API to support PolyKinds and DataKinds. This necessarily shuts off GHC <= 7.4.
+
 4.3.1
 -----
 * Added `asum1` to `Data.Semigroup.Foldable`.
