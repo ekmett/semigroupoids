@@ -1,4 +1,5 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, PolyKinds, DataKinds #-}
+
 module Data.Semigroupoid.Product
   ( Product(..)
   , distributeDualProduct
@@ -10,7 +11,7 @@ import Data.Semigroupoid.Dual
 import Data.Groupoid
 
 data Product j k a b where
-  Pair :: j a b -> k a' b' -> Product j k (a,a') (b,b')
+  Pair :: j a b -> k a' b' -> Product j k '(a,a') '(b,b')
 
 instance (Semigroupoid j, Semigroupoid k) => Semigroupoid (Product j k) where
   Pair w x `o` Pair y z = Pair (w `o` y) (x `o` z)

@@ -1,17 +1,14 @@
-{-# LANGUAGE GADTs, EmptyDataDecls #-}
+{-# LANGUAGE CPP, GADTs, EmptyDataDecls, PolyKinds, DataKinds #-}
 module Data.Semigroupoid.Coproduct
-  ( L, R, Coproduct(..), distributeDualCoproduct, factorDualCoproduct) where
+  ( Coproduct(..), distributeDualCoproduct, factorDualCoproduct) where
 
 import Data.Semigroupoid
 import Data.Semigroupoid.Dual
 import Data.Groupoid
 
-data L a
-data R a
-
 data Coproduct j k a b where
-  L :: j a b -> Coproduct j k (L a) (L b)
-  R :: k a b -> Coproduct j k (R a) (R b)
+  L :: j a b -> Coproduct j k (Left a) (Left b)
+  R :: k a b -> Coproduct j k (Right a) (Right b)
 
 instance (Semigroupoid j, Semigroupoid k) => Semigroupoid (Coproduct j k) where
   L f `o` L g = L (f `o` g)

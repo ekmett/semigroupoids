@@ -1,6 +1,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE CPP #-}
 
 -----------------------------------------------------------------------------
@@ -31,13 +33,13 @@ import Control.Comonad
 class Semigroupoid k => Ob k a where
   semiid :: k a a
 
-instance (Ob l a, Ob r b) => Ob (Product l r) (a,b) where
+instance (Ob l a, Ob r b) => Ob (Product l r) '(a,b) where
   semiid = Pair semiid semiid
 
-instance (Ob l a, Semigroupoid r)  => Ob (Coproduct l r) (L a) where
+instance (Ob l a, Semigroupoid r)  => Ob (Coproduct l r) (Left a) where
   semiid = L semiid
 
-instance (Semigroupoid l, Ob r a) => Ob (Coproduct l r) (R a) where
+instance (Semigroupoid l, Ob r a) => Ob (Coproduct l r) (Right a) where
   semiid = R semiid
 
 instance (Bind m, Monad m) => Ob (Kleisli m) a where

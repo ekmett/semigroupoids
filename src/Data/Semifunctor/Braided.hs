@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE DataKinds #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 702
 #ifdef MIN_VERSION_comonad
@@ -50,7 +52,7 @@ import Data.Functor.Extend
 #endif
 
 class Associative k p => Braided k p where
-  braid :: k (p(a,b)) (p(b,a))
+  braid :: k (p '(a,b)) (p '(b,a))
 
 -- instance Braided k p => Braided (Dual k) p where braid = Dual braid
 
@@ -61,7 +63,7 @@ instance Braided (->) (Bi Either) where
 instance Braided (->) (Bi (,)) where
   braid (Bi (a,b)) = Bi (b,a)
 
-kleisliBraid :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Braided (->) p) => Kleisli m (p(a,b)) (p(b,a))
+kleisliBraid :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Braided (->) p) => Kleisli m (p '(a,b)) (p '(b,a))
 kleisliBraid = Kleisli (return . braid)
 
 instance (Bind m, Monad m) => Braided (Kleisli m) (Bi Either) where
@@ -72,7 +74,7 @@ instance (Bind m, Monad m) => Braided (Kleisli m) (Bi (,)) where
 
 #ifdef MIN_VERSION_comonad
 cokleisliBraid :: (Extend w, Comonad w, Semifunctor p (Product (Cokleisli w) (Cokleisli w)) (Cokleisli w), Braided (->) p) =>
-                  Cokleisli w (p(a,b)) (p(b,a))
+                  Cokleisli w (p '(a,b)) (p '(b,a))
 cokleisliBraid = Cokleisli (braid . extract)
 
 instance (Extend w, Comonad w) => Braided (Cokleisli w) (Bi (,)) where
@@ -91,5 +93,5 @@ instance (Extend w, Comonad w) => Symmetric (Cokleisli w) (Bi (,))
 -- instance Comonad w => Symmetric (Cokleisli w) (Bi Either)
 #endif
 
-swap :: Symmetric k p => k (p(a,b)) (p(b,a))
+swap :: Symmetric k p => k (p '(a,b)) (p '(b,a))
 swap = braid

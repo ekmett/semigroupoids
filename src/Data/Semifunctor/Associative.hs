@@ -2,6 +2,8 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
@@ -28,7 +30,7 @@ import Control.Comonad
 #endif
 
 class Semifunctor p (Product k k) k => Associative k p where
-  associate :: k (p(p(a,b),c)) (p(a,p(b,c)))
+  associate :: k (p '(p '(a,b) ,c)) (p '(a, p '(b,c)))
 
 instance Associative (->) (Bi Either) where
   associate (Bi (Left (Bi (Left a)))) = Bi (Left a)
@@ -38,7 +40,7 @@ instance Associative (->) (Bi Either) where
 instance Associative (->) (Bi (,)) where
   associate (Bi (Bi (a,b),c)) = Bi(a, Bi(b, c))
 
-kleisliAssociate :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Associative (->) p) => Kleisli m (p(p(a,b),c)) (p(a,p(b,c)))
+kleisliAssociate :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Associative (->) p) => Kleisli m (p '(p '(a,b),c)) (p '(a,p '(b,c)))
 kleisliAssociate = Kleisli (return . associate)
 
 instance (Bind m, Monad m) => Associative (Kleisli m) (Bi Either) where
@@ -48,7 +50,7 @@ instance (Bind m, Monad m) => Associative (Kleisli m) (Bi (,)) where
   associate = kleisliAssociate
 
 #ifdef MIN_VERSION_comonad
-cokleisliAssociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Associative (->) p) => Cokleisli m (p(p(a,b),c)) (p(a,p(b,c)))
+cokleisliAssociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Associative (->) p) => Cokleisli m (p '(p '(a,b),c)) (p '(a,p '(b,c)))
 cokleisliAssociate = Cokleisli (associate . extract)
 
 instance (Extend m, Comonad m) => Associative (Cokleisli m) (Bi (,)) where
@@ -61,7 +63,7 @@ instance (Extend m, Comonad m) => Associative (Cokleisli m) (Bi (,)) where
 -- instance (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m) (Kleisli m), Associative (->) p) => Associative (Kleisli m) p) where associate = kleisliAssociate
 
 class Semifunctor p (Product k k) k => Disassociative k p where
-  disassociate :: k (p(a,p(b,c))) (p(p(a,b),c))
+  disassociate :: k (p '(a,p '(b,c))) (p '(p '(a,b),c))
 
 instance Disassociative (->) (Bi Either) where
   disassociate (Bi (Left a)) = Bi (Left (Bi (Left a)))
@@ -71,7 +73,7 @@ instance Disassociative (->) (Bi Either) where
 instance Disassociative (->) (Bi (,)) where
   disassociate (Bi(a, Bi(b, c))) = Bi (Bi (a,b),c)
 
-kleisliDisassociate :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Disassociative (->) p) => Kleisli m (p(a,p(b,c))) (p(p(a,b),c))
+kleisliDisassociate :: (Monad m, Semifunctor p (Product (Kleisli m) (Kleisli m)) (Kleisli m), Disassociative (->) p) => Kleisli m (p '(a,p '(b,c))) (p '(p '(a,b),c))
 kleisliDisassociate = Kleisli (return . disassociate)
 
 instance (Bind m, Monad m) => Disassociative (Kleisli m) (Bi Either) where
@@ -81,7 +83,7 @@ instance (Bind m, Monad m) => Disassociative (Kleisli m) (Bi (,)) where
   disassociate = kleisliDisassociate
 
 #ifdef MIN_VERSION_comonad
-cokleisliDisassociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Disassociative (->) p) => Cokleisli m (p(a,p(b,c))) (p(p(a,b),c))
+cokleisliDisassociate :: (Comonad m, Semifunctor p (Product (Cokleisli m) (Cokleisli m)) (Cokleisli m), Disassociative (->) p) => Cokleisli m (p '(a,p '(b,c))) (p '(p '(a,b),c))
 cokleisliDisassociate = Cokleisli (disassociate . extract)
 
 instance (Extend m, Comonad m) => Disassociative (Cokleisli m) (Bi (,)) where
