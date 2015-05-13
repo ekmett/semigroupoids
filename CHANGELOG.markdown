@@ -1,6 +1,7 @@
 4.5
 ---
 * Major changes to the API to support PolyKinds and DataKinds. This necessarily shuts off GHC <= 7.4.
+* Orphan instances have moved upstream into a common `base-orphans` package.
 
 4.3.1
 -----
