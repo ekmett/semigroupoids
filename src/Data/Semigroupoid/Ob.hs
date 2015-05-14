@@ -17,8 +17,6 @@
 module Data.Semigroupoid.Ob where
 
 import Data.Semigroupoid
-import Data.Semigroupoid.Product
-import Data.Semigroupoid.Coproduct
 import Data.Functor.Bind
 import Control.Arrow
 
@@ -31,18 +29,8 @@ import Control.Comonad
 class Semigroupoid k => Ob k a where
   semiid :: k a a
 
-instance (Ob l a, Ob r b) => Ob (Product l r) '(a,b) where
-  semiid = Pair semiid semiid
-
-instance (Ob l a, Semigroupoid r)  => Ob (Coproduct l r) (Left a) where
-  semiid = L semiid
-
-instance (Semigroupoid l, Ob r a) => Ob (Coproduct l r) (Right a) where
-  semiid = R semiid
-
 instance (Bind m, Monad m) => Ob (Kleisli m) a where
   semiid = Kleisli return
-
 
 #ifdef MIN_VERSION_comonad
 instance (Extend w, Comonad w) => Ob (Cokleisli w) a where

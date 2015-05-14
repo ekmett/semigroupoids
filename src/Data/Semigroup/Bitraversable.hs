@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -8,14 +9,15 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Semigroup.Traversable
-  ( Traversable1(..)
-  , foldMap1Default
+module Data.Semigroup.Bitraversable
+  ( Bitraversable1(..)
+  , bifoldMap1Default
   ) where
 
 import Control.Applicative
 import Data.Semigroup
 import Data.Semigroup.Traversable.Class
 
-foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
-foldMap1Default f = getConst . traverse1 (Const . f)
+bifoldMap1Default :: (Bitraversable1 t, Semigroup m) => (a -> m) -> (b -> m) -> t a b -> m
+bifoldMap1Default f g = getConst . bitraverse1 (Const . f) (Const . g)
+{-# INLINE bifoldMap1Default #-}

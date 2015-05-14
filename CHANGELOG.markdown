@@ -1,3 +1,11 @@
+5
+-
+* Absorbed `Data.Bifunctor.Apply`, `Data.Semigroup.Bifoldable` and `Data.Semigroup.Traversable` from `bifunctors`.
+* This caused us to pick up a dependency on `tagged`.
+* Exiled `Data.Semifunctor.*`, `Data.Semigroupoid.Product` and `Data.Semigroupoid.Coproduct` to `semigroupoid-extras`.
+* This let us open up to older versions of GHC again.
+* Set an explicit fixity for `-<-` and `->-`.
+
 4.5
 ---
 * Major changes to the API to support PolyKinds and DataKinds. This necessarily shuts off GHC <= 7.4.

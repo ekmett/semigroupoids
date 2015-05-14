@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       4.5
+version:       5
 license:       BSD3
 cabal-version: >= 1.8
 license-file:  LICENSE
@@ -101,11 +101,19 @@ flag comonad
   default: True
   manual: True
 
-
+flag tagged
+  description:
+    You can disable the use of the `tagged` package using `-f-tagged`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+  default: True
+  manual: True
+  
 library
   build-depends:
     base                >= 4.6     && < 5,
     base-orphans        >= 0.3     && < 1,
+    bifunctors          >= 5       && < 6,
     semigroups          >= 0.8.3.1 && < 1,
     transformers        >= 0.2     && < 0.6,
     transformers-compat >= 0.3     && < 0.5
@@ -120,29 +128,33 @@ library
     build-depends: distributive >= 0.2.2 && < 1
 
   if flag(comonad)
-    build-depends: comonad      >= 4     && < 5
+    build-depends: comonad >= 4.2.6 && < 5
+
+  if flag(tagged)
+    build-depends: tagged >= 0.7.3 && < 1
 
   hs-source-dirs: src
 
   exposed-modules:
+    Data.Bifunctor.Apply
     Data.Functor.Alt
     Data.Functor.Apply
     Data.Functor.Bind
+    Data.Functor.Bind.Class
     Data.Functor.Bind.Trans
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid
     Data.Isomorphism
-    Data.Semifunctor
-    Data.Semifunctor.Associative
-    Data.Semifunctor.Braided
+    Data.Semigroup.Bifoldable
+    Data.Semigroup.Bitraversable
     Data.Semigroup.Foldable
+    Data.Semigroup.Foldable.Class
     Data.Semigroup.Traversable
+    Data.Semigroup.Traversable.Class
     Data.Semigroupoid
-    Data.Semigroupoid.Coproduct
     Data.Semigroupoid.Dual
     Data.Semigroupoid.Ob
-    Data.Semigroupoid.Product
     Data.Semigroupoid.Static
     Data.Traversable.Instances
 
