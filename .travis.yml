@@ -42,14 +42,13 @@ before_install:
     fi
 
 install:
-  - $CABAL install --dependencies-only --enable-tests
-
   # Use HEAD bifunctors
   - git clone https://github.com/ekmett/bifunctors.git
   - cd bifunctors
   - $CABAL install
   - cd ..
 
+  - $CABAL install --dependencies-only --enable-tests
   - $CABAL configure --enable-tests $MODE
 
 script:
