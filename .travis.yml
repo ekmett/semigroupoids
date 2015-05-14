@@ -1,59 +1,73 @@
-# NB: don't set `language: haskell` here
-
-# See also https://github.com/hvr/multi-ghc-travis for more information
 env:
- # we have to use CABALVER=1.16 for GHC<7.6 as well, as there's
- # no package for earlier cabal versions in the PPA
- - GHCVER 7.4.2 CABALVER=1.16
- - GHCVER=7.6.3 CABALVER=1.16
- - GHCVER=7.8.4 CABALVER=1.18
- - GHCVER=7.10.1 CABALVER=1.22
- - GHCVER=head CABALVER=1.22
+  - GHCVER=7.4.2
+  - GHCVER=7.6.3
+  - GHCVER=7.8.4
+  - GHCVER=7.10.1
+  - GHCVER=head
+  # - >
+  #   GHCVER=7.4.2
+  #   MODE="-fsafe"
 
 matrix:
   allow_failures:
-   - env: GHCVER=head CABALVER=1.22
+    - env: GHCVER=head
 
-# Note: the distinction between `before_install` and `install` is not
-#       important.
 before_install:
- - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
- - travis_retry sudo apt-get update
- - travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER
- - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
- - cabal --version
+  # If $GHCVER is the one travis has, don't bother reinstalling it.
+  # We can also have faster builds by installing some libraries with
+  # `apt`. If it isn't, install the GHC we want from hvr's PPA along
+  # with cabal-1.18.
+  - |
+    if [ $GHCVER = `ghc --numeric-version` ]; then
+      # Try installing some of the build-deps with apt-get for speed.
+      travis/cabal-apt-install --enable-tests $MODE
+      export CABAL=cabal
+    else
+      # Install the GHC we want from hvr's PPA
+      travis_retry sudo add-apt-repository -y ppa:hvr/ghc
+      travis_retry sudo apt-get update
+      travis_retry sudo apt-get install cabal-install-1.18 ghc-$GHCVER happy
+      export CABAL=cabal-1.18
+      export PATH=/opt/ghc/$GHCVER/bin:$PATH
+    fi
+  # Uncomment whenever hackage is down.
+  # - mkdir -p ~/.cabal && cp travis/config ~/.cabal/config && $CABAL update
+  - $CABAL update
+
+  # Update happy when building with GHC head
+  - |
+    if [ $GHCVER = "head" ] || [ $GHCVER = "7.8.4" ] || [ $GHCVER = "7.10.1" ]; then
+      $CABAL install --constraint=transformers\ installed happy alex
+      export PATH=$HOME/.cabal/bin:$PATH
+    fi
 
 install:
- - travis_retry cabal update
- - git clone https://github.com/ekmett/bifunctors.git
- - cd bifunctors
- - cabal install
- - cd ..
- - cabal install --only-dependencies
+  - $CABAL install --dependencies-only --enable-tests
 
-# Here starts the actual work to be performed for the package under
-# test; any command which exits with a non-zero exit code causes the
-# build to fail.
+  # Use HEAD bifunctors
+  - git clone https://github.com/ekmett/bifunctors.git
+  - cd bifunctors
+  - $CABAL install
+  - cd ..
+
+  - $CABAL configure --enable-tests $MODE
+
 script:
- # -v2 provides useful information for debugging
- - cabal configure -v2
+  - $CABAL build
+  - $CABAL test --show-details=always
 
- # this builds all libraries and executables
- # (including tests/benchmarks)
- - cabal build
+  # tests that a source-distribution can be generated
+  - $CABAL sdist
 
- # tests that a source-distribution can be generated
- - cabal sdist
-
- # check that the generated source-distribution can be built & installed
- - export SRC_TGZ=$(cabal info . | awk '{print $2 ".tar.gz";exit}') ;
-   cd dist/;
-   if [ -f "$SRC_TGZ" ]; then
-      cabal install --force-reinstalls "$SRC_TGZ";
-   else
-      echo "expected '$SRC_TGZ' not found";
-      exit 1;
-   fi
+  # check that the generated source-distribution can be built & installed
+  - export SRC_TGZ=$($CABAL info . | awk '{print $2 ".tar.gz";exit}') ;
+    cd dist/;
+    if [ -f "$SRC_TGZ" ]; then
+       $CABAL install --force-reinstalls "$SRC_TGZ";
+    else
+       echo "expected '$SRC_TGZ' not found";
+       exit 1;
+    fi
 
 notifications:
   irc:
@@ -61,4 +75,4 @@ notifications:
       - "irc.freenode.org#haskell-lens"
     skip_join: true
     template:
-      - "\x0313semigroupoids\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+      - "\x0313semigroupoids\x0f/\x0306%{branch}\x0f \x0314%{commit}\x0f %{message} \x0302\x1f%{build_url}\x0f"
