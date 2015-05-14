@@ -5,15 +5,14 @@ module Main (main) where
 
 import Data.List ( nub )
 import Data.Version ( showVersion )
-import Distribution.Package ( PackageName(PackageName), Package, PackageId, InstalledPackageId, packageVersion, packageName )
+import Distribution.Package ( PackageName(PackageName), PackageId, InstalledPackageId, packageVersion, packageName )
 import Distribution.PackageDescription ( PackageDescription(), TestSuite(..) )
 import Distribution.Simple ( defaultMainWithHooks, UserHooks(..), simpleUserHooks )
-import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose, copyFiles )
+import Distribution.Simple.Utils ( rewriteFile, createDirectoryIfMissingVerbose )
 import Distribution.Simple.BuildPaths ( autogenModulesDir )
-import Distribution.Simple.Setup ( BuildFlags(buildVerbosity), Flag(..), fromFlag, HaddockFlags(haddockDistPref))
+import Distribution.Simple.Setup ( BuildFlags(buildVerbosity), fromFlag)
 import Distribution.Simple.LocalBuildInfo ( withLibLBI, withTestLBI, LocalBuildInfo(), ComponentLocalBuildInfo(componentPackageDeps) )
-import Distribution.Text ( display )
-import Distribution.Verbosity ( Verbosity, normal )
+import Distribution.Verbosity ( Verbosity )
 import System.FilePath ( (</>) )
 
 main :: IO ()
@@ -22,16 +21,8 @@ main = defaultMainWithHooks simpleUserHooks
      generateBuildModule (fromFlag (buildVerbosity flags)) pkg lbi
      buildHook simpleUserHooks pkg lbi hooks flags
   , postHaddock = \args flags pkg lbi -> do
-     -- copyFiles normal (haddockOutputDir flags pkg) [("images","Hierarchy.png")]
      postHaddock simpleUserHooks args flags pkg lbi
   }
-
-haddockOutputDir :: Package p => HaddockFlags -> p -> FilePath
-haddockOutputDir flags pkg = destDir where
-  baseDir = case haddockDistPref flags of
-    NoFlag -> "."
-    Flag x -> x
-  destDir = baseDir </> "doc" </> "html" </> display (packageName pkg)
 
 generateBuildModule :: Verbosity -> PackageDescription -> LocalBuildInfo -> IO ()
 generateBuildModule verbosity pkg lbi = do
