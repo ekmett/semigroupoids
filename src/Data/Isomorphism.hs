@@ -1,5 +1,4 @@
-{-# LANGUAGE Trustworthy, PolyKinds #-}
-
+{-# LANGUAGE PolyKinds #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -15,9 +14,9 @@ module Data.Isomorphism
   ( Iso(..)
   ) where
 
+import Control.Category
 import Data.Semigroupoid
 import Data.Groupoid
-import Control.Category
 import Prelude ()
 
 data Iso k a b = Iso { embed :: k a b, project :: k b a }
