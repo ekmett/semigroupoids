@@ -1,9 +1,10 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE CPP #-}
+#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE PolyKinds #-}
+#endif
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett

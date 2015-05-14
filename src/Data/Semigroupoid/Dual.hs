@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
+#if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2007-2015 Edward Kmett

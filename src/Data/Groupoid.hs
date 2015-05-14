@@ -1,4 +1,8 @@
-{-# LANGUAGE PolyKinds, FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleInstances #-}
+#if __GLASGOW_HASKELL__ >= 706
+{-# LANGUAGE PolyKinds #-}
+#endif
 
 -----------------------------------------------------------------------------
 -- |
