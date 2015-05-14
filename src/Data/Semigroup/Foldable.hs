@@ -27,6 +27,9 @@ import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
 
+-- $setup
+-- >>> import Data.List.NonEmpty
+
 newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 
 instance Semigroup a => Semigroup (JoinWith a) where
