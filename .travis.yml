@@ -24,6 +24,10 @@ before_install:
 
 install:
  - travis_retry cabal update
+ - git clone https://github.com/ekmett/bifunctors.git
+ - cd bifunctors
+ - cabal install
+ - cd ..
  - cabal install --only-dependencies
 
 # Here starts the actual work to be performed for the package under
