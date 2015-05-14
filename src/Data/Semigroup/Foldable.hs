@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -20,27 +19,13 @@ module Data.Semigroup.Foldable
   , asum1
   ) where
 
-import Control.Applicative.Backwards
-import Control.Applicative.Lift
 import Data.Foldable
 import Data.Functor.Alt (Alt(..))
 import Data.Functor.Apply
-import Data.Functor.Product
-import Data.Functor.Reverse
-import Data.Functor.Sum
-import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
-
-#ifdef MIN_VERSION_containers
-import Data.Tree
-#endif
-
-#ifdef MIN_VERSION_comonad
-import Data.Functor.Coproduct
-#endif
 
 newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 

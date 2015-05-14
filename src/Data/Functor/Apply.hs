@@ -29,7 +29,6 @@ module Data.Functor.Apply (
   ) where
 
 import Control.Comonad
-import Data.Functor
 import Data.Functor.Bind.Class
 
 infixl 4 <..>
