@@ -171,8 +171,8 @@ test-suite doctests
     buildable: False
   else
     build-depends:
-      base    >= 4.6   && < 5,
+      base    >= 4.4 && < 5,
       doctest >= 0.9.1 && < 0.10,
-      directory      >= 1.0,
+      directory >= 1.0,
       filepath
 
