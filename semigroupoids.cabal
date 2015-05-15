@@ -18,6 +18,8 @@ extra-source-files:
   .travis.yml
   .gitignore
   .vim.custom
+  README.markdown
+  CHANGELOG.markdown
 description:
   Provides a wide array of (semi)groupoids and operations for working with them.
   .
