@@ -1,3 +1,7 @@
+5.0.0.1
+-------
+* Added the CHANGELOG to the distribution so that `hackage` can link to it in the haddocks.
+
 5
 -
 * Absorbed `Data.Bifunctor.Apply`, `Data.Semigroup.Bifoldable` and `Data.Semigroup.Traversable` from `bifunctors`.
