@@ -1,6 +1,20 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE PolyKinds #-}
+
+#if __GLASGOW_HASKELL__ >= 702
+# ifdef MIN_VERSION_comonad
+#  if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
+#  else
+{-# LANGUAGE Trustworthy #-}
+#  endif
+# else
+{-# LANGUAGE Trustworthy #-}
+# endif
+#endif
+
+#if __GLASGOW_HASKELL >= 704
+{-# LANGUAGE PolyKinds #-}
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Semigroupoid
