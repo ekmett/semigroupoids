@@ -1,3 +1,7 @@
+5.0.0.2
+-------
+* Bugfix for GHC 7.4. PolyKinds on 7.4 cause all sorts of haskell interface file errors. One of the #if guards that turned it off on 7.4 was missing and has been fixed.
+
 5.0.0.1
 -------
 * Added the CHANGELOG to the distribution so that `hackage` can link to it in the haddocks.
