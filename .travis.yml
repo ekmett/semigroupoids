@@ -24,8 +24,8 @@ install:
  - cd bifunctors
  - cabal install
  - cd ..
- - cabal install binary doctest Cabal
  - cabal install --enable-tests --only-dependencies
+ - cabal install Cabal
 
 script:
  - cabal configure -v2 --enable-tests
