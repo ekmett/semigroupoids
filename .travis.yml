@@ -1,18 +1,14 @@
 env:
- - GHCVER=7.0.1 CABALVER=1.16
- - GHCVER=7.0.4 CABALVER=1.16
- - GHCVER=7.2.2 CABALVER=1.16
- - GHCVER=7.4.2 CABALVER=1.16
- - GHCVER=7.6.3 CABALVER=1.16
+ - GHCVER=7.0.4 CABALVER=1.18
+ - GHCVER=7.2.2 CABALVER=1.18
+ - GHCVER=7.4.2 CABALVER=1.18
+ - GHCVER=7.6.3 CABALVER=1.18
  - GHCVER=7.8.4 CABALVER=1.18
  - GHCVER=7.10.1 CABALVER=1.22
  - GHCVER=head CABALVER=1.22
 
 matrix:
   allow_failures:
-   - env: GHCVER=7.0.1 CABALVER=1.16
-   - env: GHCVER=7.0.4 CABALVER=1.16
-   - env: GHCVER=7.2.2 CABALVER=1.16
    - env: GHCVER=head CABALVER=1.22
 
 before_install:
@@ -29,6 +25,7 @@ install:
  - cabal install
  - cd ..
  - cabal install --enable-tests --only-dependencies
+ - cabal install Cabal
 
 script:
  - cabal configure -v2 --enable-tests
