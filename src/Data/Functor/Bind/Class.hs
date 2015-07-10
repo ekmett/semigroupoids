@@ -4,14 +4,16 @@
 #define MIN_VERSION_semigroups(x,y,z) 1
 #endif
 
-#ifdef MIN_VERSION_comonad
-#if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
+#if __GLASGOW_HASKELL__ >= 702
+# ifdef MIN_VERSION_comonad
+#  if __GLASGOW_HASKELL__ >= 707 && (MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Safe #-}
-#else
+#  else
 {-# LANGUAGE Trustworthy #-}
-#endif
-#else
+#  endif
+# else
 {-# LANGUAGE Trustworthy #-}
+# endif
 #endif
 
 {-# OPTIONS_HADDOCK not-home #-}
