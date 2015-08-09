@@ -1,7 +1,7 @@
 semigroupoids
 ==========
 
-[![Build Status](https://secure.travis-ci.org/ekmett/semigroupoids.png?branch=master)](http://travis-ci.org/ekmett/semigroupoids)
+[![Hackage](https://img.shields.io/hackage/v/semigroupoids.svg)](https://hackage.haskell.org/package/semigroupoids) [![Build Status](https://secure.travis-ci.org/ekmett/semigroupoids.png?branch=master)](http://travis-ci.org/ekmett/semigroupoids
 
 A semigroupoid is a `Category` without `id`.
 
