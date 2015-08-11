@@ -20,6 +20,7 @@ matrix:
 before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
  - export CABAL=cabal-$CABALVER
+ - if [ "$CABALVER" = "1.22" ]; then $CABAL install Cabal-1.22.4.0; fi
  - $CABAL --version
 
 install:
