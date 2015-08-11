@@ -44,7 +44,9 @@ import Data.Semigroup
 import Data.Semigroup.Foldable
 import Data.Semigroup.Bifoldable
 import Data.Tagged
+#if __GLASGOW_HASKELL__ < 710
 import Data.Traversable
+#endif
 import Data.Traversable.Instances ()
 
 #ifdef MIN_VERSION_containers
