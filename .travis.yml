@@ -18,13 +18,13 @@ matrix:
    - env: CABALVER=head GHCVER=head
 
 before_install:
- - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
+ - export PATH=~/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
  - export CABAL=cabal-$CABALVER
+ - travis_retry $CABAL update
  - if [ "$CABALVER" = "1.22" ]; then $CABAL install Cabal-1.22.4.0; fi
  - $CABAL --version
 
 install:
- - travis_retry $CABAL update
  - $CABAL install --enable-tests --only-dependencies
 
 script:
