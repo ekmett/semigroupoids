@@ -1,3 +1,7 @@
+5.0.0.4
+-------
+* `doctest` 0.10 support
+
 5.0.0.2
 -------
 * Bugfix for GHC 7.4. PolyKinds on 7.4 cause all sorts of haskell interface file errors. One of the #if guards that turned it off on 7.4 was missing and has been fixed.
