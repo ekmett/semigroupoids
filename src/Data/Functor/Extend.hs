@@ -24,7 +24,8 @@ import Prelude hiding (id, (.))
 import Control.Category
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
-import Data.Semigroup
+import Data.Functor.Sum (Sum(..))
+import Data.Semigroup (Semigroup(..))
 import Data.List (tails)
 import Data.List.NonEmpty (NonEmpty(..), toList)
 
@@ -36,7 +37,6 @@ import Data.Tree
 
 
 #ifdef MIN_VERSION_comonad
-import Data.Functor.Coproduct
 import Control.Comonad.Trans.Env
 import Control.Comonad.Trans.Store
 import Control.Comonad.Trans.Traced
@@ -95,10 +95,12 @@ instance Extend Tree where
 #endif
 
 #ifdef MIN_VERSION_comonad
+{-
 instance (Extend f, Extend g) => Extend (Coproduct f g) where
   extended f = Coproduct . coproduct
     (Left . extended (f . Coproduct . Left))
     (Right . extended (f . Coproduct . Right))
+-}
 
 instance Extend w => Extend (EnvT e w) where
   duplicated (EnvT e wa) = EnvT e (extended (EnvT e) wa)
@@ -132,6 +134,10 @@ instance Extend NonEmpty where
   extended f w@ ~(_ :| aas) = f w :| case aas of
       []     -> []
       (a:as) -> toList (extended f (a :| as))
+
+instance (Extend f, Extend g) => Extend (Sum f g) where
+  extended f (InL l) = InL (extended (f . InL) l)
+  extended f (InR r) = InR (extended (f . InR) r)
 
 -- $definition
 -- There are two ways to define an 'Extend' instance:

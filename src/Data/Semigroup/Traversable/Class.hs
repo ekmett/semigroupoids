@@ -31,10 +31,6 @@ import Data.Bifunctor.Wrapped
 import Data.Functor.Apply
 import Data.Functor.Compose
 
-#ifdef MIN_VERSION_comonad
-import Data.Functor.Coproduct as Functor
-#endif
-
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
@@ -170,13 +166,6 @@ instance Traversable1 f => Traversable1 (Reverse f) where
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
   traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
   traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
-
-#ifdef MIN_VERSION_comonad
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Coproduct f g) where
-  traverse1 f = coproduct
-    (fmap (Coproduct . Left) . traverse1 f)
-    (fmap (Coproduct . Right) . traverse1 f)
-#endif
 
 #ifdef MIN_VERSION_containers
 instance Traversable1 Tree where

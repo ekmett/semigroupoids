@@ -35,10 +35,6 @@ import Data.Bifunctor.Wrapped
 import Data.Foldable
 import Data.Functor.Compose
 
-#ifdef MIN_VERSION_comonad
-import Data.Functor.Coproduct
-#endif
-
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
@@ -167,11 +163,6 @@ instance Foldable1 f => Foldable1 (Reverse f) where
 instance (Foldable1 f, Foldable1 g) => Foldable1 (Sum f g) where
   foldMap1 f (InL x) = foldMap1 f x
   foldMap1 f (InR y) = foldMap1 f y
-
-#ifdef MIN_VERSION_comonad
-instance (Foldable1 f, Foldable1 g) => Foldable1 (Coproduct f g) where
-  foldMap1 f = coproduct (foldMap1 f) (foldMap1 f)
-#endif
 
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a
