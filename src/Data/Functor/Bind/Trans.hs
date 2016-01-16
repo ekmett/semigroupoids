@@ -46,10 +46,10 @@ instance BindTrans IdentityT where
 instance BindTrans (ReaderT e) where
   liftB = ReaderT . const
 
-instance (Semigroup w, Monoid w) => BindTrans (Lazy.WriterT w) where
+instance Monoid w => BindTrans (Lazy.WriterT w) where
   liftB = Lazy.WriterT . fmap (\a -> (a, mempty))
 
-instance (Semigroup w, Monoid w) => BindTrans (Strict.WriterT w) where
+instance Monoid w => BindTrans (Strict.WriterT w) where
   liftB = Strict.WriterT . fmap (\a -> (a, mempty))
 
 instance BindTrans (Lazy.StateT s) where
@@ -58,10 +58,10 @@ instance BindTrans (Lazy.StateT s) where
 instance BindTrans (Strict.StateT s) where
   liftB m = Strict.StateT $ \s -> fmap (\a -> (a, s)) m
 
-instance (Semigroup w, Monoid w) => BindTrans (Lazy.RWST r w s) where
+instance Monoid w => BindTrans (Lazy.RWST r w s) where
   liftB m = Lazy.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
 
-instance (Semigroup w, Monoid w) => BindTrans (Strict.RWST r w s) where
+instance Monoid w => BindTrans (Strict.RWST r w s) where
   liftB m = Strict.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
 
 instance BindTrans (ContT r) where

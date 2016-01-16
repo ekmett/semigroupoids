@@ -1,6 +1,7 @@
-5.0.0.5
+5.0.1
 -------
 * `transformers-compat` 0.5 support
+* Removed some redundant constraints.
 
 5.0.0.4
 -------
