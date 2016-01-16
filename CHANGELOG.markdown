@@ -1,3 +1,7 @@
+5.0.0.5
+-------
+* `transformers-compat` 0.5 support
+
 5.0.0.4
 -------
 * `doctest` 0.10 support
