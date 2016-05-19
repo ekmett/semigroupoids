@@ -113,7 +113,37 @@ infixl 4 <.>, <., .>
 --
 -- Laws:
 --
--- > associative composition: (.) <$> u <.> v <.> w = u <.> (v <.> w)
+-- associative composition:
+--
+-- @
+-- (.) <$> u <.> v <.> w = u <.> (v <.> w)
+-- @
+--
+-- fmap 1:
+--
+-- @
+-- x <.> (f <$> y)
+--    = (. f) <$> x <.> y
+--    = (\xr yr -> xr (f yr)) <$> x <.> y
+-- @
+--
+-- fmap 2:
+--
+-- @
+-- f <$> (x <.> y)
+--   = (f .) <$> x <.> y
+--   = (\xr yr -> f (xr yr)) <$> x <.> y
+-- @
+--
+-- The laws imply that `.>` and `<.` really ignore their
+-- left and right results, respectively, and really
+-- return their right and left results, respectively.
+-- Specifically,
+--
+-- @
+-- (mf <$> m) .> (nf <$> n) = nf <$> (m .> n)
+-- (mf <$> m) <. (nf <$> n) = mf <$> (m <. n)
+-- @
 class Functor f => Apply f where
   (<.>) :: f (a -> b) -> f a -> f b
 
