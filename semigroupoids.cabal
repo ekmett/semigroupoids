@@ -111,7 +111,7 @@ flag tagged
     Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
   default: True
   manual: True
-  
+
 library
   build-depends:
     base                >= 4       && < 5,
@@ -119,7 +119,7 @@ library
     bifunctors          >= 5       && < 6,
     semigroups          >= 0.8.3.1 && < 1,
     transformers        >= 0.2     && < 0.6,
-    transformers-compat >= 0.3     && < 0.6
+    transformers-compat >= 0.5     && < 0.6
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.6
