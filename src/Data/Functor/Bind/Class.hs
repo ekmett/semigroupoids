@@ -113,26 +113,10 @@ infixl 4 <.>, <., .>
 --
 -- Laws:
 --
--- associative composition:
---
 -- @
 -- (.) <$> u <.> v <.> w = u <.> (v <.> w)
--- @
---
--- fmap 1:
---
--- @
--- x <.> (f <$> y)
---    = (. f) <$> x <.> y
---    = (\xr yr -> xr (f yr)) <$> x <.> y
--- @
---
--- fmap 2:
---
--- @
--- f <$> (x <.> y)
---   = (f .) <$> x <.> y
---   = (\xr yr -> f (xr yr)) <$> x <.> y
+-- x <.> (f <$> y) = (. f) <$> x <.> y
+-- f <$> (x <.> y) = (f .) <$> x <.> y
 -- @
 --
 -- The laws imply that `.>` and `<.` really ignore their
