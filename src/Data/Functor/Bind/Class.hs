@@ -114,9 +114,9 @@ infixl 4 <.>, <., .>
 -- Laws:
 --
 -- @
--- (.) <$> u <.> v <.> w = u <.> (v <.> w)
--- x <.> (f <$> y) = (. f) <$> x <.> y
--- f <$> (x <.> y) = (f .) <$> x <.> y
+-- ('.') '<$>' u '<.>' v '<.>' w = u '<.>' (v '<.>' w)
+-- x '<.>' (f '<$>' y) = ('.' f) '<$>' x '<.>' y
+-- f '<$>' (x '<.>' y) = (f '.') '<$>' x '<.>' y
 -- @
 --
 -- The laws imply that `.>` and `<.` really ignore their
@@ -125,17 +125,17 @@ infixl 4 <.>, <., .>
 -- Specifically,
 --
 -- @
--- (mf <$> m) .> (nf <$> n) = nf <$> (m .> n)
--- (mf <$> m) <. (nf <$> n) = mf <$> (m <. n)
+-- (mf '<$>' m) '.>' (nf '<$>' n) = nf '<$>' (m '.>' n)
+-- (mf '<$>' m) '<.' (nf '<$>' n) = mf '<$>' (m '<.' n)
 -- @
 class Functor f => Apply f where
   (<.>) :: f (a -> b) -> f a -> f b
 
-  -- | > a  .> b = const id <$> a <.> b
+  -- | @ a '.>' b = 'const' 'id' '<$>' a '<.>' b @
   (.>) :: f a -> f b -> f b
   a .> b = const id <$> a <.> b
 
-  -- | > a <. b = const <$> a <.> b
+  -- | @ a '<.' b = 'const' '<$>' a '<.>' b @
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
 
