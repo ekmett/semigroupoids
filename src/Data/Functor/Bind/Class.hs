@@ -9,7 +9,6 @@
 #endif
 
 {-# OPTIONS_HADDOCK not-home #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 #if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
 {-# OPTIONS_GHC -fno-warn-amp #-}
