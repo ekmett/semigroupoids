@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       5.0.1
+version:       5.1
 license:       BSD3
 cabal-version: >= 1.8
 license-file:  LICENSE
@@ -11,7 +11,7 @@ homepage:      http://github.com/ekmett/semigroupoids
 bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011-2015 Edward A. Kmett
 build-type:    Custom
-tested-with:   GHC==7.0.1, GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+tested-with:   GHC == 7.0.4, GHC == 7.2.2, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .ghci

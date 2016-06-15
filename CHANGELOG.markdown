@@ -1,6 +1,6 @@
-next
+5.1
 ---
-* The remaining orphan instances is `Data.Traversable.Instances` have been replaced in favor of the orphan instances from `transformers-compat-0.5`.
+* The remaining orphan instances in `Data.Traversable.Instances` have been replaced in favor of the orphan instances from `transformers-compat-0.5`.
 * The documentation now states laws that instances of `Apply` are expected to uphold.
 * `doctest-0.11` support
 * Fixed compilation of tests with `stack`
