@@ -16,9 +16,6 @@ module Data.Functor.Bind.Trans (
 
 -- import _everything_
 import Control.Category
-#if __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Cont
 -- import Control.Monad.Trans.Error
@@ -33,6 +30,7 @@ import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 import Data.Functor.Bind
+import Data.Orphans ()
 import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
 

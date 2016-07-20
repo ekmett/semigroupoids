@@ -22,13 +22,11 @@ module Data.Semigroupoid.Static
 import Control.Arrow
 import Control.Applicative
 import Control.Category
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
 import Control.Monad (ap)
 import Data.Functor.Apply
 import Data.Functor.Plus
 import Data.Functor.Extend
+import Data.Orphans ()
 import Data.Semigroup
 import Data.Semigroupoid
 import Prelude hiding ((.), id)

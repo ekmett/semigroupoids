@@ -51,9 +51,6 @@ import Control.Applicative.Lift
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
@@ -83,6 +80,7 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
+import Data.Orphans ()
 import Prelude hiding (id, (.))
 
 #ifdef MIN_VERSION_containers
