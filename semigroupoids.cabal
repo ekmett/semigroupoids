@@ -14,7 +14,6 @@ tested-with:   GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8
 build-type:    Custom
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
-  .ghci
   .travis.yml
   .gitignore
   .vim.custom
