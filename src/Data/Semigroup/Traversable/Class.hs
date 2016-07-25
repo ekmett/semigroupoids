@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, TypeOperators #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -48,6 +48,8 @@ import Data.Traversable.Instances ()
 #ifdef MIN_VERSION_containers
 import Data.Tree
 #endif
+
+import GHC.Generics
 
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
@@ -130,6 +132,7 @@ instance Bitraversable1 p => Bitraversable1 (WrappedBifunctor p) where
   bitraverse1 f g = fmap WrapBifunctor . bitraverse1 f g . unwrapBifunctor
   {-# INLINE bitraverse1 #-}
 
+
 class (Foldable1 t, Traversable t) => Traversable1 t where
   traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
   sequence1 :: Apply f => t (f b) -> f (t b)
@@ -140,6 +143,28 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
 #if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL traverse1 | sequence1 #-}
 #endif
+
+instance Traversable1 f => Traversable1 (Rec1 f) where
+  traverse1 f (Rec1 as) = Rec1 <$> traverse1 f as
+
+instance Traversable1 f => Traversable1 (M1 i c f) where
+  traverse1 f (M1 as) = M1 <$> traverse1 f as
+
+instance Traversable1 Par1 where
+  traverse1 f (Par1 a) = Par1 <$> f a
+
+instance Traversable1 V1 where
+  traverse1 _ v = v `seq` undefined
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (f :*: g) where
+  traverse1 f (as :*: bs) = (:*:) <$> traverse1 f as <.> traverse1 f bs
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (f :+: g) where
+  traverse1 f (L1 as) = L1 <$> traverse1 f as
+  traverse1 f (R1 bs) = R1 <$> traverse1 f bs
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (f :.: g) where
+  traverse1 f (Comp1 m) = Comp1 <$> traverse1 (traverse1 f) m
 
 instance Traversable1 Identity where
   traverse1 f = fmap Identity . f . runIdentity

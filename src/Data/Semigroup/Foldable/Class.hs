@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, TypeOperators #-}
 
 #ifndef MIN_VERSION_semigroups
 #define MIN_VERSION_semigroups(x,y,z) 0
@@ -48,6 +48,7 @@ import Data.Tree
 #endif
 
 import Data.Semigroup hiding (Product, Sum)
+import GHC.Generics
 import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
@@ -56,6 +57,28 @@ class Foldable t => Foldable1 t where
 
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
   fold1 = foldMap1 id
+
+instance Foldable1 f => Foldable1 (Rec1 f) where
+  foldMap1 f (Rec1 as) = foldMap1 f as
+
+instance Foldable1 f => Foldable1 (M1 i c f) where
+  foldMap1 f (M1 as) = foldMap1 f as
+
+instance Foldable1 Par1 where
+  foldMap1 f (Par1 a) = f a
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (f :*: g) where
+  foldMap1 f (as :*: bs) = foldMap1 f as <> foldMap1 f bs
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (f :+: g) where
+  foldMap1 f (L1 as) = foldMap1 f as
+  foldMap1 f (R1 bs) = foldMap1 f bs
+
+instance Foldable1 V1 where
+  foldMap1 _ v = v `seq` undefined
+
+instance (Foldable1 f, Foldable1 g) => Foldable1 (f :.: g) where
+  foldMap1 f (Comp1 m) = foldMap1 (foldMap1 f) m
 
 class Bifoldable t => Bifoldable1 t where
   bifold1 :: Semigroup m => t m m -> m
