@@ -40,7 +40,11 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Sum
 import Data.List.NonEmpty (NonEmpty(..))
+
+#ifdef MIN_VERSION_tagged
 import Data.Tagged
+#endif
+
 import Data.Traversable.Instances ()
 
 #ifdef MIN_VERSION_containers
@@ -119,9 +123,11 @@ instance Bifoldable1 Const where
   bifoldMap1 f _ (Const a) = f a
   {-# INLINE bifoldMap1 #-}
 
+#ifdef MIN_VERSION_tagged
 instance Bifoldable1 Tagged where
   bifoldMap1 _ g (Tagged b) = g b
   {-# INLINE bifoldMap1 #-}
+#endif
 
 instance (Bifoldable1 p, Foldable1 f, Foldable1 g) => Bifoldable1 (Biff p f g) where
   bifoldMap1 f g = bifoldMap1 (foldMap1 f) (foldMap1 g) . runBiff
@@ -163,6 +169,11 @@ instance Foldable1 Tree where
 
 instance Foldable1 Identity where
   foldMap1 f = f . runIdentity
+
+#ifdef MIN_VERSION_tagged
+instance Foldable1 (Tagged a) where
+  foldMap1 f (Tagged a) = f a
+#endif
 
 instance Foldable1 m => Foldable1 (IdentityT m) where
   foldMap1 f = foldMap1 f . runIdentityT

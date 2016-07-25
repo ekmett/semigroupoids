@@ -39,7 +39,9 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Semigroup
 import Data.Semigroup.Foldable
 import Data.Semigroup.Bifoldable
+#ifdef MIN_VERSION_tagged
 import Data.Tagged
+#endif
 #if __GLASGOW_HASKELL__ < 710
 import Data.Traversable
 #endif
@@ -94,9 +96,11 @@ instance Bitraversable1 Const where
   bitraverse1 f _ (Const a) = Const <$> f a
   {-# INLINE bitraverse1 #-}
 
+#ifdef MIN_VERSION_tagged
 instance Bitraversable1 Tagged where
   bitraverse1 _ g (Tagged b) = Tagged <$> g b
   {-# INLINE bitraverse1 #-}
+#endif
 
 instance (Bitraversable1 p, Traversable1 f, Traversable1 g) => Bitraversable1 (Biff p f g) where
   bitraverse1 f g = fmap Biff . bitraverse1 (traverse1 f) (traverse1 g) . runBiff
@@ -191,6 +195,11 @@ instance Traversable1 f => Traversable1 (Reverse f) where
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
   traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
   traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
+
+#ifdef MIN_VERSION_tagged
+instance Traversable1 (Tagged a) where
+  traverse1 f (Tagged a) = Tagged <$> f a
+#endif
 
 #ifdef MIN_VERSION_containers
 instance Traversable1 Tree where
