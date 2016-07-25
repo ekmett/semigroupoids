@@ -9,7 +9,6 @@
 #endif
 
 {-# OPTIONS_HADDOCK not-home #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 #if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
 {-# OPTIONS_GHC -fno-warn-amp #-}
@@ -52,9 +51,6 @@ import Control.Applicative.Lift
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
@@ -84,6 +80,7 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
+import Data.Orphans ()
 import Prelude hiding (id, (.))
 
 #ifdef MIN_VERSION_containers
@@ -114,9 +111,9 @@ infixl 4 <.>, <., .>
 -- Laws:
 --
 -- @
--- (.) <$> u <.> v <.> w = u <.> (v <.> w)
--- x <.> (f <$> y) = (. f) <$> x <.> y
--- f <$> (x <.> y) = (f .) <$> x <.> y
+-- ('.') '<$>' u '<.>' v '<.>' w = u '<.>' (v '<.>' w)
+-- x '<.>' (f '<$>' y) = ('.' f) '<$>' x '<.>' y
+-- f '<$>' (x '<.>' y) = (f '.') '<$>' x '<.>' y
 -- @
 --
 -- The laws imply that `.>` and `<.` really ignore their
@@ -125,17 +122,17 @@ infixl 4 <.>, <., .>
 -- Specifically,
 --
 -- @
--- (mf <$> m) .> (nf <$> n) = nf <$> (m .> n)
--- (mf <$> m) <. (nf <$> n) = mf <$> (m <. n)
+-- (mf '<$>' m) '.>' (nf '<$>' n) = nf '<$>' (m '.>' n)
+-- (mf '<$>' m) '<.' (nf '<$>' n) = mf '<$>' (m '<.' n)
 -- @
 class Functor f => Apply f where
   (<.>) :: f (a -> b) -> f a -> f b
 
-  -- | > a  .> b = const id <$> a <.> b
+  -- | @ a '.>' b = 'const' 'id' '<$>' a '<.>' b @
   (.>) :: f a -> f b -> f b
   a .> b = const id <$> a <.> b
 
-  -- | > a <. b = const <$> a <.> b
+  -- | @ a '<.' b = 'const' '<$>' a '<.>' b @
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
 

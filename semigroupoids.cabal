@@ -10,8 +10,7 @@ stability:     provisional
 homepage:      http://github.com/ekmett/semigroupoids
 bug-reports:   http://github.com/ekmett/semigroupoids/issues
 copyright:     Copyright (C) 2011-2015 Edward A. Kmett
-build-type:    Custom
-tested-with:   GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.1
+tested-with:   GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .ghci
@@ -174,7 +173,7 @@ test-suite doctests
   else
     build-depends:
       base      >= 4     && < 5,
-      doctest   >= 0.9.1 && < 0.11,
+      doctest   >= 0.9.1 && < 0.12,
       directory >= 1.0,
       filepath
 
