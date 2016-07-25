@@ -42,6 +42,15 @@ import Control.Comonad.Trans.Store
 import Control.Comonad.Trans.Traced
 #endif
 
+#ifdef MIN_VERSION_tagged
+import Data.Tagged
+#endif
+
+#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
+import Data.Proxy
+#endif
+
+
 class Functor w => Extend w where
   -- |
   -- > duplicated = extended id
@@ -71,6 +80,17 @@ class Functor w => Extend w where
 
 instance Extend [] where
   duplicated = init . tails
+
+#ifdef MIN_VERSION_tagged
+instance Extend (Tagged a) where
+  duplicated = Tagged
+#endif
+
+#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
+instance Extend Proxy where
+  duplicated _ = Proxy
+  extended _ _ = Proxy
+#endif
 
 instance Extend Maybe where
   duplicated Nothing = Nothing

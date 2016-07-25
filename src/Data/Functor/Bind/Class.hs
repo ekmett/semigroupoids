@@ -44,7 +44,6 @@ module Data.Functor.Bind.Class (
   ) where
 
 import Data.Semigroup
-import Data.Tagged
 import Control.Applicative
 import Control.Applicative.Backwards
 import Control.Applicative.Lift
@@ -92,6 +91,15 @@ import Data.Sequence (Seq)
 import Data.Tree (Tree)
 #endif
 
+#ifdef MIN_VERSION_tagged
+import Data.Tagged
+#endif
+
+#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
+import Data.Proxy
+#endif
+
+
 #ifdef MIN_VERSION_comonad
 import Control.Comonad
 import Control.Comonad.Trans.Env
@@ -135,6 +143,20 @@ class Functor f => Apply f where
   -- | @ a '<.' b = 'const' '<$>' a '<.>' b @
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
+
+#ifdef MIN_VERSION_tagged
+instance Apply (Tagged a) where
+  (<.>) = (<*>)
+  (<.) = (<*)
+  (.>) = (*>)
+#endif
+
+#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
+instance Apply Proxy where
+  (<.>) = (<*>)
+  (<.) = (<*)
+  (.>) = (*>)
+#endif
 
 instance Apply f => Apply (Backwards f) where
   Backwards f <.> Backwards a = Backwards (flip id <$> a <.> f)
@@ -413,6 +435,18 @@ apDefault f x = f >>- \f' -> f' <$> x
 instance Semigroup m => Bind ((,)m) where
   ~(m, a) >>- f = let (n, b) = f a in (m <> n, b)
 
+#ifdef MIN_VERSION_tagged
+instance Bind (Tagged a) where
+  Tagged a >>- f = f a
+  join (Tagged a) = a
+#endif
+
+#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
+instance Bind Proxy where
+  _ >>- _ = Proxy
+  join _ = Proxy
+#endif
+
 instance Bind (Either a) where
   Left a  >>- _ = Left a
   Right a >>- f = f a
@@ -577,9 +611,11 @@ instance Biapply Const where
   Const f <<.>> Const x = Const (f x)
   {-# INLINE (<<.>>) #-}
 
+#ifdef MIN_VERSION_tagged
 instance Biapply Tagged where
   Tagged f <<.>> Tagged x = Tagged (f x)
   {-# INLINE (<<.>>) #-}
+#endif
 
 instance (Biapply p, Apply f, Apply g) => Biapply (Biff p f g) where
   Biff fg <<.>> Biff xy = Biff (bimap (<.>) (<.>) fg <<.>> xy)
