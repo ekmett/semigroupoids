@@ -1,7 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-#if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL <= 706 && defined(MIN_VERSION_comonad) && !(MIN_VERSION_comonad(3,0,3))
+#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
 
@@ -51,6 +53,7 @@ import Data.Functor.Reverse
 import Data.Semigroup hiding (Product)
 import Data.List.NonEmpty (NonEmpty(..))
 import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
+import Unsafe.Coerce
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -117,19 +120,17 @@ class Functor f => Alt f where
 instance (Alt f, Alt g) => Alt (f :*: g) where
   (as :*: bs) <!> (cs :*: ds) = (as <!> cs) :*: (bs <!> ds)
 
+newtype Magic f = Magic { runMagic :: forall a. Applicative f => f a -> f [a] }
+
 instance Alt f => Alt (M1 i c f) where
   M1 f <!> M1 g = M1 (f <!> g)
-{- These would need orphan applicative instances
---  some (M1 f) = M1 (some f)
---  many (M1 f) = M1 (many f)
--}
+  some = runMagic (unsafeCoerce (Magic some :: Magic f))
+  many = runMagic (unsafeCoerce (Magic many :: Magic f))
 
 instance Alt f => Alt (Rec1 f) where
   Rec1 f <!> Rec1 g = Rec1 (f <!> g)
-{- These would need orphan applicative instances
---  some (Rec1 f) = Rec1 (some f)
---  many (Rec1 f) = Rec1 (many f)
--}
+  some = runMagic (unsafeCoerce (Magic some :: Magic f))
+  many = runMagic (unsafeCoerce (Magic many :: Magic f))
 
 instance Alt U1 where
   _ <!> _ = U1
