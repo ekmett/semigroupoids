@@ -1,3 +1,7 @@
+5.2
+---
+* Added instances to `Alt`, `Plus`, `Apply`, `Bind` and `Extend` for `GHC.Generics`, `Tagged` and `Proxy` where appropriate.
+
 5.1
 ---
 * The remaining orphan instances in `Data.Traversable.Instances` have been replaced in favor of the orphan instances from `transformers-compat-0.5`.
