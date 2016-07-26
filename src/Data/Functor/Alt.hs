@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL <= 706 && defined(MIN_VERSION_comonad) && !(MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Trustworthy #-}
@@ -7,6 +8,7 @@
 #if __GLASGOW_HASKELL__ >= 711
 {-# LANGUAGE ConstrainedClassMethods #-}
 #endif
+{-# options_ghc -fno-warn-deprecations #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
@@ -48,7 +50,7 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Semigroup hiding (Product)
 import Data.List.NonEmpty (NonEmpty(..))
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either)
+import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -56,6 +58,16 @@ import Data.IntMap (IntMap)
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
+#endif
+
+#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
+import Data.Proxy
+#endif
+
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
+import GHC.Generics
 #endif
 
 infixl 3 <!>
@@ -102,6 +114,39 @@ class Functor f => Alt f where
     where many_v = some_v <!> pure []
           some_v = (:) <$> v <*> many_v
 
+instance (Alt f, Alt g) => Alt (f :*: g) where
+  (as :*: bs) <!> (cs :*: ds) = (as <!> cs) :*: (bs <!> ds)
+
+instance Alt f => Alt (M1 i c f) where
+  M1 f <!> M1 g = M1 (f <!> g)
+{- These would need orphan applicative instances
+--  some (M1 f) = M1 (some f)
+--  many (M1 f) = M1 (many f)
+-}
+
+instance Alt f => Alt (Rec1 f) where
+  Rec1 f <!> Rec1 g = Rec1 (f <!> g)
+{- These would need orphan applicative instances
+--  some (Rec1 f) = Rec1 (some f)
+--  many (Rec1 f) = Rec1 (many f)
+-}
+
+instance Alt U1 where
+  _ <!> _ = U1
+  some _ = U1
+  many _ = U1
+
+instance Alt V1 where
+  v <!> u = v `seq` u `seq` undefined
+  some v = v `seq` undefined
+  many v = v `seq` undefined
+
+#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
+instance Alt Proxy where
+  _ <!> _ = Proxy
+  some _ = Proxy
+  many _ = Proxy
+#endif
 
 instance Alt (Either a) where
   Left _ <!> b = b

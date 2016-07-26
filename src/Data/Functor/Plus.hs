@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL <= 706 && defined(MIN_VERSION_comonad) && !(MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Trustworthy #-}
@@ -54,6 +55,16 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 #endif
 
+#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
+import Data.Proxy
+#endif
+
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
+import GHC.Generics
+#endif
+
 -- | Laws:
 --
 -- > zero <!> m = m
@@ -63,6 +74,21 @@ import Data.Map (Map)
 
 class Alt f => Plus f where
   zero :: f a
+
+instance Plus Proxy where
+  zero = Proxy
+
+instance Plus U1 where
+  zero = U1
+
+instance (Plus f, Plus g) => Plus (f :*: g) where
+  zero = zero :*: zero
+
+instance Plus f => Plus (M1 i c f) where
+  zero = M1 zero
+
+instance Plus f => Plus (Rec1 f) where
+  zero = Rec1 zero
 
 instance Plus IO where
   zero = error "zero"
