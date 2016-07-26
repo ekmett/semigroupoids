@@ -120,6 +120,12 @@ library
     transformers        >= 0.2     && < 0.6,
     transformers-compat >= 0.5     && < 0.6
 
+  if impl(ghc >= 7.0 && < 7.4)
+    build-depends: generic-deriving >= 0.3 && < 1.11
+
+  if impl(ghc >= 7.4 && < 7.6)
+    build-depends: ghc-prim
+
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.6
 

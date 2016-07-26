@@ -51,7 +51,11 @@ import Data.Traversable.Instances ()
 import Data.Tree
 #endif
 
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
+#endif
 
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)

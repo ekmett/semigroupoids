@@ -52,7 +52,13 @@ import Data.Tree
 #endif
 
 import Data.Semigroup hiding (Product, Sum)
+
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
+#endif
+
 import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
