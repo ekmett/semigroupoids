@@ -113,7 +113,7 @@ flag tagged
 
 library
   build-depends:
-    base                >= 4.5.1   && < 5,
+    base                >= 4.3     && < 5,
     base-orphans        >= 0.5.4   && < 1,
     bifunctors          >= 5       && < 6,
     semigroups          >= 0.8.3.1 && < 1,
