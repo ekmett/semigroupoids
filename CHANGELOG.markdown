@@ -1,5 +1,8 @@
 5.2
 ---
+* Revamp `Setup.hs` to use `cabal-doctest`. This makes `distributive` build
+  with `Cabal-1.25`, and makes the `doctest`s work with `cabal new-build` and
+  sandboxes.
 * Added instances to `Alt`, `Plus`, `Apply`, `Bind` and `Extend` for `GHC.Generics`, `Tagged` and `Proxy` where appropriate.
 
 5.1
