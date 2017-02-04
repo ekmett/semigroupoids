@@ -1,4 +1,3 @@
-#!/usr/bin/runhaskell
 \begin{code}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
