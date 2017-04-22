@@ -116,7 +116,7 @@ foldrM1 f = go . toNonEmpty
     
     go (e:|es) =
       case es of
-        []   -> pure e
+        []   -> return e
         x:xs -> e `g` (go (x:|xs))
 
 -- | Monadic fold over the elements of a non-empty structure,
