@@ -19,6 +19,7 @@ extra-source-files:
   .vim.custom
   README.markdown
   CHANGELOG.markdown
+  Warning.hs
 description:
   Provides a wide array of (semi)groupoids and operations for working with them.
   .
