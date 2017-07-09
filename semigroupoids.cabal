@@ -118,6 +118,14 @@ flag tagged
   default: True
   manual: True
 
+flag unordered-containers
+  description:
+    You can disable the use of the `unordered-containers` package (and also its dependency `hashable`) using `-f-unordered-containers`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+  default: True
+  manual: True
+
 library
   build-depends:
     base                >= 4.3     && < 5,
@@ -147,6 +155,10 @@ library
 
   if flag(tagged)
     build-depends: tagged >= 0.7.3 && < 1
+
+  if flag(unordered-containers)
+    build-depends: hashable >= 1.1  && < 1.3,
+                   unordered-containers >= 0.2  && < 0.3
 
   hs-source-dirs: src
 
