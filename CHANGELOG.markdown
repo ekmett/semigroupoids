@@ -2,6 +2,8 @@
 -----
 * Add `Apply`, `Bind`, `Foldable1`, and `Traversable1` instances for `Complex`
 * Add `Semigroupoid` instance for `Tagged`
+* Add `Apply` and `Bind` instances for `HashMap` from the `unordered-containers` package
+  (on which `semigroupoids` now depends)
 
 5.2
 ---
