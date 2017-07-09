@@ -1,6 +1,7 @@
-next
-----
+5.2.1
+-----
 * Add `Apply`, `Bind`, `Foldable1`, and `Traversable1` instances for `Complex`
+* Add `Semigroupoid` instance for `Tagged`
 
 5.2
 ---
