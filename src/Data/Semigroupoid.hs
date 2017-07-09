@@ -42,6 +42,10 @@ import Data.Functor.Extend
 import Control.Comonad
 #endif
 
+#ifdef MIN_VERSION_tagged
+import Data.Tagged (Tagged (..))
+#endif
+
 -- | 'Control.Category.Category' sans 'Control.Category.id'
 class Semigroupoid c where
   o :: c j k -> c i j -> c i k
@@ -83,3 +87,8 @@ instance Semigroup m => Semigroupoid (Semi m) where
 instance Monoid m => Category (Semi m) where
   id = Semi mempty
   Semi m . Semi n = Semi (m `mappend` n)
+
+#ifdef MIN_VERSION_tagged
+instance Semigroupoid Tagged where
+  Tagged b `o` _ = Tagged b
+#endif
