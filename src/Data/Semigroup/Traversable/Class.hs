@@ -47,6 +47,10 @@ import Data.Traversable
 #endif
 import Data.Traversable.Instances ()
 
+#if MIN_VERSION_base(4,4,0)
+import Data.Complex
+#endif
+
 #ifdef MIN_VERSION_containers
 import Data.Tree
 #endif
@@ -199,6 +203,12 @@ instance Traversable1 f => Traversable1 (Reverse f) where
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
   traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
   traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
+
+#if MIN_VERSION_base(4,4,0)
+instance Traversable1 Complex where
+  traverse1 f (a :+ b) = (:+) <$> f a <.> f b
+  {-# INLINE traverse1 #-}
+#endif
 
 #ifdef MIN_VERSION_tagged
 instance Traversable1 (Tagged a) where

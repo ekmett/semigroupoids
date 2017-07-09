@@ -82,6 +82,10 @@ import Data.List.NonEmpty
 import Data.Orphans ()
 import Prelude hiding (id, (.))
 
+#if MIN_VERSION_base(4,4,0)
+import Data.Complex
+#endif
+
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
 import Data.IntMap (IntMap)
@@ -254,6 +258,11 @@ instance Arrow a => Apply (WrappedArrow a b) where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
+
+#if MIN_VERSION_base(4,4,0)
+instance Apply Complex where
+  (a :+ b) <.> (c :+ d) = a c :+ b d
+#endif
 
 #ifdef MIN_VERSION_containers
 -- | A Map is not 'Applicative', but it is an instance of 'Apply'
@@ -547,6 +556,14 @@ instance Bind (ContT r m) where
 instance ArrowApply a => Bind (WrappedArrow a b) where
   (>>-) = (>>=)
 -}
+
+#if MIN_VERSION_base(4,4,0)
+instance Bind Complex where
+  (a :+ b) >>- f = a' :+ b' where
+    a' :+ _  = f a
+    _  :+ b' = f b
+  {-# INLINE (>>-) #-}
+#endif
 
 #ifdef MIN_VERSION_containers
 -- | A 'Map' is not a 'Monad', but it is an instance of 'Bind'

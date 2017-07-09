@@ -41,6 +41,10 @@ import Data.Functor.Reverse
 import Data.Functor.Sum
 import Data.List.NonEmpty (NonEmpty(..))
 
+#if MIN_VERSION_base(4,4,0)
+import Data.Complex
+#endif
+
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif
@@ -166,6 +170,12 @@ instance (Foldable1 f, Bifoldable1 p) => Bifoldable1 (Tannen f p) where
 instance Bifoldable1 p => Bifoldable1 (WrappedBifunctor p) where
   bifoldMap1 f g = bifoldMap1 f g . unwrapBifunctor
   {-# INLINE bifoldMap1 #-}
+
+#if MIN_VERSION_base(4,4,0)
+instance Foldable1 Complex where
+  foldMap1 f (a :+ b) = f a <> f b
+  {-# INLINE foldMap1 #-}
+#endif
 
 #ifdef MIN_VERSION_containers
 instance Foldable1 Tree where
