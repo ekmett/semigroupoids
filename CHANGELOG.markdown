@@ -1,3 +1,7 @@
+next
+----
+* Add `Apply`, `Bind`, `Foldable1`, and `Traversable1` instances for `Complex`
+
 5.2
 ---
 * Revamp `Setup.hs` to use `cabal-doctest`. This makes it build
