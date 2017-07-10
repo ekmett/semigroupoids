@@ -27,6 +27,7 @@ module Data.Semigroupoid
   , Semi(..)
   ) where
 
+import Control.Applicative
 import Control.Arrow
 import Data.Functor.Bind
 import Data.Semigroup
@@ -87,6 +88,9 @@ instance Semigroup m => Semigroupoid (Semi m) where
 instance Monoid m => Category (Semi m) where
   id = Semi mempty
   Semi m . Semi n = Semi (m `mappend` n)
+
+instance Semigroupoid Const where
+  _ `o` Const a = Const a
 
 #ifdef MIN_VERSION_tagged
 instance Semigroupoid Tagged where
