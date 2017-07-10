@@ -1,7 +1,7 @@
 5.2.1
 -----
 * Add `Apply`, `Bind`, `Foldable1`, and `Traversable1` instances for `Complex`
-* Add `Semigroupoid` instance for `Tagged`
+* Add `Semigroupoid` instances for `Tagged` and `Const`
 
 5.2
 ---
