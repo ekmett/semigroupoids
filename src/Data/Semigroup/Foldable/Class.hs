@@ -68,9 +68,11 @@ import Prelude hiding (foldr)
 class Foldable t => Foldable1 t where
   fold1 :: Semigroup m => t m -> m
   foldMap1 :: Semigroup m => (a -> m) -> t a -> m
+  toNonEmpty :: t a -> NonEmpty a
 
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
   fold1 = foldMap1 id
+  toNonEmpty = foldMap1 (:|[])
 
 instance Foldable1 f => Foldable1 (Rec1 f) where
   foldMap1 f (Rec1 as) = foldMap1 f as
@@ -217,6 +219,7 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Sum f g) where
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a
   foldMap1 f (a :| b : bs) = f a <> foldMap1 f (b :| bs)
+  toNonEmpty = id
 
 instance Foldable1 ((,) a) where
   foldMap1 f (_, x) = f x

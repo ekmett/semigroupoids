@@ -17,11 +17,14 @@ module Data.Semigroup.Foldable
   , sequenceA1_
   , foldMapDefault1
   , asum1
+  , foldrM1
+  , foldlM1
   ) where
 
 import Data.Foldable
 import Data.Functor.Alt (Alt(..))
 import Data.Functor.Apply
+import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable.Class
@@ -99,3 +102,30 @@ instance Alt f => Semigroup (Alt_ f a) where
 asum1 :: (Foldable1 t, Alt m) => t (m a) -> m a
 asum1 = getAlt_ . foldMap1 Alt_
 {-# INLINE asum1 #-}
+
+-- | Monadic fold over the elements of a non-empty structure,
+-- associating to the right, i.e. from right to left.
+--
+-- > let g = (=<<) . f
+-- > in foldrM1 f (x1 :| [x2, ..., xn]) == x1 `g` (x2 `g` ... (xn-1 `f` xn)...)
+--
+foldrM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
+foldrM1 f = go . toNonEmpty
+  where
+    g = (=<<) . f
+    
+    go (e:|es) =
+      case es of
+        []   -> return e
+        x:xs -> e `g` (go (x:|xs))
+
+-- | Monadic fold over the elements of a non-empty structure,
+-- associating to the left, i.e. from left to right.
+--
+-- > let g = flip $ (=<<) . f
+-- > in foldlM1 f (x1 :| [x2, ..., xn]) == (...((x1 `f` x2) `g` x2) `g`...) `g` xn
+--
+foldlM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
+foldlM1 f t = foldlM f x xs
+  where
+    x:|xs = toNonEmpty t
