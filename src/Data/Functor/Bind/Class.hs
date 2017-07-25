@@ -103,6 +103,11 @@ import Data.Tagged
 import Data.Proxy
 #endif
 
+#ifdef MIN_VERSION_unordered_containers
+import Data.Hashable
+import Data.HashMap.Lazy (HashMap)
+import qualified Data.HashMap.Lazy as HashMap
+#endif
 
 #ifdef MIN_VERSION_comonad
 import Control.Comonad
@@ -284,6 +289,12 @@ instance Apply Tree where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+-- | A 'HashMap' is not 'Applicative', but it is an instance of 'Apply'
+instance (Hashable k, Eq k) => Apply (HashMap k) where
+  (<.>) = HashMap.intersectionWith id
 #endif
 
 -- MaybeT is _not_ the same as Compose f Maybe
@@ -579,6 +590,17 @@ instance Bind Seq where
 
 instance Bind Tree where
   (>>-) = (>>=)
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+-- | A 'HashMap' is not a 'Monad', but it is an instance of 'Bind'
+instance (Hashable k, Eq k) => Bind (HashMap k) where
+  -- this is needlessly painful
+  m >>- f = HashMap.fromList $ do
+    (k, a) <- HashMap.toList m
+    case HashMap.lookup k (f a) of
+      Just b -> [(k,b)]
+      Nothing -> []
 #endif
 
 infixl 4 <<.>>, <<., .>>
