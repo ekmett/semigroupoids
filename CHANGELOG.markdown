@@ -1,5 +1,7 @@
 5.2.1
 -----
+* Add the `toNonEmpty` method to `Foldable1`. Add `foldrM1` and `foldlM1`
+  functions to `Data.Semigroup.Foldable` that are defined in terms of `toNonEmpty`.
 * Add `Apply`, `Bind`, `Foldable1`, and `Traversable1` instances for `Complex`
 * Add `Apply` and `Bind` instances for `HashMap` from the `unordered-containers` package
   (on which `semigroupoids` now depends)
