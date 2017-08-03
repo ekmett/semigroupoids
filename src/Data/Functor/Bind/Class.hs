@@ -144,6 +144,7 @@ infixl 4 <.>, <., .>
 -- @
 class Functor f => Apply f where
   (<.>) :: f (a -> b) -> f a -> f b
+  (<.>) = liftF2 id
 
   -- | @ a '.>' b = 'const' 'id' '<$>' a '<.>' b @
   (.>) :: f a -> f b -> f b
@@ -152,6 +153,15 @@ class Functor f => Apply f where
   -- | @ a '<.' b = 'const' '<$>' a '<.>' b @
   (<.) :: f a -> f b -> f a
   a <. b = const <$> a <.> b
+
+  -- | Lift a binary function into a comonad with zipping
+  liftF2 :: (a -> b -> c) -> f a -> f b -> f c
+  liftF2 f a b = f <$> a <.> b
+  {-# INLINE liftF2 #-}
+
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
+  {-# MINIMAL (<.>) | liftF2 #-}
+#endif
 
 #ifdef MIN_VERSION_tagged
 instance Apply (Tagged a) where

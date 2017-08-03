@@ -23,7 +23,6 @@ module Data.Functor.Apply (
 
   , Apply(..)
   , (<..>)    -- :: Apply w => w a -> w (a -> b) -> w b
-  , liftF2    -- :: Apply w => (a -> b -> c) -> w a -> w b -> w c
   , liftF3    -- :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 
   -- * Wrappers
@@ -41,10 +40,6 @@ infixl 4 <..>
 (<..>) = liftF2 (flip id)
 {-# INLINE (<..>) #-}
 
--- | Lift a binary function into a comonad with zipping
-liftF2 :: Apply w => (a -> b -> c) -> w a -> w b -> w c
-liftF2 f a b = f <$> a <.> b
-{-# INLINE liftF2 #-}
 
 -- | Lift a ternary function into a comonad with zipping
 liftF3 :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
