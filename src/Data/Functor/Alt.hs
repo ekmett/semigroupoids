@@ -24,10 +24,11 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Alt
   ( Alt(..)
+  , optional
   , module Data.Functor.Apply
   ) where
 
-import Control.Applicative hiding (some, many)
+import Control.Applicative hiding (some, many, optional)
 import Control.Applicative.Backwards
 import Control.Applicative.Lift
 import Control.Arrow
@@ -116,6 +117,10 @@ class Functor f => Alt f where
   many v = many_v
     where many_v = some_v <!> pure []
           some_v = (:) <$> v <*> many_v
+
+-- | One or none.
+optional :: (Alt f, Applicative f) => f a -> f (Maybe a)
+optional v = Just <$> v <!> pure Nothing
 
 instance (Alt f, Alt g) => Alt (f :*: g) where
   (as :*: bs) <!> (cs :*: ds) = (as <!> cs) :*: (bs <!> ds)
