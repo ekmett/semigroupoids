@@ -15,7 +15,9 @@ module Data.Semigroup.Bitraversable
   ) where
 
 import Control.Applicative
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
+#endif
 import Data.Semigroup.Traversable.Class
 
 bifoldMap1Default :: (Bitraversable1 t, Semigroup m) => (a -> m) -> (b -> m) -> t a b -> m

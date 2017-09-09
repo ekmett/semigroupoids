@@ -31,7 +31,9 @@ import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 import Data.Functor.Bind
 import Data.Orphans ()
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup hiding (Product)
+#endif
 import Prelude hiding (id, (.))
 
 -- | A subset of monad transformers can transform any 'Bind' as well.
