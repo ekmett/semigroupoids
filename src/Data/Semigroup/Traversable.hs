@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -14,7 +15,9 @@ module Data.Semigroup.Traversable
   ) where
 
 import Control.Applicative
+#if !(MIN_VERSION_base(4,11,0))
 import Data.Semigroup
+#endif
 import Data.Semigroup.Traversable.Class
 
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m

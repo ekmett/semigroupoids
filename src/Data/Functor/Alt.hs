@@ -50,8 +50,8 @@ import Data.Functor.Bind
 import Data.Functor.Compose
 import Data.Functor.Product
 import Data.Functor.Reverse
-import Data.Semigroup hiding (Product)
 import Data.List.NonEmpty (NonEmpty(..))
+import Data.Semigroup (Option(..), Semigroup(..))
 import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
 
@@ -61,6 +61,11 @@ import Data.IntMap (IntMap)
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
+# if MIN_VERSION_base(4,8,0)
+import Prelude (mappend)
+# else
+import Data.Monoid (mappend)
+# endif
 #endif
 
 #if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
@@ -72,6 +77,7 @@ import Generics.Deriving.Base
 #else
 import GHC.Generics
 #endif
+
 
 infixl 3 <!>
 
