@@ -25,7 +25,6 @@ module Data.Functor.Bind (
   -- * Applyable functors
   , Apply(..)
   , (<..>)    -- :: Apply w => w a -> w (a -> b) -> w b
-  , liftF2    -- :: Apply w => (a -> b -> c) -> w a -> w b -> w c
   , liftF3    -- :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
   -- * Wrappers
   , WrappedApplicative(..)
