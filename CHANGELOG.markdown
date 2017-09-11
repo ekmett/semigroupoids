@@ -1,3 +1,12 @@
+next
+----
+* Add `optional` to `Data.Functor.Alt` (analogous to the `optional` function
+  in `Control.Applicative`)
+* `liftF2` is now a class method of `Apply` (mirroring the fact that `liftA2`
+  is now a class method of `Applicative`). `liftF2` and `(<.>)` have default
+  definitions in terms of the other.
+* Allow building with GHC 8.4
+
 5.2.1
 -----
 * Add the `toNonEmpty` method to `Foldable1`. Add `foldrM1` and `foldlM1`
