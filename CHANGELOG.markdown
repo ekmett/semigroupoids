@@ -6,6 +6,7 @@ next
   is now a class method of `Applicative`). `liftF2` and `(<.>)` have default
   definitions in terms of the other.
 * Allow building with GHC 8.4
+* `Apply` and `Bind` instances for `Q`, from the `template-haskell` package.
 
 5.2.1
 -----
