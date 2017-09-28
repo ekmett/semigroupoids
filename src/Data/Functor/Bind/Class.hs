@@ -80,6 +80,7 @@ import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Orphans ()
+import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
 #if MIN_VERSION_base(4,4,0)
@@ -278,6 +279,11 @@ instance Arrow a => Apply (WrappedArrow a b) where
 instance Apply Complex where
   (a :+ b) <.> (c :+ d) = a c :+ b d
 #endif
+
+-- Applicative Q was only added in template-haskell 2.7 (GHC 7.4), so
+-- define in terms of Monad instead.
+instance Apply Q where
+  (<.>) = ap
 
 #ifdef MIN_VERSION_containers
 -- | A Map is not 'Applicative', but it is an instance of 'Apply'
@@ -505,6 +511,9 @@ instance Bind Option where
   (>>-) = (>>=)
 
 instance Bind Identity where
+  (>>-) = (>>=)
+
+instance Bind Q where
   (>>-) = (>>=)
 
 instance Bind m => Bind (IdentityT m) where
