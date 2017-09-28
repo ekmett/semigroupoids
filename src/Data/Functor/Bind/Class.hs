@@ -280,8 +280,10 @@ instance Apply Complex where
   (a :+ b) <.> (c :+ d) = a c :+ b d
 #endif
 
+-- Applicative Q was only added in template-haskell 2.7 (GHC 7.4), so
+-- define in terms of Monad instead.
 instance Apply Q where
-  (<.>) = (<*>)
+  (<.>) = ap
 
 #ifdef MIN_VERSION_containers
 -- | A Map is not 'Applicative', but it is an instance of 'Apply'
