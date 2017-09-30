@@ -7,6 +7,8 @@ next
   definitions in terms of the other.
 * Allow building with GHC 8.4
 * `Apply` and `Bind` instances for `Q`, from the `template-haskell` package.
+* `Alt` instances for `First` and `Last` from `Data.Semigroup`, and
+  `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.
 
 5.2.1
 -----

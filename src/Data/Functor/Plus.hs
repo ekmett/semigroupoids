@@ -44,6 +44,7 @@ import Data.Functor.Bind
 import Data.Functor.Compose
 import Data.Functor.Product
 import Data.Functor.Reverse
+import qualified Data.Monoid as Monoid
 import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
 
@@ -172,3 +173,9 @@ instance (Plus f, Plus g) => Plus (Product f g) where
 
 instance Plus f => Plus (Reverse f) where
   zero = Reverse zero
+
+instance Plus Monoid.First where
+  zero = Monoid.First Nothing
+
+instance Plus Monoid.Last where
+  zero = Monoid.Last Nothing
