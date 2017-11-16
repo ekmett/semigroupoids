@@ -22,9 +22,18 @@ module Data.Groupoid
 import Data.Semigroupoid
 import Data.Semigroupoid.Dual
 
+#if MIN_VERSION_base(4,7,0)
+import qualified Data.Type.Equality as Eq
+#endif
+
 -- | semigroupoid with inverses. This technically should be a category with inverses, except we need to use Ob to define the valid objects for the category
 class Semigroupoid k => Groupoid k where
   inv :: k a b -> k b a
 
 instance Groupoid k => Groupoid (Dual k) where
   inv (Dual k) = Dual (inv k)
+
+#if MIN_VERSION_base(4,7,0)
+instance Groupoid (Eq.:~:) where
+  inv = Eq.sym
+#endif
