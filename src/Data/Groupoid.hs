@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
 #if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
 #endif
@@ -36,4 +37,9 @@ instance Groupoid k => Groupoid (Dual k) where
 #if MIN_VERSION_base(4,7,0)
 instance Groupoid (Eq.:~:) where
   inv = Eq.sym
+#endif
+
+#if MIN_VERSION_base(4,10,0)
+instance Groupoid (Eq.:~~:) where
+  inv Eq.HRefl = Eq.HRefl
 #endif

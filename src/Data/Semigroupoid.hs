@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE GADTs #-}
 
 #if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
@@ -104,4 +105,9 @@ instance Semigroupoid Tagged where
 #if MIN_VERSION_base(4,7,0)
 instance Semigroupoid (Eq.:~:) where
   o = flip Eq.trans
+#endif
+
+#if MIN_VERSION_base(4,10,0)
+instance Semigroupoid (Eq.:~~:) where
+  o Eq.HRefl Eq.HRefl = Eq.HRefl
 #endif
