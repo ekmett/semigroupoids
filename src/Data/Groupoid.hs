@@ -24,6 +24,7 @@ import Data.Semigroupoid
 import Data.Semigroupoid.Dual
 
 #if MIN_VERSION_base(4,7,0)
+import qualified Data.Type.Coercion as Co
 import qualified Data.Type.Equality as Eq
 #endif
 
@@ -35,6 +36,9 @@ instance Groupoid k => Groupoid (Dual k) where
   inv (Dual k) = Dual (inv k)
 
 #if MIN_VERSION_base(4,7,0)
+instance Groupoid Co.Coercion where
+  inv = Co.sym
+
 instance Groupoid (Eq.:~:) where
   inv = Eq.sym
 #endif

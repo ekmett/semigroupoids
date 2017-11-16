@@ -49,6 +49,7 @@ import Data.Tagged (Tagged (..))
 #endif
 
 #if MIN_VERSION_base(4,7,0)
+import qualified Data.Type.Coercion as Co
 import qualified Data.Type.Equality as Eq
 #endif
 
@@ -103,6 +104,9 @@ instance Semigroupoid Tagged where
 #endif
 
 #if MIN_VERSION_base(4,7,0)
+instance Semigroupoid Co.Coercion where
+  o = flip Co.trans
+
 instance Semigroupoid (Eq.:~:) where
   o = flip Eq.trans
 #endif
