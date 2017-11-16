@@ -47,6 +47,10 @@ import Control.Comonad
 import Data.Tagged (Tagged (..))
 #endif
 
+#if MIN_VERSION_base(4,7,0)
+import qualified Data.Type.Equality as Eq
+#endif
+
 -- | 'Control.Category.Category' sans 'Control.Category.id'
 class Semigroupoid c where
   o :: c j k -> c i j -> c i k
@@ -95,4 +99,9 @@ instance Semigroupoid Const where
 #ifdef MIN_VERSION_tagged
 instance Semigroupoid Tagged where
   Tagged b `o` _ = Tagged b
+#endif
+
+#if MIN_VERSION_base(4,7,0)
+instance Semigroupoid (Eq.:~:) where
+  o = flip Eq.trans
 #endif
