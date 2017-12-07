@@ -137,7 +137,7 @@ library
     transformers-compat >= 0.5     && < 0.6
 
   if impl(ghc >= 7.0 && < 7.4)
-    build-depends: generic-deriving >= 1.11 && < 1.12
+    build-depends: generic-deriving >= 1.11 && < 1.13
 
   if impl(ghc >= 7.4 && < 7.6)
     build-depends: ghc-prim
