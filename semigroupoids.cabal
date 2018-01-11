@@ -139,7 +139,7 @@ library
   if impl(ghc >= 7.0 && < 7.2)
     build-depends: generic-deriving >= 1.11 && < 1.13
 
-  if impl(ghc >= 7.4 && < 7.6)
+  if impl(ghc >= 7.2 && < 7.6)
     build-depends: ghc-prim
 
   if flag(containers)
