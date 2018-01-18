@@ -1,5 +1,5 @@
-next
-----
+5.2.2 [2018.01.18]
+------------------
 * Add `optional` to `Data.Functor.Alt` (analogous to the `optional` function
   in `Control.Applicative`)
 * `liftF2` is now a class method of `Apply` (mirroring the fact that `liftA2`
