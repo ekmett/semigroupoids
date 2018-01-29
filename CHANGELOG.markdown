@@ -7,6 +7,8 @@
   definitions in terms of the other.
 * Allow building with GHC 8.4
 * `Apply` and `Bind` instances for `Q`, from the `template-haskell` package.
+  (As a consequence, `Data.Functor.Foldable` is no longer a `Trustworthy`
+  module.)
 * Add instances for `(:~:)` and `(:~~:)` from `Data.Type.Equality`, and
   `Coercion` from `Data.Type.Coercion`
 
