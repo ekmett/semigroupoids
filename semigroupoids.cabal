@@ -207,5 +207,5 @@ test-suite doctests
   else
     build-depends:
       base      >= 4      && < 5,
-      doctest   >= 0.11.1 && < 0.14,
+      doctest   >= 0.11.1 && < 0.15,
       semigroupoids
