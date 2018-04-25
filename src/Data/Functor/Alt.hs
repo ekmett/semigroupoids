@@ -52,7 +52,9 @@ import Data.Functor.Compose
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
+import qualified Data.Monoid as Monoid
 import Data.Semigroup (Option(..), Semigroup(..))
+import qualified Data.Semigroup as Semigroup
 import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
 
@@ -268,3 +270,15 @@ instance (Alt f, Alt g) => Alt (Product f g) where
 
 instance Alt f => Alt (Reverse f) where
   Reverse a <!> Reverse b = Reverse (a <!> b)
+
+instance Alt Semigroup.First where
+  (<!>) = (<>)
+
+instance Alt Semigroup.Last where
+  (<!>) = (<>)
+
+instance Alt Monoid.First where
+  (<!>) = mappend
+
+instance Alt Monoid.Last where
+  (<!>) = mappend

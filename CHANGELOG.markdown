@@ -11,6 +11,8 @@
   module.)
 * Add instances for `(:~:)` and `(:~~:)` from `Data.Type.Equality`, and
   `Coercion` from `Data.Type.Coercion`
+* `Alt` instances for `First` and `Last` from `Data.Semigroup`, and
+  `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.
 
 5.2.1
 -----
