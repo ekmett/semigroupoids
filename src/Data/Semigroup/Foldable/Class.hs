@@ -33,12 +33,12 @@ import Data.Bifunctor.Joker
 import Data.Bifunctor.Tannen
 import Data.Bifunctor.Wrapped
 import Data.Foldable
-import Data.Functor.Compose
 
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
-import Data.Functor.Sum
+import Data.Functor.Sum as Functor
+import Data.Functor.Compose
 import Data.List.NonEmpty (NonEmpty(..))
 
 #if MIN_VERSION_base(4,4,0)
@@ -55,7 +55,10 @@ import Data.Traversable.Instances ()
 import Data.Tree
 #endif
 
-import Data.Semigroup hiding (Product, Sum)
+import Data.Monoid as Monoid hiding ((<>))
+import Data.Semigroup as Semigroup hiding (Product, Sum)
+import Data.Orphans ()
+-- import Data.Ord -- missing Foldable, https://ghc.haskell.org/trac/ghc/ticket/15098#ticket
 
 #ifdef MIN_VERSION_generic_deriving
 import Generics.Deriving.Base
@@ -73,6 +76,32 @@ class Foldable t => Foldable1 t where
   foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
   fold1 = foldMap1 id
   toNonEmpty = foldMap1 (:|[])
+
+instance Foldable1 Monoid.Sum where
+  foldMap1 f (Monoid.Sum a) = f a
+
+instance Foldable1 Monoid.Product where
+  foldMap1 f (Monoid.Product a) = f a
+
+instance Foldable1 Monoid.Dual where
+  foldMap1 f (Monoid.Dual a) = f a
+
+#if MIN_VERSION_base(4,8,0)
+instance Foldable1 f => Foldable1 (Monoid.Alt f) where
+  foldMap1 g (Alt m) = foldMap1 g m
+#endif
+
+instance Foldable1 Semigroup.First where
+  foldMap1 f (Semigroup.First a) = f a
+
+instance Foldable1 Semigroup.Last where
+  foldMap1 f (Semigroup.Last a) = f a
+
+instance Foldable1 Semigroup.Min where
+  foldMap1 f (Semigroup.Min a) = f a
+
+instance Foldable1 Semigroup.Max where
+  foldMap1 f (Semigroup.Max a) = f a
 
 instance Foldable1 f => Foldable1 (Rec1 f) where
   foldMap1 f (Rec1 as) = foldMap1 f as
@@ -212,9 +241,9 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Functor.Product f g) where
 instance Foldable1 f => Foldable1 (Reverse f) where
   foldMap1 f = getDual . foldMap1 (Dual . f) . getReverse
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (Sum f g) where
-  foldMap1 f (InL x) = foldMap1 f x
-  foldMap1 f (InR y) = foldMap1 f y
+instance (Foldable1 f, Foldable1 g) => Foldable1 (Functor.Sum f g) where
+  foldMap1 f (Functor.InL x) = foldMap1 f x
+  foldMap1 f (Functor.InR y) = foldMap1 f y
 
 instance Foldable1 NonEmpty where
   foldMap1 f (a :| []) = f a

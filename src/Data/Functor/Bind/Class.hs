@@ -24,7 +24,7 @@
 
 -----------------------------------------------------------------------------
 -- |
--- Copyright   :  (C) 2011-2015 Edward Kmett
+-- Copyright   :  (C) 2011-2018 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -87,6 +87,7 @@ import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Semigroup as Semigroup
 import Data.Monoid as Monoid hiding ((<>))
+import Data.Ord
 import Data.Orphans ()
 import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
@@ -437,6 +438,8 @@ instance Apply (Cokleisli w a) where
   Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
 #endif
 
+instance Apply Down where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+
 instance Apply Monoid.Sum where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Monoid.Product where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Monoid.Dual where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
@@ -668,6 +671,8 @@ instance (Hashable k, Eq k) => Bind (HashMap k) where
       Just b -> [(k,b)]
       Nothing -> []
 #endif
+
+instance Bind Down where Down a >>- f = f a
 
 instance Bind Monoid.Sum where (>>-) = (>>=)
 instance Bind Monoid.Product where (>>-) = (>>=)

@@ -36,7 +36,9 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Sum as Functor
 import Data.List.NonEmpty (NonEmpty(..))
-import Data.Semigroup
+import Data.Monoid as Monoid hiding ((<>))
+import Data.Orphans ()
+import Data.Semigroup as Semigroup
 import Data.Semigroup.Foldable
 import Data.Semigroup.Bifoldable
 #ifdef MIN_VERSION_tagged
@@ -231,3 +233,29 @@ instance Traversable1 ((,) a) where
 instance Traversable1 g => Traversable1 (Joker g a) where
   traverse1 g = fmap Joker . traverse1 g . runJoker
   {-# INLINE traverse1 #-}
+
+instance Traversable1 Monoid.Sum where
+  traverse1 g (Monoid.Sum a) = Monoid.Sum <$> g a
+
+instance Traversable1 Monoid.Product where
+  traverse1 g (Monoid.Product a) = Monoid.Product <$> g a
+
+instance Traversable1 Monoid.Dual where
+  traverse1 g (Monoid.Dual a) = Monoid.Dual <$> g a
+
+#if MIN_VERSION_base(4,8,0)
+instance Traversable1 f => Traversable1 (Monoid.Alt f) where
+  traverse1 g (Alt m) = Alt <$> traverse1 g m
+#endif
+
+instance Traversable1 Semigroup.First where
+  traverse1 g (Semigroup.First a) = Semigroup.First <$> g a
+
+instance Traversable1 Semigroup.Last where
+  traverse1 g (Semigroup.Last a) = Semigroup.Last <$> g a
+
+instance Traversable1 Semigroup.Min where
+  traverse1 g (Semigroup.Min a) = Semigroup.Min <$> g a
+
+instance Traversable1 Semigroup.Max where
+  traverse1 g (Semigroup.Max a) = Semigroup.Max <$> g a

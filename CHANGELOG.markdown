@@ -1,6 +1,10 @@
 5.3
 ---
-* Added missing `Apply`, `Bind` and `Extend` instances for `Data.Semigroups`, `Data.Monoid` and `GHC.Generics`.
+* Added missing `Apply`, `Bind`, `Extend`, `Foldable1` and `Traversable1`
+  instances for `Data.Semigroups`, `Data.Monoid` and `GHC.Generics`.
+* Added orphan instances of `Foldable` and `Traversable` for `Alt f` until
+  [#15099](https://ghc.haskell.org/trac/ghc/ticket/15099#ticket) gets resolved
+  in GHC.
 
 5.2.2 [2018.01.18]
 ------------------
