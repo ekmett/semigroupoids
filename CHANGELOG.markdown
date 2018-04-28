@@ -1,3 +1,7 @@
+5.3
+---
+* Added missing `Apply`, `Bind` and `Extend` instances for `Data.Semigroups`, `Data.Monoid` and `GHC.Generics`.
+
 5.2.2 [2018.01.18]
 ------------------
 * Add `optional` to `Data.Functor.Alt` (analogous to the `optional` function
@@ -7,7 +11,7 @@
   definitions in terms of the other.
 * Allow building with GHC 8.4
 * `Apply` and `Bind` instances for `Q`, from the `template-haskell` package.
-  (As a consequence, `Data.Functor.Foldable` is no longer a `Trustworthy`
+  (As a consequence, `Data.Semigroup.Foldable` is no longer a `Trustworthy`
   module.)
 * Add instances for `(:~:)` and `(:~~:)` from `Data.Type.Equality`, and
   `Coercion` from `Data.Type.Coercion`

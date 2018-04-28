@@ -1,7 +1,12 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702 && __GLASGOW_HASKELL <= 706 && defined(MIN_VERSION_comonad) && !(MIN_VERSION_comonad(3,0,3))
 {-# LANGUAGE Trustworthy #-}
+#endif
+
+#if __GLASGOW_HASKELL__ >= 708
+{-# LANGUAGE EmptyCase #-}
 #endif
 -----------------------------------------------------------------------------
 -- |
@@ -24,8 +29,7 @@ import Prelude hiding (id, (.))
 import Control.Category
 import Control.Monad.Trans.Identity
 import Data.Functor.Identity
-import Data.Functor.Sum (Sum(..))
-import Data.Semigroup (Semigroup(..))
+import Data.Functor.Sum as Functor (Sum(..))
 import Data.List (tails)
 import Data.List.NonEmpty (NonEmpty(..), toList)
 
@@ -50,6 +54,10 @@ import Data.Tagged
 import Data.Proxy
 #endif
 
+import Data.Orphans ()
+import GHC.Generics as Generics
+import Data.Monoid as Monoid
+import Data.Semigroup as Semigroup
 
 class Functor w => Extend w where
   -- |
@@ -155,9 +163,59 @@ instance Extend NonEmpty where
       []     -> []
       (a:as) -> toList (extended f (a :| as))
 
-instance (Extend f, Extend g) => Extend (Sum f g) where
+instance (Extend f, Extend g) => Extend (Functor.Sum f g) where
   extended f (InL l) = InL (extended (f . InL) l)
   extended f (InR r) = InR (extended (f . InR) r)
+
+instance (Extend f, Extend g) => Extend (f :+: g) where
+  extended f (L1 l) = L1 (extended (f . L1) l)
+  extended f (R1 r) = R1 (extended (f . R1) r)
+
+instance Extend Generics.U1 where
+  extended _ U1 = U1
+
+instance Extend Generics.V1 where
+#if __GLASGOW_HASKELL__ >= 708
+  extended _ e = case e of {}
+#else
+  extended _ e = seq e undefined
+#endif
+
+instance Extend f => Extend (Generics.M1 i t f) where
+  extended f = M1 . extended (f . M1) . unM1
+
+instance Extend Par1 where
+  extended f w@Par1{} = Par1 (f w)
+
+instance Extend f => Extend (Rec1 f) where
+  extended f = Rec1 . extended (f . Rec1) . unRec1
+
+instance Extend Monoid.Sum where
+  extended f w@Monoid.Sum{} = Monoid.Sum (f w)
+
+instance Extend Monoid.Product where
+  extended f w@Monoid.Product{} = Monoid.Product (f w)
+
+instance Extend Monoid.Dual where
+  extended f w@Monoid.Dual{} = Monoid.Dual (f w)
+
+#if MIN_VERSION_base(4,8,0)
+instance Extend f => Extend (Monoid.Alt f) where
+  extended f = Monoid.Alt . extended (f . Monoid.Alt) . Monoid.getAlt
+#endif
+
+-- in GHC 8.6 we'll have to deal with Apply f => Apply (Ap f) the same way
+instance Extend Semigroup.First where
+  extended f w@Semigroup.First{} = Semigroup.First (f w)
+
+instance Extend Semigroup.Last where
+  extended f w@Semigroup.Last{} = Semigroup.Last (f w)
+
+instance Extend Semigroup.Min where
+  extended f w@Semigroup.Min{} = Semigroup.Min (f w)
+
+instance Extend Semigroup.Max where
+  extended f w@Semigroup.Max{} = Semigroup.Max (f w)
 
 -- $definition
 -- There are two ways to define an 'Extend' instance:

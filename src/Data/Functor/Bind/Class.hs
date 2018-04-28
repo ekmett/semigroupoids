@@ -1,4 +1,10 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
+#if __GLASGOW_HASKELL__ >= 708
+{-# LANGUAGE EmptyCase #-}
+#endif
 
 #ifndef MIN_VERSION_semigroups
 #define MIN_VERSION_semigroups(x,y,z) 1
@@ -79,7 +85,10 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
+import Data.Semigroup as Semigroup
+import Data.Monoid as Monoid
 import Data.Orphans ()
+import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
@@ -428,6 +437,44 @@ instance Apply (Cokleisli w a) where
   Cokleisli f <.> Cokleisli a = Cokleisli (\w -> (f w) (a w))
 #endif
 
+instance Apply Monoid.Sum where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Monoid.Product where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Monoid.Dual where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Monoid.First where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Monoid.Last where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+#if MIN_VERSION_base(4,8,0)
+deriving instance Apply f => Apply (Monoid.Alt f)
+#endif
+-- in GHC 8.6 we'll have to deal with Apply f => Apply (Ap f) the same way
+instance Apply Semigroup.First where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Semigroup.Last where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Semigroup.Min where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+instance Apply Semigroup.Max where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+
+instance (Apply f, Apply g) => Apply (f :*: g) where
+  (a :*: b) <.> (c :*: d) = (a <.> c) :*: (b <.> d)
+
+deriving instance Apply f => Apply (M1 i t f)
+deriving instance Apply f => Apply (Rec1 f)
+
+instance (Apply f, Apply g) => Apply (f :.: g) where
+  Comp1 m <.> Comp1 n = Comp1 $ (<.>) <$> m <.> n
+
+instance Apply U1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+
+instance Semigroup c => Apply (K1 i c) where
+  K1 a <.> K1 b = K1 (a <> b)
+  K1 a <.  K1 b = K1 (a <> b)
+  K1 a  .> K1 b = K1 (a <> b)
+instance Apply Par1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
+
+instance Apply Generics.V1 where
+#if __GLASGOW_HASKELL__ >= 708
+  e <.> _ = case e of {}
+#else
+  e <.> _ = e `seq` undefined
+#endif
+
 -- | A 'Monad' sans 'return'.
 --
 -- Minimal definition: Either 'join' or '>>-'
@@ -622,6 +669,27 @@ instance (Hashable k, Eq k) => Bind (HashMap k) where
       Nothing -> []
 #endif
 
+instance Bind Monoid.Sum where (>>-) = (>>=)
+instance Bind Monoid.Product where (>>-) = (>>=)
+instance Bind Monoid.Dual where (>>-) = (>>=)
+instance Bind Monoid.First where (>>-) = (>>=)
+instance Bind Monoid.Last where (>>-) = (>>=)
+#if MIN_VERSION_base(4,8,0)
+instance Bind f => Bind (Monoid.Alt f) where
+  Alt m >>- k = Alt (m >>- getAlt . k)
+#endif
+-- in GHC 8.6 we'll have to deal with Bind f => Bind (Ap f) the same way
+instance Bind Semigroup.First where (>>-) = (>>=)
+instance Bind Semigroup.Last where (>>-) = (>>=)
+instance Bind Semigroup.Min where (>>-) = (>>=)
+instance Bind Semigroup.Max where (>>-) = (>>=)
+instance Bind Generics.V1 where
+#if __GLASGOW_HASKELL__ >= 708
+  m >>- _ = case m of {}
+#else
+  m >>- _ = m `seq` undefined
+#endif
+
 infixl 4 <<.>>, <<., .>>
 
 class Bifunctor p => Biapply p where
@@ -711,4 +779,3 @@ instance (Apply f, Biapply p) => Biapply (Tannen f p) where
 instance Biapply p => Biapply (WrappedBifunctor p) where
   WrapBifunctor fg <<.>> WrapBifunctor xy = WrapBifunctor (fg <<.>> xy)
   {-# INLINE (<<.>>) #-}
-
