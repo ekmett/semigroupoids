@@ -56,7 +56,7 @@ import Data.Proxy
 
 import Data.Orphans ()
 import GHC.Generics as Generics
-import Data.Monoid as Monoid
+import Data.Monoid as Monoid hiding ((<>))
 import Data.Semigroup as Semigroup
 
 class Functor w => Extend w where

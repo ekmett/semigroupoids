@@ -86,7 +86,7 @@ import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Semigroup as Semigroup
-import Data.Monoid as Monoid
+import Data.Monoid as Monoid hiding ((<>))
 import Data.Orphans ()
 import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
