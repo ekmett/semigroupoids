@@ -87,11 +87,17 @@ import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Semigroup as Semigroup
 import Data.Monoid as Monoid hiding ((<>))
-import Data.Ord
 import Data.Orphans ()
 import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
+
+#if MIN_VERSION_base(4,6,0)
+import Data.Ord (Down (..))
+#else
+import GHC.Exts (Down (..))
+#endif
+
 
 #if MIN_VERSION_base(4,4,0)
 import Data.Complex
