@@ -1,10 +1,10 @@
 5.3
 ---
-* Added missing `Apply`, `Bind`, `Extend`, `Foldable1` and `Traversable1`
+* Allow building with `containers-0.6`.
+* `Add Alt` instances for `First` and `Last` from `Data.Semigroup`, and
+  `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.
+* Add missing `Apply`, `Bind`, `Extend`, `Foldable1` and `Traversable1`
   instances for `Data.Semigroups`, `Data.Monoid` and `GHC.Generics`.
-* Added orphan instances of `Foldable` and `Traversable` for `Alt f` until
-  [#15099](https://ghc.haskell.org/trac/ghc/ticket/15099#ticket) gets resolved
-  in GHC.
 
 5.2.2 [2018.01.18]
 ------------------
@@ -19,8 +19,6 @@
   module.)
 * Add instances for `(:~:)` and `(:~~:)` from `Data.Type.Equality`, and
   `Coercion` from `Data.Type.Coercion`
-* `Alt` instances for `First` and `Last` from `Data.Semigroup`, and
-  `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.
 
 5.2.1
 -----
