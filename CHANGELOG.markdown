@@ -1,7 +1,7 @@
 5.3
 ---
 * Allow building with `containers-0.6`.
-* `Add Alt` instances for `First` and `Last` from `Data.Semigroup`, and
+* Add `Alt` instances for `First` and `Last` from `Data.Semigroup`, and
   `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.
 * Add missing `Apply`, `Bind`, `Extend`, `Foldable1` and `Traversable1`
   instances for `Data.Semigroups`, `Data.Monoid` and `GHC.Generics`.
