@@ -1,5 +1,10 @@
-5.3
----
+next [????.??.??]
+-----------------
+* Fix a regression introduced in `semigroupoids-5.3` in which some modules
+  regressed from `Trustworthy` to `Unsafe`.
+
+5.3 [2018.07.02]
+----------------
 * Allow building with `containers-0.6`.
 * Add `Alt` instances for `First` and `Last` from `Data.Semigroup`, and
   `Alt` and `Plus` instances for `First` and `Last` from `Data.Monoid`.

@@ -195,13 +195,13 @@ library
     Data.Semigroupoid.Static
     Data.Traversable.Instances
 
-  ghc-options: -Wall -fno-warn-warnings-deprecations
+  ghc-options: -Wall -fno-warn-warnings-deprecations -Wno-trustworthy-safe
 
 test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
   hs-source-dirs:   test
-  ghc-options:      -Wall -fno-warn-warnings-deprecations
+  ghc-options:      -Wall -fno-warn-warnings-deprecations -Wno-trustworthy-safe
 
   if !flag(doctests)
     buildable: False
