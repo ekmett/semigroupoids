@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.3.1 [2018.07.02]
+------------------
 * Fix a regression introduced in `semigroupoids-5.3` in which some modules
   regressed from `Trustworthy` to `Unsafe`.
 
