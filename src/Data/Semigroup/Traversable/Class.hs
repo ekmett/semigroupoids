@@ -80,10 +80,8 @@ class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   {-# MINIMAL bitraverse1 | bisequence1 #-}
 #endif
 
-#if MIN_VERSION_semigroups(0,16,2)
 instance Bitraversable1 Arg where
   bitraverse1 f g (Arg a b) = Arg <$> f a <.> g b
-#endif
 
 instance Bitraversable1 Either where
   bitraverse1 f _ (Left a) = Left <$> f a
