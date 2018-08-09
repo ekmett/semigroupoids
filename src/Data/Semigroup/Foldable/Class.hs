@@ -59,7 +59,7 @@ import Data.Traversable.Instances ()
 import Data.Tree
 #endif
 
-import Data.Monoid as Monoid hiding ((<>))
+import qualified Data.Monoid as Monoid
 import Data.Semigroup as Semigroup hiding (Product, Sum)
 import Data.Orphans ()
 -- import Data.Ord -- missing Foldable, https://ghc.haskell.org/trac/ghc/ticket/15098#ticket
@@ -92,7 +92,7 @@ instance Foldable1 Monoid.Dual where
 
 #if MIN_VERSION_base(4,8,0)
 instance Foldable1 f => Foldable1 (Monoid.Alt f) where
-  foldMap1 g (Alt m) = foldMap1 g m
+  foldMap1 g (Monoid.Alt m) = foldMap1 g m
 #endif
 
 instance Foldable1 Semigroup.First where

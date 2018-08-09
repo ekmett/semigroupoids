@@ -40,7 +40,7 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Sum as Functor
 import Data.List.NonEmpty (NonEmpty(..))
-import Data.Monoid as Monoid hiding ((<>))
+import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import Data.Semigroup as Semigroup
 import Data.Semigroup.Foldable
@@ -249,7 +249,7 @@ instance Traversable1 Monoid.Dual where
 
 #if MIN_VERSION_base(4,8,0)
 instance Traversable1 f => Traversable1 (Monoid.Alt f) where
-  traverse1 g (Alt m) = Alt <$> traverse1 g m
+  traverse1 g (Monoid.Alt m) = Monoid.Alt <$> traverse1 g m
 #endif
 
 instance Traversable1 Semigroup.First where

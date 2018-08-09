@@ -86,9 +86,8 @@ import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty
 import Data.Semigroup as Semigroup
-import Data.Monoid as Monoid hiding ((<>))
+import qualified Data.Monoid as Monoid
 import Data.Orphans ()
-import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
@@ -124,6 +123,12 @@ import Data.Proxy
 import Data.Hashable
 import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
+#endif
+
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base as Generics
+#else
+import GHC.Generics as Generics
 #endif
 
 #ifdef MIN_VERSION_comonad
@@ -687,7 +692,7 @@ instance Bind Monoid.First where (>>-) = (>>=)
 instance Bind Monoid.Last where (>>-) = (>>=)
 #if MIN_VERSION_base(4,8,0)
 instance Bind f => Bind (Monoid.Alt f) where
-  Alt m >>- k = Alt (m >>- getAlt . k)
+  Monoid.Alt m >>- k = Monoid.Alt (m >>- Monoid.getAlt . k)
 #endif
 -- in GHC 8.6 we'll have to deal with Bind f => Bind (Ap f) the same way
 instance Bind Semigroup.First where (>>-) = (>>=)

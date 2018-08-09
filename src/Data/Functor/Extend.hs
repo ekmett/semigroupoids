@@ -54,9 +54,14 @@ import Data.Tagged
 import Data.Proxy
 #endif
 
-import Data.Orphans ()
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base as Generics
+#else
 import GHC.Generics as Generics
-import Data.Monoid as Monoid hiding ((<>))
+#endif
+
+import Data.Orphans ()
+import qualified Data.Monoid as Monoid
 import Data.Semigroup as Semigroup
 
 class Functor w => Extend w where
