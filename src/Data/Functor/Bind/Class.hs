@@ -6,10 +6,6 @@
 {-# LANGUAGE EmptyCase #-}
 #endif
 
-#ifndef MIN_VERSION_semigroups
-#define MIN_VERSION_semigroups(x,y,z) 1
-#endif
-
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -726,11 +722,9 @@ instance Biapply (,) where
   (f, g) <<.>> (a, b) = (f a, g b)
   {-# INLINE (<<.>>) #-}
 
-#if MIN_VERSION_semigroups(0,16,2)
 instance Biapply Arg where
   Arg f g <<.>> Arg a b = Arg (f a) (g b)
   {-# INLINE (<<.>>) #-}
-#endif
 
 instance Semigroup x => Biapply ((,,) x) where
   (x, f, g) <<.>> (x', a, b) = (x <> x', f a, g b)

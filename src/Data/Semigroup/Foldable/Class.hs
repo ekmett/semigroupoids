@@ -4,10 +4,6 @@
 {-# LANGUAGE Trustworthy #-}
 #endif
 
-#ifndef MIN_VERSION_semigroups
-#define MIN_VERSION_semigroups(x,y,z) 0
-#endif
-
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -138,10 +134,8 @@ class Bifoldable t => Bifoldable1 t where
   bifoldMap1 f g = maybe (error "bifoldMap1") id . getOption . bifoldMap (Option . Just . f) (Option . Just . g)
   {-# INLINE bifoldMap1 #-}
 
-#if MIN_VERSION_semigroups(0,16,2)
 instance Bifoldable1 Arg where
   bifoldMap1 f g (Arg a b) = f a <> g b
-#endif
 
 instance Bifoldable1 Either where
   bifoldMap1 f _ (Left a) = f a

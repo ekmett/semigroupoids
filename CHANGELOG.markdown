@@ -1,3 +1,7 @@
+Next
+----
+* Bump the lower bound on `semigroups` to 0.16.2.
+
 5.3.1 [2018.07.02]
 ------------------
 * Fix a regression introduced in `semigroupoids-5.3` in which some modules
