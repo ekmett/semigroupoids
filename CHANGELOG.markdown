@@ -1,6 +1,7 @@
 Next
 ----
-* Bump the lower bound on `semigroups` to 0.16.2.
+* Bump the lower bound on `semigroups` to 0.16.2, and avoid incurring
+  the dependency entirely on recent GHCs.
 
 5.3.1 [2018.07.02]
 ------------------
