@@ -1,7 +1,8 @@
-Next
-----
+5.3.2 [2019.01.04]
+------------------
 * Bump the lower bound on `semigroups` to 0.16.2, and avoid incurring
   the dependency entirely on recent GHCs.
+* Fix the build on GHC 7.0 and 7.2.
 
 5.3.1 [2018.07.02]
 ------------------
