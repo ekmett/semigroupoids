@@ -14,6 +14,7 @@ module Data.Point
 import Data.Semigroup (Semigroup,(<>),sconcat)
 import Data.Monoid (Monoid,mempty,mconcat)
 import Data.Functor.Identity
+import Data.Functor ((<$>))
 import Data.List.NonEmpty (nonEmpty, NonEmpty(..))
 import Data.Tree
 import Data.Maybe (fromMaybe)
