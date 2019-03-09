@@ -4,6 +4,11 @@ module Data.Point
   , mpoint
   , spoint_
   , spoint
+  , ipoint
+  , dpoint
+  , maybeSAppend
+  , flatSpoint
+  , End(..)
   )
   where
 
@@ -18,14 +23,29 @@ import Data.Functor ((<$>))
 import Data.List.NonEmpty (nonEmpty, NonEmpty(..))
 import Data.Tree
 import Data.Maybe (fromMaybe)
+import Control.Monad (join)
+import Control.Applicative ((<*>))
+
+data End = Front | Back
+endToCombinator :: End -> (a -> a -> b) -> a -> a -> b
+endToCombinator Front = id
+endToCombinator Back  = flip
 
 -- extracts a value from a possibly empty collection using '<>'
 -- doesn't have to fold over a sequence, can be parallel, etc
 class InitialPoint p where
   -- if p contains monoids we can get a value even if p is empty
-  mpoint :: (Semigroup m, Monoid m) => p m -> m
+  mpoint  :: (Semigroup m, Monoid m) => p m -> m
   -- if p contains only semigroups then maybe we can
   spoint_ :: (Semigroup s) => p s -> Maybe s
+  -- in case p is empty of semigroups
+  -- put your own value at either the start or end
+  ipoint  :: (Semigroup s) => End -> s -> p s -> s
+  -- obviously Maybe can't use this definition
+  ipoint end s = ipoint end s . spoint_
+  -- or provide a default value
+  dpoint  :: (Semigroup s) => s -> p s -> s
+  dpoint default_ = fromMaybe default_ . spoint_
 
 -- extracts a value from a nonempty collection of values using '<>'
 -- doesn't have to fold over a sequence, can be parallel, etc
@@ -34,19 +54,41 @@ class InitialPoint p => Point p where
   -- we can get a single value
   spoint :: (Semigroup s) => p s -> s
 
+-- semigroup append something in front of a nonempty list's spoint if there's
+-- a list, else just the thing alone
+maybeSAppend ::
+  ( Point superiorP
+  , InitialPoint inferiorP
+  , Functor superiorP
+  , Semigroup s
+  ) => s -> Maybe (superiorP (inferiorP s)) -> s
+maybeSAppend = maybe <$> id <*> flatSpoint Front
+
+flatSpoint ::
+  ( InitialPoint superiorP
+  , InitialPoint inferiorP
+  , Functor superiorP
+  , Semigroup s
+  ) => End -> s -> superiorP (inferiorP s) -> s
+flatSpoint end h = ipoint end h . join . spoint_ . fmap spoint_
+
+instance InitialPoint Maybe where
+  mpoint = fromMaybe mempty
+  spoint_ = id
+  ipoint end = maybe <*> endToCombinator end (<>)
+
 
 instance InitialPoint Identity where
-  mpoint = runIdentity
+  mpoint  = runIdentity
   spoint_ = Just . spoint
 
 instance Point Identity where
   spoint = runIdentity
 
 
-
 instance InitialPoint [] where
   mpoint = mconcat
-  spoint_ p = sconcat <$> nonEmpty p
+  spoint_ p = spoint <$> nonEmpty p
 
 
 instance InitialPoint NonEmpty where
@@ -62,11 +104,5 @@ instance InitialPoint Tree where
   spoint_ = Just . spoint
 
 instance Point Tree where
-  spoint (Node a [])     = a
-  spoint (Node a (f:fs)) = a <> (sconcat . fmap spoint) (f:|fs)
-
-
-instance InitialPoint Maybe where
-  mpoint = fromMaybe mempty
-  spoint_ = id
+  spoint (Node a f)      = flatSpoint Front a f
 
