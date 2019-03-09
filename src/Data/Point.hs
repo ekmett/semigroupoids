@@ -1,3 +1,5 @@
+{-# LANGUAGE DefaultSignatures #-}
+
 module Data.Point
   ( InitialPoint
   , Point
@@ -38,14 +40,26 @@ endToCombinator Back  = flip
 -- doesn't have to fold over a sequence, can be parallel, etc
 class InitialPoint p where
   -- if p contains monoids we can get a value even if p is empty
+  -- a default is possible when the container is always nonempty
   mpoint  :: (Semigroup m, Monoid m) => p m -> m
+  default mpoint :: (Semigroup s, Point p) => p s -> s
+  mpoint = spoint
+
   -- if p contains only semigroups then maybe we can
+  -- a default is possible when the container is always nonempty
   spoint_ :: (Semigroup s) => p s -> Maybe s
+  default spoint_ :: (Semigroup s, Point p) => p s -> Maybe s
+  spoint_ = Just . spoint
+  -- if the container can be empty then you can convert it to a
+  -- maybe of nonempty equivalent and fmap the nonempty's spoint
+  -- spoint_ = fmap spoint . toMaybeNonemptyEquiv
+
   -- in case p is empty of semigroups
   -- put your own value at either the start or end
   ipoint  :: (Semigroup s) => End -> s -> p s -> s
   -- obviously Maybe can't use this definition
   ipoint end s = ipoint end s . spoint_
+
   -- or provide a default value
   dpoint  :: (Semigroup s) => s -> p s -> s
   dpoint default_ = fromMaybe default_ . spoint_
@@ -89,31 +103,22 @@ instance InitialPoint Maybe where
   ipoint end = maybe <*> endToCombinator end (<>)
 
 
-instance InitialPoint Identity where
-  mpoint  = runIdentity
-  spoint_ = Just . spoint
-
+instance InitialPoint Identity
 instance Point Identity where
   spoint = runIdentity
 
 
 instance InitialPoint [] where
-  mpoint = mconcat
-  spoint_ p = spoint <$> nonEmpty p
+  mpoint  = mconcat
+  spoint_ = fmap spoint . nonEmpty
 
 
-instance InitialPoint NonEmpty where
-  mpoint = sconcat
-  spoint_ = Just . spoint
-
+instance InitialPoint NonEmpty
 instance Point NonEmpty where
   spoint = sconcat
 
 
 instance InitialPoint Tree where
-  mpoint = spoint
-  spoint_ = Just . spoint
-
 instance Point Tree where
   spoint (Node a f)      = flatSpoint Front a f
 
