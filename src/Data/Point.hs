@@ -9,6 +9,8 @@ module Data.Point
   , maybeSAppend
   , flatSpoint
   , End(..)
+  , ipsum
+  , foldsum
   )
   where
 
@@ -17,7 +19,7 @@ module Data.Point
 -- semigroup or monoidal values define a single value - the "point".
 
 import Data.Semigroup (Semigroup,(<>),sconcat)
-import Data.Monoid (Monoid,mempty,mconcat)
+import Data.Monoid (Monoid,mempty,mconcat,Sum(..),getSum)
 import Data.Functor.Identity
 import Data.Functor ((<$>))
 import Data.List.NonEmpty (nonEmpty, NonEmpty(..))
@@ -25,6 +27,7 @@ import Data.Tree
 import Data.Maybe (fromMaybe)
 import Control.Monad (join)
 import Control.Applicative ((<*>))
+import Data.Foldable (toList, Foldable)
 
 data End = Front | Back
 endToCombinator :: End -> (a -> a -> b) -> a -> a -> b
@@ -54,6 +57,14 @@ class InitialPoint p => Point p where
   -- we can get a single value
   spoint :: (Semigroup s) => p s -> s
 
+ipsum :: (Num n, InitialPoint f, Functor f) => f n -> n
+ipsum = getSum . mpoint . fmap Sum
+
+-- equivalent to Foldable's sum
+foldsum :: (Num n, Foldable f) => f n -> n
+foldsum = ipsum . toList
+
+--
 -- semigroup append something in front of a nonempty list's spoint if there's
 -- a list, else just the thing alone
 maybeSAppend ::
