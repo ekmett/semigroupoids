@@ -403,7 +403,7 @@ instance Alternative f => Alternative (WrappedApplicative f) where
   empty = WrapApplicative empty
   WrapApplicative a <|> WrapApplicative b = WrapApplicative (a <|> b)
 
--- | Transform a Apply into an Applicative by adding a unit.
+-- | Transform an Apply into an Applicative by adding a unit.
 newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
 
 instance Functor f => Functor (MaybeApply f) where
