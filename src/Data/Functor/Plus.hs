@@ -60,6 +60,12 @@ import Data.Map (Map)
 import Data.Proxy
 #endif
 
+#ifdef MIN_VERSION_unordered_containers
+import Data.Hashable
+import Data.HashMap.Lazy (HashMap)
+import qualified Data.HashMap.Lazy as HashMap
+#endif
+
 #ifdef MIN_VERSION_generic_deriving
 import Generics.Deriving.Base
 #else
@@ -118,6 +124,11 @@ instance Plus IntMap where
 
 instance Plus Seq where
   zero = mempty
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+instance (Hashable k, Eq k) => Plus (HashMap k) where
+  zero = HashMap.empty
 #endif
 
 instance Alternative f => Plus (WrappedApplicative f) where

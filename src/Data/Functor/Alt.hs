@@ -55,7 +55,7 @@ import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
 import Data.Semigroup (Option(..), Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
+import Prelude (($),Either(..),Maybe(..),const,IO,Eq,Ord,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
 
 #ifdef MIN_VERSION_containers
@@ -73,6 +73,12 @@ import Data.Monoid (mappend)
 
 #if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
 import Data.Proxy
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+import Data.Hashable
+import Data.HashMap.Lazy (HashMap)
+import qualified Data.HashMap.Lazy as HashMap
 #endif
 
 #ifdef MIN_VERSION_generic_deriving
@@ -198,6 +204,11 @@ instance Alt IntMap where
 
 instance Alt Seq where
   (<!>) = mappend
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+instance (Hashable k, Eq k) => Alt (HashMap k) where
+  (<!>) = HashMap.union
 #endif
 
 instance Alt NonEmpty where
