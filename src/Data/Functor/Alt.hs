@@ -75,6 +75,13 @@ import Data.Monoid (mappend)
 import Data.Proxy
 #endif
 
+#ifdef MIN_VERSION_unordered_containers
+import Data.Hashable
+import Data.HashMap.Lazy (HashMap)
+import qualified Data.HashMap.Lazy as HashMap
+import Prelude (Eq)
+#endif
+
 #ifdef MIN_VERSION_generic_deriving
 import Generics.Deriving.Base
 #else
@@ -198,6 +205,11 @@ instance Alt IntMap where
 
 instance Alt Seq where
   (<!>) = mappend
+#endif
+
+#ifdef MIN_VERSION_unordered_containers
+instance (Hashable k, Eq k) => Alt (HashMap k) where
+  (<!>) = HashMap.union
 #endif
 
 instance Alt NonEmpty where
