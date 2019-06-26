@@ -55,7 +55,7 @@ import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
 import Data.Semigroup (Option(..), Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,Eq,Ord,(++),(.),either,seq,undefined)
+import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
 
 #ifdef MIN_VERSION_containers
@@ -79,6 +79,7 @@ import Data.Proxy
 import Data.Hashable
 import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
+import Prelude (Eq)
 #endif
 
 #ifdef MIN_VERSION_generic_deriving
