@@ -1,3 +1,7 @@
+Next
+------------------
+* Add `Alt` and `Plus` instances for `HashMap` from the `unordered-containers` package
+
 5.3.2 [2019.01.04]
 ------------------
 * Bump the lower bound on `semigroups` to 0.16.2, and avoid incurring
