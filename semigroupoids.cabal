@@ -21,7 +21,7 @@ tested-with:   GHC == 7.0.4
              , GHC == 8.4.4
              , GHC == 8.6.5
              , GHC == 8.8.1
-build-type:    Custom
+build-type:    Simple
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .travis.yml
@@ -66,12 +66,6 @@ description:
 source-repository head
   type: git
   location: git://github.com/ekmett/semigroupoids.git
-
-custom-setup
-  setup-depends:
-    base          >= 4 && < 5,
-    Cabal,
-    cabal-doctest >= 1 && < 1.1
 
 flag containers
   description:
