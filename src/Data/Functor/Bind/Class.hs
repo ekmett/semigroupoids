@@ -201,6 +201,7 @@ instance Apply f => Apply (Backwards f) where
 instance (Apply f, Apply g) => Apply (Compose f g) where
   Compose f <.> Compose x = Compose ((<.>) <$> f <.> x)
 
+-- | A 'Constant f' is not 'Applicative' unless its 'f' is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup f => Apply (Constant f) where
   Constant a <.> Constant b = Constant (a <> b)
   Constant a <.  Constant b = Constant (a <> b)
@@ -218,6 +219,7 @@ instance (Apply f, Apply g) => Apply (Functor.Product f g) where
 instance Apply f => Apply (Reverse f) where
   Reverse a <.> Reverse b = Reverse (a <.> b)
 
+-- | A '(,) m' is not 'Applicative' unless its 'm' is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
   (m, a) <.  (n, _) = (m <> n, a)
@@ -239,6 +241,7 @@ instance Apply (Either a) where
   Right _  .> Left a  = Left a
   Right _  .> Right b = Right b
 
+-- | A 'Const m' is not 'Applicative' unless its 'm' is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup m => Apply (Const m) where
   Const m <.> Const n = Const (m <> n)
   Const m <.  Const n = Const (m <> n)
@@ -303,13 +306,13 @@ instance Apply Q where
   (<.>) = ap
 
 #ifdef MIN_VERSION_containers
--- | A Map is not 'Applicative', but it is an instance of 'Apply'
+-- | A 'Map k' is not 'Applicative', but it is an instance of 'Apply'
 instance Ord k => Apply (Map k) where
   (<.>) = Map.intersectionWith id
   (<. ) = Map.intersectionWith const
   ( .>) = Map.intersectionWith (const id)
 
--- | An IntMap is not 'Applicative', but it is an instance of 'Apply'
+-- | An 'IntMap' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply IntMap where
   (<.>) = IntMap.intersectionWith id
   (<. ) = IntMap.intersectionWith const
@@ -325,7 +328,7 @@ instance Apply Tree where
 #endif
 
 #ifdef MIN_VERSION_unordered_containers
--- | A 'HashMap' is not 'Applicative', but it is an instance of 'Apply'
+-- | A 'HashMap k' is not 'Applicative', but it is an instance of 'Apply'
 instance (Hashable k, Eq k) => Apply (HashMap k) where
   (<.>) = HashMap.intersectionWith id
 #endif
@@ -348,10 +351,12 @@ instance Apply m => Apply (ListT m) where
   ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
 
 -- unfortunately, WriterT has its wrapped product in the wrong order to just use (<.>) instead of flap
+-- | A 'WriterT w m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
   Strict.WriterT f <.> Strict.WriterT a = Strict.WriterT $ flap <$> f <.> a where
     flap (x,m) (y,n) = (x y, m <> n)
 
+-- | A 'WriterT w m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
@@ -362,9 +367,11 @@ instance Bind m => Apply (Strict.StateT s m) where
 instance Bind m => Apply (Lazy.StateT s m) where
   (<.>) = apDefault
 
+-- | An 'RWST r w s m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Strict.RWST r w s m) where
   (<.>) = apDefault
 
+-- | An 'RWST r w s m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
 
@@ -372,9 +379,11 @@ instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
 
 #ifdef MIN_VERSION_comonad
+-- | An 'EnvT e w' is not 'Applicative' unless its 'e' is a 'Monoid', but it is an instance of 'Apply'
 instance (Semigroup e, Apply w) => Apply (EnvT e w) where
   EnvT ef wf <.> EnvT ea wa = EnvT (ef <> ea) (wf <.> wa)
 
+-- | A 'StoreT s w' is not 'Applicative' unless its 's' is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply w, Semigroup s) => Apply (StoreT s w) where
   StoreT ff m <.> StoreT fa n = StoreT ((<*>) <$> ff <.> fa) (m <> n)
 
@@ -472,12 +481,14 @@ instance (Apply f, Apply g) => Apply (f :.: g) where
 
 instance Apply U1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 
+-- | A 'K1 i c' is not 'Applicative' unless its 'c' is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup c => Apply (K1 i c) where
   K1 a <.> K1 b = K1 (a <> b)
   K1 a <.  K1 b = K1 (a <> b)
   K1 a  .> K1 b = K1 (a <> b)
 instance Apply Par1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 
+-- | A 'V1' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply Generics.V1 where
 #if __GLASGOW_HASKELL__ >= 708
   e <.> _ = case e of {}
@@ -525,6 +536,7 @@ returning = flip fmap
 apDefault :: Bind f => f (a -> b) -> f a -> f b
 apDefault f x = f >>- \f' -> f' <$> x
 
+-- | A '(,) m' is not a 'Monad' unless its 'm' is a 'Monoid', but it is an instance of 'Bind'
 instance Semigroup m => Bind ((,)m) where
   ~(m, a) >>- f = let (n, b) = f a in (m <> n, b)
 
@@ -602,12 +614,14 @@ instance (Functor m, Monad m) => Bind (ExceptT e m) where
 instance Bind m => Bind (ReaderT e m) where
   ReaderT m >>- f = ReaderT $ \e -> m e >>- \x -> runReaderT (f x) e
 
+-- | A 'WriterT w m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Lazy.WriterT w m) where
   m >>- k = Lazy.WriterT $
     Lazy.runWriterT m >>- \ ~(a, w) ->
     Lazy.runWriterT (k a) `returning` \ ~(b, w') ->
       (b, w <> w')
 
+-- | A 'WriterT w m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
   m >>- k = Strict.WriterT $
     Strict.runWriterT m >>- \ (a, w) ->
@@ -624,12 +638,14 @@ instance Bind m => Bind (Strict.StateT s m) where
     Strict.runStateT m s >>- \ ~(a, s') ->
     Strict.runStateT (k a) s'
 
+-- | An 'RWST r w s m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Lazy.RWST r w s m) where
   m >>- k = Lazy.RWST $ \r s ->
     Lazy.runRWST m r s >>- \ ~(a, s', w) ->
     Lazy.runRWST (k a) r s' `returning` \ ~(b, s'', w') ->
       (b, s'', w <> w')
 
+-- | An 'RWST r w s m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
   m >>- k = Strict.RWST $ \r s ->
     Strict.runRWST m r s >>- \ (a, s', w) ->
@@ -653,7 +669,7 @@ instance Bind Complex where
 #endif
 
 #ifdef MIN_VERSION_containers
--- | A 'Map' is not a 'Monad', but it is an instance of 'Bind'
+-- | A 'Map k' is not a 'Monad', but it is an instance of 'Bind'
 instance Ord k => Bind (Map k) where
   m >>- f = Map.mapMaybeWithKey (\k -> Map.lookup k . f) m
 
@@ -669,7 +685,7 @@ instance Bind Tree where
 #endif
 
 #ifdef MIN_VERSION_unordered_containers
--- | A 'HashMap' is not a 'Monad', but it is an instance of 'Bind'
+-- | A 'HashMap k' is not a 'Monad', but it is an instance of 'Bind'
 instance (Hashable k, Eq k) => Bind (HashMap k) where
   -- this is needlessly painful
   m >>- f = HashMap.fromList $ do
@@ -695,6 +711,7 @@ instance Bind Semigroup.First where (>>-) = (>>=)
 instance Bind Semigroup.Last where (>>-) = (>>=)
 instance Bind Semigroup.Min where (>>-) = (>>=)
 instance Bind Semigroup.Max where (>>-) = (>>=)
+-- | A 'V1' is not a 'Monad', but it is an instance of 'Bind'
 instance Bind Generics.V1 where
 #if __GLASGOW_HASKELL__ >= 708
   m >>- _ = case m of {}
