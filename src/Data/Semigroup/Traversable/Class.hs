@@ -67,7 +67,7 @@ import Generics.Deriving.Base
 import GHC.Generics
 #endif
 
-class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
+class (Semibifoldable t, Bitraversable t) => Bitraversable1 t where
   bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
   bitraverse1 f g  = bisequence1 . bimap f g
   {-# INLINE bitraverse1 #-}
@@ -149,7 +149,7 @@ instance Bitraversable1 p => Bitraversable1 (WrappedBifunctor p) where
   {-# INLINE bitraverse1 #-}
 
 
-class (Foldable1 t, Traversable t) => Traversable1 t where
+class (Semifoldable t, Traversable t) => Traversable1 t where
   traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
   sequence1 :: Apply f => t (f b) -> f (t b)
 

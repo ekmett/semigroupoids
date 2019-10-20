@@ -1,1 +1,12 @@
 packages: .
+
+source-repository-package
+  type:     git
+  location: https://github.com/phadej/foldable1.git
+  tag:      51e797831336c5ede375d2451e292d40ca102856
+
+-- https://github.com/ekmett/bifunctors/pull/78
+source-repository-package
+  type:     git
+  location: https://github.com/phadej/bifunctors.git
+  tag:      278159ea2731a8b843f7eb50ecca6c06e5f5d032

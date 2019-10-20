@@ -145,6 +145,11 @@ library
     transformers        >= 0.2     && < 0.6,
     transformers-compat >= 0.5     && < 0.7
 
+  -- semifoldable is to be compat package for semifoldable stuff,
+  -- Tight upper bound to keep API stable.
+  build-depends:
+    semifoldable        >= 0.2     && < 0.2.1
+
   if impl(ghc >= 7.0 && < 7.2)
     build-depends: generic-deriving >= 1.11 && < 1.14
 
@@ -189,7 +194,6 @@ library
     Data.Semigroup.Bifoldable
     Data.Semigroup.Bitraversable
     Data.Semigroup.Foldable
-    Data.Semigroup.Foldable.Class
     Data.Semigroup.Traversable
     Data.Semigroup.Traversable.Class
     Data.Semigroupoid
