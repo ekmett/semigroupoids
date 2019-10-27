@@ -244,8 +244,7 @@ instance (Foldable1 f, Foldable1 g) => Foldable1 (Functor.Sum f g) where
   foldMap1 f (Functor.InR y) = foldMap1 f y
 
 instance Foldable1 NonEmpty where
-  foldMap1 f (a :| []) = f a
-  foldMap1 f (a :| b : bs) = f a <> foldMap1 f (b :| bs)
+  foldMap1 f (a :| as) = foldr (\b g x -> f x <> g b) f as a
   toNonEmpty = id
 
 instance Foldable1 ((,) a) where
