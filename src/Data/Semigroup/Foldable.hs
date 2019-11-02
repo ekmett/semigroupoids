@@ -19,6 +19,8 @@ module Data.Semigroup.Foldable
   , asum1
   , semifoldrM
   , semifoldlM
+  , semifoldrMapM
+  , semifoldlMapM
   , semiminimumBy
   , semimaximumBy
   ) where
@@ -30,7 +32,8 @@ import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
 import Prelude hiding (foldr)
 
-import Data.Semifoldable
+import Data.Functor.Bind (Bind (..))
+import Data.Semifoldable hiding (semifoldrMapM, semifoldlMapM)
 
 -- $setup
 -- >>> import Data.List.NonEmpty
@@ -90,3 +93,25 @@ instance Alt f => Semigroup (Alt_ f a) where
 asum1 :: (Semifoldable t, Alt m) => t (m a) -> m a
 asum1 = getAlt_ . semifoldMap Alt_
 {-# INLINE asum1 #-}
+
+-- | Map variant of 'semifoldrM'.
+--
+-- This variant requires on;y 'Bind', not 'Monad'.
+--
+-- >>> semifoldrMapM print (\a _ -> print a) ('x' :| "yz")
+-- 'z'
+-- 'y'
+-- 'x'
+semifoldrMapM :: (Semifoldable t, Bind m) => (a -> m b) -> (a -> b -> m b) -> t a -> m b
+semifoldrMapM g f = semifoldrMap g (\a m -> m >>- \b -> f a b)
+
+-- | Map variant of 'semifoldlM'.
+--
+-- This variant requires on;y 'Bind', not 'Monad'.
+--
+-- >>> semifoldlMapM print (const print) ('x' :| "yz")
+-- 'x'
+-- 'y'
+-- 'z'
+semifoldlMapM :: (Semifoldable t, Bind m) => (a -> m b) -> (b -> a -> m b) -> t a -> m b
+semifoldlMapM g f = semifoldlMap g (\m a -> m >>- \b -> f b a)
