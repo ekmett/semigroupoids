@@ -209,7 +209,7 @@ instance Extend f => Extend (Monoid.Alt f) where
   extended f = Monoid.Alt . extended (f . Monoid.Alt) . Monoid.getAlt
 #endif
 
--- in GHC 8.6 we'll have to deal with Apply f => Apply (Ap f) the same way
+-- in GHC 8.6 we'll have to deal with Semiapplicative f => Semiapplicative (Ap f) the same way
 instance Extend Semigroup.First where
   extended f w@Semigroup.First{} = Semigroup.First (f w)
 

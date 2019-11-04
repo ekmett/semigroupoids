@@ -176,12 +176,12 @@ library
   hs-source-dirs: src
 
   exposed-modules:
-    Data.Bifunctor.Apply
-    Data.Functor.Alt
-    Data.Functor.Apply
-    Data.Functor.Bind
-    Data.Functor.Bind.Class
-    Data.Functor.Bind.Trans
+    Data.Bifunctor.Semiapplicative
+    Data.Functor.Semialternative
+    Data.Functor.Semiapplicative
+    Data.Functor.Semimonad
+    Data.Functor.Semimonad.Class
+    Data.Functor.Semimonad.Trans
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid

@@ -15,8 +15,8 @@
 --
 ----------------------------------------------------------------------------
 module Data.Semigroup.Foldable.Class
-  ( Foldable1(..)
-  , Bifoldable1(..)
+  ( NonEmptyFoldable(..)
+  , NonEmptyBifoldable(..)
   ) where
 
 import Control.Applicative
@@ -68,189 +68,189 @@ import GHC.Generics
 
 import Prelude hiding (foldr)
 
-class Foldable t => Foldable1 t where
-  fold1 :: Semigroup m => t m -> m
-  foldMap1 :: Semigroup m => (a -> m) -> t a -> m
+class Foldable t => NonEmptyFoldable t where
+  foldNE :: Semigroup m => t m -> m
+  foldMapNE :: Semigroup m => (a -> m) -> t a -> m
   toNonEmpty :: t a -> NonEmpty a
 
-  foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
-  fold1 = foldMap1 id
-  toNonEmpty = foldMap1 (:|[])
+  foldMapNE f = maybe (error "foldMapNE") id . getOption . foldMap (Option . Just . f)
+  foldNE = foldMapNE id
+  toNonEmpty = foldMapNE (:|[])
 
-instance Foldable1 Monoid.Sum where
-  foldMap1 f (Monoid.Sum a) = f a
+instance NonEmptyFoldable Monoid.Sum where
+  foldMapNE f (Monoid.Sum a) = f a
 
-instance Foldable1 Monoid.Product where
-  foldMap1 f (Monoid.Product a) = f a
+instance NonEmptyFoldable Monoid.Product where
+  foldMapNE f (Monoid.Product a) = f a
 
-instance Foldable1 Monoid.Dual where
-  foldMap1 f (Monoid.Dual a) = f a
+instance NonEmptyFoldable Monoid.Dual where
+  foldMapNE f (Monoid.Dual a) = f a
 
 #if MIN_VERSION_base(4,8,0)
-instance Foldable1 f => Foldable1 (Monoid.Alt f) where
-  foldMap1 g (Monoid.Alt m) = foldMap1 g m
+instance NonEmptyFoldable f => NonEmptyFoldable (Monoid.Alt f) where
+  foldMapNE g (Monoid.Alt m) = foldMapNE g m
 #endif
 
-instance Foldable1 Semigroup.First where
-  foldMap1 f (Semigroup.First a) = f a
+instance NonEmptyFoldable Semigroup.First where
+  foldMapNE f (Semigroup.First a) = f a
 
-instance Foldable1 Semigroup.Last where
-  foldMap1 f (Semigroup.Last a) = f a
+instance NonEmptyFoldable Semigroup.Last where
+  foldMapNE f (Semigroup.Last a) = f a
 
-instance Foldable1 Semigroup.Min where
-  foldMap1 f (Semigroup.Min a) = f a
+instance NonEmptyFoldable Semigroup.Min where
+  foldMapNE f (Semigroup.Min a) = f a
 
-instance Foldable1 Semigroup.Max where
-  foldMap1 f (Semigroup.Max a) = f a
+instance NonEmptyFoldable Semigroup.Max where
+  foldMapNE f (Semigroup.Max a) = f a
 
-instance Foldable1 f => Foldable1 (Rec1 f) where
-  foldMap1 f (Rec1 as) = foldMap1 f as
+instance NonEmptyFoldable f => NonEmptyFoldable (Rec1 f) where
+  foldMapNE f (Rec1 as) = foldMapNE f as
 
-instance Foldable1 f => Foldable1 (M1 i c f) where
-  foldMap1 f (M1 as) = foldMap1 f as
+instance NonEmptyFoldable f => NonEmptyFoldable (M1 i c f) where
+  foldMapNE f (M1 as) = foldMapNE f as
 
-instance Foldable1 Par1 where
-  foldMap1 f (Par1 a) = f a
+instance NonEmptyFoldable Par1 where
+  foldMapNE f (Par1 a) = f a
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (f :*: g) where
-  foldMap1 f (as :*: bs) = foldMap1 f as <> foldMap1 f bs
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (f :*: g) where
+  foldMapNE f (as :*: bs) = foldMapNE f as <> foldMapNE f bs
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (f :+: g) where
-  foldMap1 f (L1 as) = foldMap1 f as
-  foldMap1 f (R1 bs) = foldMap1 f bs
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (f :+: g) where
+  foldMapNE f (L1 as) = foldMapNE f as
+  foldMapNE f (R1 bs) = foldMapNE f bs
 
-instance Foldable1 V1 where
-  foldMap1 _ v = v `seq` undefined
+instance NonEmptyFoldable V1 where
+  foldMapNE _ v = v `seq` undefined
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (f :.: g) where
-  foldMap1 f (Comp1 m) = foldMap1 (foldMap1 f) m
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (f :.: g) where
+  foldMapNE f (Comp1 m) = foldMapNE (foldMapNE f) m
 
-class Bifoldable t => Bifoldable1 t where
-  bifold1 :: Semigroup m => t m m -> m
-  bifold1 = bifoldMap1 id id
-  {-# INLINE bifold1 #-}
+class Bifoldable t => NonEmptyBifoldable t where
+  bifoldNE :: Semigroup m => t m m -> m
+  bifoldNE = bifoldMapNE id id
+  {-# INLINE bifoldNE #-}
 
-  bifoldMap1 :: Semigroup m => (a -> m) -> (b -> m) -> t a b -> m
-  bifoldMap1 f g = maybe (error "bifoldMap1") id . getOption . bifoldMap (Option . Just . f) (Option . Just . g)
-  {-# INLINE bifoldMap1 #-}
+  bifoldMapNE :: Semigroup m => (a -> m) -> (b -> m) -> t a b -> m
+  bifoldMapNE f g = maybe (error "bifoldMapNE") id . getOption . bifoldMap (Option . Just . f) (Option . Just . g)
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 Arg where
-  bifoldMap1 f g (Arg a b) = f a <> g b
+instance NonEmptyBifoldable Arg where
+  bifoldMapNE f g (Arg a b) = f a <> g b
 
-instance Bifoldable1 Either where
-  bifoldMap1 f _ (Left a) = f a
-  bifoldMap1 _ g (Right b) = g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable Either where
+  bifoldMapNE f _ (Left a) = f a
+  bifoldMapNE _ g (Right b) = g b
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 (,) where
-  bifoldMap1 f g (a, b) = f a <> g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable (,) where
+  bifoldMapNE f g (a, b) = f a <> g b
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 ((,,) x) where
-  bifoldMap1 f g (_,a,b) = f a <> g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable ((,,) x) where
+  bifoldMapNE f g (_,a,b) = f a <> g b
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 ((,,,) x y) where
-  bifoldMap1 f g (_,_,a,b) = f a <> g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable ((,,,) x y) where
+  bifoldMapNE f g (_,_,a,b) = f a <> g b
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 ((,,,,) x y z) where
-  bifoldMap1 f g (_,_,_,a,b) = f a <> g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable ((,,,,) x y z) where
+  bifoldMapNE f g (_,_,_,a,b) = f a <> g b
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 Const where
-  bifoldMap1 f _ (Const a) = f a
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable Const where
+  bifoldMapNE f _ (Const a) = f a
+  {-# INLINE bifoldMapNE #-}
 
 #ifdef MIN_VERSION_tagged
-instance Bifoldable1 Tagged where
-  bifoldMap1 _ g (Tagged b) = g b
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable Tagged where
+  bifoldMapNE _ g (Tagged b) = g b
+  {-# INLINE bifoldMapNE #-}
 #endif
 
-instance (Bifoldable1 p, Foldable1 f, Foldable1 g) => Bifoldable1 (Biff p f g) where
-  bifoldMap1 f g = bifoldMap1 (foldMap1 f) (foldMap1 g) . runBiff
-  {-# INLINE bifoldMap1 #-}
+instance (NonEmptyBifoldable p, NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyBifoldable (Biff p f g) where
+  bifoldMapNE f g = bifoldMapNE (foldMapNE f) (foldMapNE g) . runBiff
+  {-# INLINE bifoldMapNE #-}
 
-instance Foldable1 f => Bifoldable1 (Clown f) where
-  bifoldMap1 f _ = foldMap1 f . runClown
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyFoldable f => NonEmptyBifoldable (Clown f) where
+  bifoldMapNE f _ = foldMapNE f . runClown
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 p => Bifoldable1 (Flip p) where
-  bifoldMap1 f g = bifoldMap1 g f . runFlip
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable p => NonEmptyBifoldable (Flip p) where
+  bifoldMapNE f g = bifoldMapNE g f . runFlip
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 p => Foldable1 (Join p) where
-  foldMap1 f (Join a) = bifoldMap1 f f a
-  {-# INLINE foldMap1 #-}
+instance NonEmptyBifoldable p => NonEmptyFoldable (Join p) where
+  foldMapNE f (Join a) = bifoldMapNE f f a
+  {-# INLINE foldMapNE #-}
 
-instance Foldable1 g => Bifoldable1 (Joker g) where
-  bifoldMap1 _ g = foldMap1 g . runJoker
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyFoldable g => NonEmptyBifoldable (Joker g) where
+  bifoldMapNE _ g = foldMapNE g . runJoker
+  {-# INLINE bifoldMapNE #-}
 
-instance (Bifoldable1 f, Bifoldable1 g) => Bifoldable1 (Bifunctor.Product f g) where
-  bifoldMap1 f g (Bifunctor.Pair x y) = bifoldMap1 f g x <> bifoldMap1 f g y
-  {-# INLINE bifoldMap1 #-}
+instance (NonEmptyBifoldable f, NonEmptyBifoldable g) => NonEmptyBifoldable (Bifunctor.Product f g) where
+  bifoldMapNE f g (Bifunctor.Pair x y) = bifoldMapNE f g x <> bifoldMapNE f g y
+  {-# INLINE bifoldMapNE #-}
 
-instance (Foldable1 f, Bifoldable1 p) => Bifoldable1 (Tannen f p) where
-  bifoldMap1 f g = foldMap1 (bifoldMap1 f g) . runTannen
-  {-# INLINE bifoldMap1 #-}
+instance (NonEmptyFoldable f, NonEmptyBifoldable p) => NonEmptyBifoldable (Tannen f p) where
+  bifoldMapNE f g = foldMapNE (bifoldMapNE f g) . runTannen
+  {-# INLINE bifoldMapNE #-}
 
-instance Bifoldable1 p => Bifoldable1 (WrappedBifunctor p) where
-  bifoldMap1 f g = bifoldMap1 f g . unwrapBifunctor
-  {-# INLINE bifoldMap1 #-}
+instance NonEmptyBifoldable p => NonEmptyBifoldable (WrappedBifunctor p) where
+  bifoldMapNE f g = bifoldMapNE f g . unwrapBifunctor
+  {-# INLINE bifoldMapNE #-}
 
 #if MIN_VERSION_base(4,4,0)
-instance Foldable1 Complex where
-  foldMap1 f (a :+ b) = f a <> f b
-  {-# INLINE foldMap1 #-}
+instance NonEmptyFoldable Complex where
+  foldMapNE f (a :+ b) = f a <> f b
+  {-# INLINE foldMapNE #-}
 #endif
 
 #ifdef MIN_VERSION_containers
-instance Foldable1 Tree where
-  foldMap1 f (Node a []) = f a
-  foldMap1 f (Node a (x:xs)) = f a <> foldMap1 (foldMap1 f) (x :| xs)
+instance NonEmptyFoldable Tree where
+  foldMapNE f (Node a []) = f a
+  foldMapNE f (Node a (x:xs)) = f a <> foldMapNE (foldMapNE f) (x :| xs)
 #endif
 
-instance Foldable1 Identity where
-  foldMap1 f = f . runIdentity
+instance NonEmptyFoldable Identity where
+  foldMapNE f = f . runIdentity
 
 #ifdef MIN_VERSION_tagged
-instance Foldable1 (Tagged a) where
-  foldMap1 f (Tagged a) = f a
+instance NonEmptyFoldable (Tagged a) where
+  foldMapNE f (Tagged a) = f a
 #endif
 
-instance Foldable1 m => Foldable1 (IdentityT m) where
-  foldMap1 f = foldMap1 f . runIdentityT
+instance NonEmptyFoldable m => NonEmptyFoldable (IdentityT m) where
+  foldMapNE f = foldMapNE f . runIdentityT
 
-instance Foldable1 f => Foldable1 (Backwards f) where
-  foldMap1 f = foldMap1 f . forwards
+instance NonEmptyFoldable f => NonEmptyFoldable (Backwards f) where
+  foldMapNE f = foldMapNE f . forwards
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (Compose f g) where
-  foldMap1 f = foldMap1 (foldMap1 f) . getCompose
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (Compose f g) where
+  foldMapNE f = foldMapNE (foldMapNE f) . getCompose
 
-instance Foldable1 f => Foldable1 (Lift f) where
-  foldMap1 f (Pure x)  = f x
-  foldMap1 f (Other y) = foldMap1 f y
+instance NonEmptyFoldable f => NonEmptyFoldable (Lift f) where
+  foldMapNE f (Pure x)  = f x
+  foldMapNE f (Other y) = foldMapNE f y
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (Functor.Product f g) where
-  foldMap1 f (Functor.Pair a b) = foldMap1 f a <> foldMap1 f b
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (Functor.Product f g) where
+  foldMapNE f (Functor.Pair a b) = foldMapNE f a <> foldMapNE f b
 
-instance Foldable1 f => Foldable1 (Reverse f) where
-  foldMap1 f = getDual . foldMap1 (Dual . f) . getReverse
+instance NonEmptyFoldable f => NonEmptyFoldable (Reverse f) where
+  foldMapNE f = getDual . foldMapNE (Dual . f) . getReverse
 
-instance (Foldable1 f, Foldable1 g) => Foldable1 (Functor.Sum f g) where
-  foldMap1 f (Functor.InL x) = foldMap1 f x
-  foldMap1 f (Functor.InR y) = foldMap1 f y
+instance (NonEmptyFoldable f, NonEmptyFoldable g) => NonEmptyFoldable (Functor.Sum f g) where
+  foldMapNE f (Functor.InL x) = foldMapNE f x
+  foldMapNE f (Functor.InR y) = foldMapNE f y
 
-instance Foldable1 NonEmpty where
-  foldMap1 f (a :| []) = f a
-  foldMap1 f (a :| b : bs) = f a <> foldMap1 f (b :| bs)
+instance NonEmptyFoldable NonEmpty where
+  foldMapNE f (a :| []) = f a
+  foldMapNE f (a :| b : bs) = f a <> foldMapNE f (b :| bs)
   toNonEmpty = id
 
-instance Foldable1 ((,) a) where
-  foldMap1 f (_, x) = f x
+instance NonEmptyFoldable ((,) a) where
+  foldMapNE f (_, x) = f x
 
-instance Foldable1 g => Foldable1 (Joker g a) where
-  foldMap1 g = foldMap1 g . runJoker
-  {-# INLINE foldMap1 #-}
+instance NonEmptyFoldable g => NonEmptyFoldable (Joker g a) where
+  foldMapNE g = foldMapNE g . runJoker
+  {-# INLINE foldMapNE #-}

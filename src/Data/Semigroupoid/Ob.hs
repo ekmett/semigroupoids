@@ -18,7 +18,7 @@
 module Data.Semigroupoid.Ob where
 
 import Data.Semigroupoid
-import Data.Functor.Bind
+import Data.Functor.Semimonad
 import Control.Arrow
 
 
@@ -30,7 +30,7 @@ import Control.Comonad
 class Semigroupoid k => Ob k a where
   semiid :: k a a
 
-instance (Bind m, Monad m) => Ob (Kleisli m) a where
+instance (Semimonad m, Monad m) => Ob (Kleisli m) a where
   semiid = Kleisli return
 
 #ifdef MIN_VERSION_comonad

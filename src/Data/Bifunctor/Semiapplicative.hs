@@ -9,31 +9,31 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Bifunctor.Apply (
+module Data.Bifunctor.Semiapplicative (
   -- * Biappliable bifunctors
     Bifunctor(..)
-  , Biapply(..)
+  , Bisemiapplicative(..)
   , (<<$>>)
   , (<<..>>)
   , bilift2
   , bilift3
   ) where
 
-import Data.Functor.Bind.Class
+import Data.Functor.Semimonad.Class
 import Data.Biapplicative
 
 infixl 4 <<..>>
 
-(<<..>>) :: Biapply p => p a c -> p (a -> b) (c -> d) -> p b d
+(<<..>>) :: Bisemiapplicative p => p a c -> p (a -> b) (c -> d) -> p b d
 (<<..>>) = bilift2 (flip id) (flip id)
 {-# INLINE (<<..>>) #-}
 
 -- | Lift binary functions
-bilift2 :: Biapply w => (a -> b -> c) -> (d -> e -> f) -> w a d -> w b e -> w c f
+bilift2 :: Bisemiapplicative w => (a -> b -> c) -> (d -> e -> f) -> w a d -> w b e -> w c f
 bilift2 f g a b = bimap f g <<$>> a <<.>> b
 {-# INLINE bilift2 #-}
 
 -- | Lift ternary functions
-bilift3 :: Biapply w => (a -> b -> c -> d) -> (e -> f -> g -> h) -> w a e -> w b f -> w c g -> w d h
+bilift3 :: Bisemiapplicative w => (a -> b -> c -> d) -> (e -> f -> g -> h) -> w a e -> w b f -> w c g -> w d h
 bilift3 f g a b c = bimap f g <<$>> a <<.>> b <<.>> c
 {-# INLINE bilift3 #-}

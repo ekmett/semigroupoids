@@ -23,7 +23,7 @@ import Control.Arrow
 import Control.Applicative
 import Control.Category
 import Control.Monad (ap)
-import Data.Functor.Apply
+import Data.Functor.Semiapplicative
 import Data.Functor.Plus
 import Data.Functor.Extend
 import Data.Orphans ()
@@ -47,10 +47,10 @@ newtype Static f a b = Static { runStatic :: f (a -> b) }
 instance Functor f => Functor (Static f a) where
   fmap f = Static . fmap (f .) . runStatic
 
-instance Apply f => Apply (Static f a) where
+instance Semiapplicative f => Semiapplicative (Static f a) where
   Static f <.> Static g = Static (ap <$> f <.> g)
 
-instance Alt f => Alt (Static f a) where
+instance Semialternative f => Semialternative (Static f a) where
   Static f <!> Static g = Static (f <!> g)
 
 instance Plus f => Plus (Static f a) where
@@ -69,7 +69,7 @@ instance (Comonad f, Monoid a) => Comonad (Static f a) where
   extract (Static g) = extract g mempty
 #endif
 
-instance Apply f => Semigroupoid (Static f) where
+instance Semiapplicative f => Semigroupoid (Static f) where
   Static f `o` Static g = Static ((.) <$> f <.> g)
 
 instance Applicative f => Category (Static f) where

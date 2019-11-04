@@ -30,7 +30,7 @@ module Data.Semigroupoid
 
 import Control.Applicative
 import Control.Arrow
-import Data.Functor.Bind
+import Data.Functor.Semimonad
 import Data.Semigroup
 import Control.Category
 import Prelude hiding (id, (.))
@@ -64,7 +64,7 @@ instance Semigroupoid (->) where
 instance Semigroupoid (,) where
   o (_,k) (i,_) = (i,k)
 
-instance Bind m => Semigroupoid (Kleisli m) where
+instance Semimonad m => Semigroupoid (Kleisli m) where
   Kleisli g `o` Kleisli f = Kleisli $ \a -> f a >>- g
 
 #ifdef MIN_VERSION_comonad

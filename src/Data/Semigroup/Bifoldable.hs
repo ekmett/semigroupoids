@@ -10,23 +10,23 @@
 --
 ----------------------------------------------------------------------------
 module Data.Semigroup.Bifoldable
-  ( Bifoldable1(..)
-  , bitraverse1_
+  ( NonEmptyBifoldable(..)
+  , bitraverseNE_
   , bifor1_
   , bisequenceA1_
-  , bifoldMapDefault1
+  , bifoldMapDefaultNE
   ) where
 
 import Control.Applicative
 import Data.Bifoldable
-import Data.Functor.Apply
+import Data.Functor.Semiapplicative
 import Data.Semigroup
 import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
 
 newtype Act f a = Act { getAct :: f a }
 
-instance Apply f => Semigroup (Act f a) where
+instance Semiapplicative f => Semigroup (Act f a) where
   Act a <> Act b = Act (a .> b)
   {-# INLINE (<>) #-}
 
@@ -36,23 +36,23 @@ instance Functor f => Functor (Act f) where
   b <$ Act a = Act (b <$ a)
   {-# INLINE (<$) #-}
 
-bitraverse1_ :: (Bifoldable1 t, Apply f) => (a -> f b) -> (c -> f d) -> t a c -> f ()
-bitraverse1_ f g t = getAct (bifoldMap1 (Act . ignore . f) (Act . ignore . g) t)
-{-# INLINE bitraverse1_ #-}
+bitraverseNE_ :: (NonEmptyBifoldable t, Semiapplicative f) => (a -> f b) -> (c -> f d) -> t a c -> f ()
+bitraverseNE_ f g t = getAct (bifoldMapNE (Act . ignore . f) (Act . ignore . g) t)
+{-# INLINE bitraverseNE_ #-}
 
-bifor1_ :: (Bifoldable1 t, Apply f) => t a c -> (a -> f b) -> (c -> f d) -> f ()
-bifor1_ t f g = bitraverse1_ f g t
+bifor1_ :: (NonEmptyBifoldable t, Semiapplicative f) => t a c -> (a -> f b) -> (c -> f d) -> f ()
+bifor1_ t f g = bitraverseNE_ f g t
 {-# INLINE bifor1_ #-}
 
 ignore :: Functor f => f a -> f ()
 ignore = (() <$)
 {-# INLINE ignore #-}
 
-bisequenceA1_ :: (Bifoldable1 t, Apply f) => t (f a) (f b) -> f ()
-bisequenceA1_ t = getAct (bifoldMap1 (Act . ignore) (Act . ignore) t)
+bisequenceA1_ :: (NonEmptyBifoldable t, Semiapplicative f) => t (f a) (f b) -> f ()
+bisequenceA1_ t = getAct (bifoldMapNE (Act . ignore) (Act . ignore) t)
 {-# INLINE bisequenceA1_ #-}
 
--- | Usable default for foldMap, but only if you define bifoldMap1 yourself
-bifoldMapDefault1 :: (Bifoldable1 t, Monoid m) => (a -> m) -> (b -> m) -> t a b -> m
-bifoldMapDefault1 f g = unwrapMonoid . bifoldMap (WrapMonoid . f) (WrapMonoid . g)
-{-# INLINE bifoldMapDefault1 #-}
+-- | Usable default for foldMap, but only if you define bifoldMapNE yourself
+bifoldMapDefaultNE :: (NonEmptyBifoldable t, Monoid m) => (a -> m) -> (b -> m) -> t a b -> m
+bifoldMapDefaultNE f g = unwrapMonoid . bifoldMap (WrapMonoid . f) (WrapMonoid . g)
+{-# INLINE bifoldMapDefaultNE #-}

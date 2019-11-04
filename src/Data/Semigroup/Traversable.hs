@@ -10,8 +10,8 @@
 --
 ----------------------------------------------------------------------------
 module Data.Semigroup.Traversable
-  ( Traversable1(..)
-  , foldMap1Default
+  ( NonEmptyTraversable(..)
+  , foldMapNEDefault
   ) where
 
 import Control.Applicative
@@ -20,5 +20,5 @@ import Data.Semigroup
 #endif
 import Data.Semigroup.Traversable.Class
 
-foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
-foldMap1Default f = getConst . traverse1 (Const . f)
+foldMapNEDefault :: (NonEmptyTraversable f, Semigroup m) => (a -> m) -> f a -> m
+foldMapNEDefault f = getConst . traverseNE (Const . f)

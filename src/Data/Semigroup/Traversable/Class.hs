@@ -14,8 +14,8 @@
 --
 ----------------------------------------------------------------------------
 module Data.Semigroup.Traversable.Class
-  ( Bitraversable1(..)
-  , Traversable1(..)
+  ( NonEmptyBitraversable(..)
+  , NonEmptyTraversable(..)
   ) where
 
 import Control.Applicative
@@ -32,7 +32,7 @@ import Data.Bifunctor.Join
 import Data.Bifunctor.Product as Bifunctor
 import Data.Bifunctor.Tannen
 import Data.Bifunctor.Wrapped
-import Data.Functor.Apply
+import Data.Functor.Semiapplicative
 import Data.Functor.Compose
 
 import Data.Functor.Identity
@@ -67,197 +67,197 @@ import Generics.Deriving.Base
 import GHC.Generics
 #endif
 
-class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
-  bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
-  bitraverse1 f g  = bisequence1 . bimap f g
-  {-# INLINE bitraverse1 #-}
+class (NonEmptyBifoldable t, Bitraversable t) => NonEmptyBitraversable t where
+  bitraverseNE :: Semiapplicative f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
+  bitraverseNE f g  = bisequenceNE . bimap f g
+  {-# INLINE bitraverseNE #-}
 
-  bisequence1 :: Apply f => t (f a) (f b) -> f (t a b)
-  bisequence1 = bitraverse1 id id
-  {-# INLINE bisequence1 #-}
+  bisequenceNE :: Semiapplicative f => t (f a) (f b) -> f (t a b)
+  bisequenceNE = bitraverseNE id id
+  {-# INLINE bisequenceNE #-}
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
-  {-# MINIMAL bitraverse1 | bisequence1 #-}
+  {-# MINIMAL bitraverseNE | bisequenceNE #-}
 #endif
 
-instance Bitraversable1 Arg where
-  bitraverse1 f g (Arg a b) = Arg <$> f a <.> g b
+instance NonEmptyBitraversable Arg where
+  bitraverseNE f g (Arg a b) = Arg <$> f a <.> g b
 
-instance Bitraversable1 Either where
-  bitraverse1 f _ (Left a) = Left <$> f a
-  bitraverse1 _ g (Right b) = Right <$> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable Either where
+  bitraverseNE f _ (Left a) = Left <$> f a
+  bitraverseNE _ g (Right b) = Right <$> g b
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 (,) where
-  bitraverse1 f g (a, b) = (,) <$> f a <.> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable (,) where
+  bitraverseNE f g (a, b) = (,) <$> f a <.> g b
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 ((,,) x) where
-  bitraverse1 f g (x, a, b) = (,,) x <$> f a <.> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable ((,,) x) where
+  bitraverseNE f g (x, a, b) = (,,) x <$> f a <.> g b
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 ((,,,) x y) where
-  bitraverse1 f g (x, y, a, b) = (,,,) x y <$> f a <.> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable ((,,,) x y) where
+  bitraverseNE f g (x, y, a, b) = (,,,) x y <$> f a <.> g b
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 ((,,,,) x y z) where
-  bitraverse1 f g (x, y, z, a, b) = (,,,,) x y z <$> f a <.> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable ((,,,,) x y z) where
+  bitraverseNE f g (x, y, z, a, b) = (,,,,) x y z <$> f a <.> g b
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 Const where
-  bitraverse1 f _ (Const a) = Const <$> f a
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable Const where
+  bitraverseNE f _ (Const a) = Const <$> f a
+  {-# INLINE bitraverseNE #-}
 
 #ifdef MIN_VERSION_tagged
-instance Bitraversable1 Tagged where
-  bitraverse1 _ g (Tagged b) = Tagged <$> g b
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable Tagged where
+  bitraverseNE _ g (Tagged b) = Tagged <$> g b
+  {-# INLINE bitraverseNE #-}
 #endif
 
-instance (Bitraversable1 p, Traversable1 f, Traversable1 g) => Bitraversable1 (Biff p f g) where
-  bitraverse1 f g = fmap Biff . bitraverse1 (traverse1 f) (traverse1 g) . runBiff
-  {-# INLINE bitraverse1 #-}
+instance (NonEmptyBitraversable p, NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyBitraversable (Biff p f g) where
+  bitraverseNE f g = fmap Biff . bitraverseNE (traverseNE f) (traverseNE g) . runBiff
+  {-# INLINE bitraverseNE #-}
 
-instance Traversable1 f => Bitraversable1 (Clown f) where
-  bitraverse1 f _ = fmap Clown . traverse1 f . runClown
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyTraversable f => NonEmptyBitraversable (Clown f) where
+  bitraverseNE f _ = fmap Clown . traverseNE f . runClown
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 p => Bitraversable1 (Flip p) where
-  bitraverse1 f g = fmap Flip . bitraverse1 g f . runFlip
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable p => NonEmptyBitraversable (Flip p) where
+  bitraverseNE f g = fmap Flip . bitraverseNE g f . runFlip
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 p => Traversable1 (Join p) where
-  traverse1 f (Join a) = fmap Join (bitraverse1 f f a)
-  {-# INLINE traverse1 #-}
-  sequence1 (Join a) = fmap Join (bisequence1 a)
-  {-# INLINE sequence1 #-}
+instance NonEmptyBitraversable p => NonEmptyTraversable (Join p) where
+  traverseNE f (Join a) = fmap Join (bitraverseNE f f a)
+  {-# INLINE traverseNE #-}
+  sequenceNE (Join a) = fmap Join (bisequenceNE a)
+  {-# INLINE sequenceNE #-}
 
-instance Traversable1 g => Bitraversable1 (Joker g) where
-  bitraverse1 _ g = fmap Joker . traverse1 g . runJoker
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyTraversable g => NonEmptyBitraversable (Joker g) where
+  bitraverseNE _ g = fmap Joker . traverseNE g . runJoker
+  {-# INLINE bitraverseNE #-}
 
-instance (Bitraversable1 f, Bitraversable1 g) => Bitraversable1 (Bifunctor.Product f g) where
-  bitraverse1 f g (Bifunctor.Pair x y) = Bifunctor.Pair <$> bitraverse1 f g x <.> bitraverse1 f g y
-  {-# INLINE bitraverse1 #-}
+instance (NonEmptyBitraversable f, NonEmptyBitraversable g) => NonEmptyBitraversable (Bifunctor.Product f g) where
+  bitraverseNE f g (Bifunctor.Pair x y) = Bifunctor.Pair <$> bitraverseNE f g x <.> bitraverseNE f g y
+  {-# INLINE bitraverseNE #-}
 
-instance (Traversable1 f, Bitraversable1 p) => Bitraversable1 (Tannen f p) where
-  bitraverse1 f g = fmap Tannen . traverse1 (bitraverse1 f g) . runTannen
-  {-# INLINE bitraverse1 #-}
+instance (NonEmptyTraversable f, NonEmptyBitraversable p) => NonEmptyBitraversable (Tannen f p) where
+  bitraverseNE f g = fmap Tannen . traverseNE (bitraverseNE f g) . runTannen
+  {-# INLINE bitraverseNE #-}
 
-instance Bitraversable1 p => Bitraversable1 (WrappedBifunctor p) where
-  bitraverse1 f g = fmap WrapBifunctor . bitraverse1 f g . unwrapBifunctor
-  {-# INLINE bitraverse1 #-}
+instance NonEmptyBitraversable p => NonEmptyBitraversable (WrappedBifunctor p) where
+  bitraverseNE f g = fmap WrapBifunctor . bitraverseNE f g . unwrapBifunctor
+  {-# INLINE bitraverseNE #-}
 
 
-class (Foldable1 t, Traversable t) => Traversable1 t where
-  traverse1 :: Apply f => (a -> f b) -> t a -> f (t b)
-  sequence1 :: Apply f => t (f b) -> f (t b)
+class (NonEmptyFoldable t, Traversable t) => NonEmptyTraversable t where
+  traverseNE :: Semiapplicative f => (a -> f b) -> t a -> f (t b)
+  sequenceNE :: Semiapplicative f => t (f b) -> f (t b)
 
-  sequence1 = traverse1 id
-  traverse1 f = sequence1 . fmap f
+  sequenceNE = traverseNE id
+  traverseNE f = sequenceNE . fmap f
 
 #if __GLASGOW_HASKELL__ >= 708
-  {-# MINIMAL traverse1 | sequence1 #-}
+  {-# MINIMAL traverseNE | sequenceNE #-}
 #endif
 
-instance Traversable1 f => Traversable1 (Rec1 f) where
-  traverse1 f (Rec1 as) = Rec1 <$> traverse1 f as
+instance NonEmptyTraversable f => NonEmptyTraversable (Rec1 f) where
+  traverseNE f (Rec1 as) = Rec1 <$> traverseNE f as
 
-instance Traversable1 f => Traversable1 (M1 i c f) where
-  traverse1 f (M1 as) = M1 <$> traverse1 f as
+instance NonEmptyTraversable f => NonEmptyTraversable (M1 i c f) where
+  traverseNE f (M1 as) = M1 <$> traverseNE f as
 
-instance Traversable1 Par1 where
-  traverse1 f (Par1 a) = Par1 <$> f a
+instance NonEmptyTraversable Par1 where
+  traverseNE f (Par1 a) = Par1 <$> f a
 
-instance Traversable1 V1 where
-  traverse1 _ v = v `seq` undefined
+instance NonEmptyTraversable V1 where
+  traverseNE _ v = v `seq` undefined
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (f :*: g) where
-  traverse1 f (as :*: bs) = (:*:) <$> traverse1 f as <.> traverse1 f bs
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (f :*: g) where
+  traverseNE f (as :*: bs) = (:*:) <$> traverseNE f as <.> traverseNE f bs
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (f :+: g) where
-  traverse1 f (L1 as) = L1 <$> traverse1 f as
-  traverse1 f (R1 bs) = R1 <$> traverse1 f bs
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (f :+: g) where
+  traverseNE f (L1 as) = L1 <$> traverseNE f as
+  traverseNE f (R1 bs) = R1 <$> traverseNE f bs
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (f :.: g) where
-  traverse1 f (Comp1 m) = Comp1 <$> traverse1 (traverse1 f) m
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (f :.: g) where
+  traverseNE f (Comp1 m) = Comp1 <$> traverseNE (traverseNE f) m
 
-instance Traversable1 Identity where
-  traverse1 f = fmap Identity . f . runIdentity
+instance NonEmptyTraversable Identity where
+  traverseNE f = fmap Identity . f . runIdentity
 
-instance Traversable1 f => Traversable1 (IdentityT f) where
-  traverse1 f = fmap IdentityT . traverse1 f . runIdentityT
+instance NonEmptyTraversable f => NonEmptyTraversable (IdentityT f) where
+  traverseNE f = fmap IdentityT . traverseNE f . runIdentityT
 
-instance Traversable1 f => Traversable1 (Backwards f) where
-  traverse1 f = fmap Backwards . traverse1 f . forwards
+instance NonEmptyTraversable f => NonEmptyTraversable (Backwards f) where
+  traverseNE f = fmap Backwards . traverseNE f . forwards
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
-  traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (Compose f g) where
+  traverseNE f = fmap Compose . traverseNE (traverseNE f) . getCompose
 
-instance Traversable1 f => Traversable1 (Lift f) where
-  traverse1 f (Pure x)  = Pure <$> f x
-  traverse1 f (Other y) = Other <$> traverse1 f y
+instance NonEmptyTraversable f => NonEmptyTraversable (Lift f) where
+  traverseNE f (Pure x)  = Pure <$> f x
+  traverseNE f (Other y) = Other <$> traverseNE f y
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Product f g) where
-  traverse1 f (Functor.Pair a b) = Functor.Pair <$> traverse1 f a <.> traverse1 f b
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (Functor.Product f g) where
+  traverseNE f (Functor.Pair a b) = Functor.Pair <$> traverseNE f a <.> traverseNE f b
 
-instance Traversable1 f => Traversable1 (Reverse f) where
-  traverse1 f = fmap Reverse . forwards . traverse1 (Backwards . f) . getReverse
+instance NonEmptyTraversable f => NonEmptyTraversable (Reverse f) where
+  traverseNE f = fmap Reverse . forwards . traverseNE (Backwards . f) . getReverse
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
-  traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
-  traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
+instance (NonEmptyTraversable f, NonEmptyTraversable g) => NonEmptyTraversable (Functor.Sum f g) where
+  traverseNE f (Functor.InL x) = Functor.InL <$> traverseNE f x
+  traverseNE f (Functor.InR y) = Functor.InR <$> traverseNE f y
 
 #if MIN_VERSION_base(4,4,0)
-instance Traversable1 Complex where
-  traverse1 f (a :+ b) = (:+) <$> f a <.> f b
-  {-# INLINE traverse1 #-}
+instance NonEmptyTraversable Complex where
+  traverseNE f (a :+ b) = (:+) <$> f a <.> f b
+  {-# INLINE traverseNE #-}
 #endif
 
 #ifdef MIN_VERSION_tagged
-instance Traversable1 (Tagged a) where
-  traverse1 f (Tagged a) = Tagged <$> f a
+instance NonEmptyTraversable (Tagged a) where
+  traverseNE f (Tagged a) = Tagged <$> f a
 #endif
 
 #ifdef MIN_VERSION_containers
-instance Traversable1 Tree where
-  traverse1 f (Node a []) = (`Node`[]) <$> f a
-  traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
+instance NonEmptyTraversable Tree where
+  traverseNE f (Node a []) = (`Node`[]) <$> f a
+  traverseNE f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverseNE (traverseNE f) (x :| xs)
 #endif
 
-instance Traversable1 NonEmpty where
-  traverse1 f (a :| []) = (:|[]) <$> f a
-  traverse1 f (a :| (b: bs)) = (\a' (b':| bs') -> a' :| b': bs') <$> f a <.> traverse1 f (b :| bs)
+instance NonEmptyTraversable NonEmpty where
+  traverseNE f (a :| []) = (:|[]) <$> f a
+  traverseNE f (a :| (b: bs)) = (\a' (b':| bs') -> a' :| b': bs') <$> f a <.> traverseNE f (b :| bs)
 
-instance Traversable1 ((,) a) where
-  traverse1 f (a, b) = (,) a <$> f b
+instance NonEmptyTraversable ((,) a) where
+  traverseNE f (a, b) = (,) a <$> f b
 
-instance Traversable1 g => Traversable1 (Joker g a) where
-  traverse1 g = fmap Joker . traverse1 g . runJoker
-  {-# INLINE traverse1 #-}
+instance NonEmptyTraversable g => NonEmptyTraversable (Joker g a) where
+  traverseNE g = fmap Joker . traverseNE g . runJoker
+  {-# INLINE traverseNE #-}
 
-instance Traversable1 Monoid.Sum where
-  traverse1 g (Monoid.Sum a) = Monoid.Sum <$> g a
+instance NonEmptyTraversable Monoid.Sum where
+  traverseNE g (Monoid.Sum a) = Monoid.Sum <$> g a
 
-instance Traversable1 Monoid.Product where
-  traverse1 g (Monoid.Product a) = Monoid.Product <$> g a
+instance NonEmptyTraversable Monoid.Product where
+  traverseNE g (Monoid.Product a) = Monoid.Product <$> g a
 
-instance Traversable1 Monoid.Dual where
-  traverse1 g (Monoid.Dual a) = Monoid.Dual <$> g a
+instance NonEmptyTraversable Monoid.Dual where
+  traverseNE g (Monoid.Dual a) = Monoid.Dual <$> g a
 
 #if MIN_VERSION_base(4,8,0)
-instance Traversable1 f => Traversable1 (Monoid.Alt f) where
-  traverse1 g (Monoid.Alt m) = Monoid.Alt <$> traverse1 g m
+instance NonEmptyTraversable f => NonEmptyTraversable (Monoid.Alt f) where
+  traverseNE g (Monoid.Alt m) = Monoid.Alt <$> traverseNE g m
 #endif
 
-instance Traversable1 Semigroup.First where
-  traverse1 g (Semigroup.First a) = Semigroup.First <$> g a
+instance NonEmptyTraversable Semigroup.First where
+  traverseNE g (Semigroup.First a) = Semigroup.First <$> g a
 
-instance Traversable1 Semigroup.Last where
-  traverse1 g (Semigroup.Last a) = Semigroup.Last <$> g a
+instance NonEmptyTraversable Semigroup.Last where
+  traverseNE g (Semigroup.Last a) = Semigroup.Last <$> g a
 
-instance Traversable1 Semigroup.Min where
-  traverse1 g (Semigroup.Min a) = Semigroup.Min <$> g a
+instance NonEmptyTraversable Semigroup.Min where
+  traverseNE g (Semigroup.Min a) = Semigroup.Min <$> g a
 
-instance Traversable1 Semigroup.Max where
-  traverse1 g (Semigroup.Max a) = Semigroup.Max <$> g a
+instance NonEmptyTraversable Semigroup.Max where
+  traverseNE g (Semigroup.Max a) = Semigroup.Max <$> g a

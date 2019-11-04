@@ -13,36 +13,36 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Functor.Apply (
+module Data.Functor.Semiapplicative (
   -- * Functors
     Functor(..)
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
   , ( $>)     -- :: Functor f => f a -> b -> f b
 
-  -- * Apply - a strong lax semimonoidal endofunctor
+  -- * Semiapplicative - a strong lax semimonoidal endofunctor
 
-  , Apply(..)
-  , (<..>)    -- :: Apply w => w a -> w (a -> b) -> w b
-  , liftF3    -- :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+  , Semiapplicative(..)
+  , (<..>)    -- :: Semiapplicative w => w a -> w (a -> b) -> w b
+  , liftF3    -- :: Semiapplicative w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 
   -- * Wrappers
   , WrappedApplicative(..)
-  , MaybeApply(..)
+  , MaybeSemiapplicative(..)
   ) where
 
 import Control.Comonad
-import Data.Functor.Bind.Class
+import Data.Functor.Semimonad.Class
 
 infixl 4 <..>
 
 -- | A variant of '<.>' with the arguments reversed.
-(<..>) :: Apply w => w a -> w (a -> b) -> w b
+(<..>) :: Semiapplicative w => w a -> w (a -> b) -> w b
 (<..>) = liftF2 (flip id)
 {-# INLINE (<..>) #-}
 
 
 -- | Lift a ternary function into a comonad with zipping
-liftF3 :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+liftF3 :: Semiapplicative w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftF3 f a b c = f <$> a <.> b <.> c
 {-# INLINE liftF3 #-}
 

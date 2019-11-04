@@ -17,20 +17,20 @@
 -- Portability :  portable
 --
 ----------------------------------------------------------------------------
-module Data.Functor.Bind (
+module Data.Functor.Semimonad (
   -- * Functors
     Functor(..)
   , (<$>)     -- :: Functor f => (a -> b) -> f a -> f b
   , ( $>)     -- :: Functor f => f a -> b -> f b
-  -- * Applyable functors
-  , Apply(..)
-  , (<..>)    -- :: Apply w => w a -> w (a -> b) -> w b
-  , liftF3    -- :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
+  -- * Semiapplicativeable functors
+  , Semiapplicative(..)
+  , (<..>)    -- :: Semiapplicative w => w a -> w (a -> b) -> w b
+  , liftF3    -- :: Semiapplicative w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
   -- * Wrappers
   , WrappedApplicative(..)
-  , MaybeApply(..)
-  -- * Bindable functors
-  , Bind(..)
+  , MaybeSemiapplicative(..)
+  -- * Semimonadable functors
+  , Semimonad(..)
   , (-<<)
   , (-<-)
   , (->-)
@@ -38,18 +38,18 @@ module Data.Functor.Bind (
   , returning
   ) where
 
-import Data.Functor.Apply
-import Data.Functor.Bind.Class
+import Data.Functor.Semiapplicative
+import Data.Functor.Semimonad.Class
 
 infixr 1 -<<, -<-, ->-
 
-(-<<) :: Bind m => (a -> m b) -> m a -> m b
+(-<<) :: Semimonad m => (a -> m b) -> m a -> m b
 (-<<) = flip (>>-)
 
-(->-) :: Bind m => (a -> m b) -> (b -> m c) -> a -> m c
+(->-) :: Semimonad m => (a -> m b) -> (b -> m c) -> a -> m c
 f ->- g = \a -> f a >>- g
 
-(-<-) :: Bind m => (b -> m c) -> (a -> m b) -> a -> m c
+(-<-) :: Semimonad m => (b -> m c) -> (a -> m b) -> a -> m c
 g -<- f = \a -> f a >>- g
 
 
