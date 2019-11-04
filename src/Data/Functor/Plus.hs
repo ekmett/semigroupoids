@@ -66,6 +66,10 @@ import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import Data.Vector (Vector)
+#endif
+
 #ifdef MIN_VERSION_generic_deriving
 import Generics.Deriving.Base
 #else
@@ -129,6 +133,11 @@ instance Plus Seq where
 #ifdef MIN_VERSION_unordered_containers
 instance (Hashable k, Eq k) => Plus (HashMap k) where
   zero = HashMap.empty
+#endif
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Plus Vector where
+  zero = empty
 #endif
 
 instance Alternative f => Plus (WrappedApplicative f) where

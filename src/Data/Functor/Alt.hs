@@ -82,6 +82,11 @@ import qualified Data.HashMap.Lazy as HashMap
 import Prelude (Eq)
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import Data.Vector (Vector)
+import Data.Vector.NonEmpty (NonEmptyVector)
+#endif
+
 #ifdef MIN_VERSION_generic_deriving
 import Generics.Deriving.Base
 #else
@@ -210,6 +215,14 @@ instance Alt Seq where
 #ifdef MIN_VERSION_unordered_containers
 instance (Hashable k, Eq k) => Alt (HashMap k) where
   (<!>) = HashMap.union
+#endif
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Alt Vector where
+  (<!>) = (<|>)
+
+instance Alt NonEmptyVector where
+  (<!>) = (<>)
 #endif
 
 instance Alt NonEmpty where

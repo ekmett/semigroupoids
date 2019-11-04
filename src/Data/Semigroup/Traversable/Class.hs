@@ -67,6 +67,13 @@ import Generics.Deriving.Base
 import GHC.Generics
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import qualified Data.Vector as V
+import Data.Vector.NonEmpty (NonEmptyVector)
+import qualified Data.Vector.NonEmpty as NEV
+#endif
+
+
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
   bitraverse1 f g  = bisequence1 . bimap f g
@@ -228,6 +235,13 @@ instance Traversable1 Tree where
 instance Traversable1 NonEmpty where
   traverse1 f (a :| []) = (:|[]) <$> f a
   traverse1 f (a :| (b: bs)) = (\a' (b':| bs') -> a' :| b': bs') <$> f a <.> traverse1 f (b :| bs)
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Traversable1 NonEmptyVector where
+  traverse1 f v = case NEV.uncons v of
+    ~(a, t) | V.null t -> NEV.singleton <$> f a
+    ~(a, t) -> NEV.cons <$> f a <.> traverse1 f (NEV.unsafeFromVector t)
+#endif
 
 instance Traversable1 ((,) a) where
   traverse1 f (a, b) = (,) a <$> f b

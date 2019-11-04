@@ -136,6 +136,14 @@ flag unordered-containers
   default: True
   manual: True
 
+flag nonempty-vector
+  description:
+    You can disable the use of the `vector` and `nonempty-vector` package using `-f-nonempty-vector`.
+    .
+    Disabling this is an unsupported configuration, but it may be useful for accelerating builds in sandboxes for expert users.
+  default: True
+  manual: True
+
 library
   build-depends:
     base                >= 4.3     && < 5,
@@ -172,6 +180,10 @@ library
   if flag(unordered-containers)
     build-depends: hashable >= 1.1  && < 1.4,
                    unordered-containers >= 0.2  && < 0.3
+
+  if flag(nonempty-vector) && impl(ghc >= 8.0)
+    build-depends: nonempty-vector >= 0.2 && < 0.3,
+                   vector >= 0.12 && < 0.13
 
   hs-source-dirs: src
 

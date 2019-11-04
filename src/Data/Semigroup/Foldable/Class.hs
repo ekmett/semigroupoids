@@ -66,6 +66,12 @@ import Generics.Deriving.Base
 import GHC.Generics
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import qualified Data.Vector as V
+import Data.Vector.NonEmpty (NonEmptyVector)
+import qualified Data.Vector.NonEmpty as NEV
+#endif
+
 import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
@@ -124,6 +130,7 @@ instance Foldable1 V1 where
 
 instance (Foldable1 f, Foldable1 g) => Foldable1 (f :.: g) where
   foldMap1 f (Comp1 m) = foldMap1 (foldMap1 f) m
+
 
 class Bifoldable t => Bifoldable1 t where
   bifold1 :: Semigroup m => t m m -> m
@@ -254,3 +261,10 @@ instance Foldable1 ((,) a) where
 instance Foldable1 g => Foldable1 (Joker g a) where
   foldMap1 g = foldMap1 g . runJoker
   {-# INLINE foldMap1 #-}
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Foldable1 NonEmptyVector where
+  foldMap1 f v = case NEV.uncons v of
+    ~(a, t) | V.null t -> f a
+    ~(a, t) -> f a <> foldMap1 f (NEV.unsafeFromVector t)
+#endif

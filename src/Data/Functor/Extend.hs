@@ -39,6 +39,12 @@ import qualified Data.Sequence as Seq
 import Data.Tree
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+import Data.Vector.NonEmpty (NonEmptyVector)
+import qualified Data.Vector.NonEmpty as NEV
+#endif
 
 #ifdef MIN_VERSION_comonad
 import Control.Comonad.Trans.Env
@@ -167,6 +173,20 @@ instance Extend NonEmpty where
   extended f w@ ~(_ :| aas) = f w :| case aas of
       []     -> []
       (a:as) -> toList (extended f (a :| as))
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Extend Vector where
+  extended f v = V.cons (f v) $
+    let w = V.tail v
+    in if V.null w
+      then V.empty
+      else extended f $ V.tail v
+
+instance Extend NonEmptyVector where
+  extended f v =  case NEV.fromVector (NEV.tail v) of
+    Nothing -> NEV.singleton (f v)
+    Just w -> NEV.cons (f v) $ extended f w
+#endif
 
 instance (Extend f, Extend g) => Extend (Functor.Sum f g) where
   extended f (InL l) = InL (extended (f . InL) l)

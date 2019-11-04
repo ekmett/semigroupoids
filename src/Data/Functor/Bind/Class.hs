@@ -137,6 +137,11 @@ import Control.Comonad.Trans.Traced
 ($>) = flip (<$)
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+import Data.Vector (Vector)
+import Data.Vector.NonEmpty (NonEmptyVector)
+#endif
+
 infixl 1 >>-
 infixl 4 <.>, <., .>
 
@@ -333,6 +338,17 @@ instance (Hashable k, Eq k) => Apply (HashMap k) where
   (<.>) = HashMap.intersectionWith id
 #endif
 
+#ifdef MIN_VERSION_nonempty_vector
+instance Apply Vector where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
+instance Apply NonEmptyVector where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+#endif
 -- MaybeT is _not_ the same as Compose f Maybe
 instance (Functor m, Monad m) => Apply (MaybeT m) where
   (<.>) = apDefault
@@ -693,6 +709,14 @@ instance (Hashable k, Eq k) => Bind (HashMap k) where
     case HashMap.lookup k (f a) of
       Just b -> [(k,b)]
       Nothing -> []
+#endif
+
+#ifdef MIN_VERSION_nonempty_vector
+instance Bind Vector where
+  (>>-) = (>>=)
+
+instance Bind NonEmptyVector where
+  (>>-) = (>>=)
 #endif
 
 instance Bind Down where Down a >>- f = f a
