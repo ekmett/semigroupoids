@@ -164,7 +164,8 @@ instance Extend w => Extend (IdentityT w) where
   extended f (IdentityT m) = IdentityT (extended (f . IdentityT) m)
 
 instance Extend NonEmpty where
-  extended f w@ ~(_ :| aas) = f w :| case aas of
+  extended f w@(~(_ :| aas)) =
+    f w :| case aas of
       []     -> []
       (a:as) -> toList (extended f (a :| as))
 
