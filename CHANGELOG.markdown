@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Achieve forward compatibility with
+  [GHC proposal 229](https://github.com/ghc-proposals/ghc-proposals/blob/master/proposals/0229-whitespace-bang-patterns.rst).
+
 5.3.3 [2019.08.27]
 ------------------
 * Add `Alt` and `Plus` instances for `HashMap` from the `unordered-containers`
