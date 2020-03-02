@@ -16,6 +16,7 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Plus
   ( Plus(..)
+  , asum
   , module Data.Functor.Alt
   ) where
 
@@ -81,6 +82,13 @@ import GHC.Generics
 
 class Alt f => Plus f where
   zero :: f a
+
+-- | The sum of a collection of actions, generalizing 'concat'.
+--
+-- asum [Just "Hello", Nothing, Just "World"]
+-- Just "Hello"
+asum :: (Foldable t, Plus f) => t (f a) -> f a
+asum = foldr (<!>) zero
 
 instance Plus Proxy where
   zero = Proxy
