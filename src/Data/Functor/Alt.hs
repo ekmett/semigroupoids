@@ -103,7 +103,7 @@ infixl 3 <!>
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 --
--- But 'Maybe', 'IO', @'Either' a@, @'ErrorT' e m@, and 'STM' satisfy the alternative
+-- But 'Maybe', 'IO', @'Either' a@, @'ErrorT' e m@, and 'GHC.Conc.STM' satisfy the alternative
 -- \"left catch\" law instead:
 --
 -- > pure a <!> b = pure a

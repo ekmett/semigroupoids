@@ -38,7 +38,7 @@ newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 instance Semigroup a => Semigroup (JoinWith a) where
   JoinWith a <> JoinWith b = JoinWith $ \j -> a j <> j <> b j
 
--- | Insert an 'm' between each pair of 't m'.  Equivalent to
+-- | Insert an @m@ between each pair of @t m@.  Equivalent to
 -- 'intercalateMap1' with 'id' as the second argument.
 --
 -- >>> intercalate1 ", " $ "hello" :| ["how", "are", "you"]
@@ -53,7 +53,7 @@ intercalate1 :: (Foldable1 t, Semigroup m) => m -> t m -> m
 intercalate1 = flip intercalateMap1 id
 {-# INLINE intercalate1 #-}
 
--- | Insert 'm' between each pair of 'm' derived from 'a'.
+-- | Insert @m@ between each pair of @m@ derived from @a@.
 --
 -- >>> intercalateMap1 " " show $ True :| [False, True]
 -- "True False True"
