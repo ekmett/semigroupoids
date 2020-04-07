@@ -59,6 +59,10 @@ import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.List
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
+#endif
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
@@ -361,6 +365,12 @@ instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
 
+#if MIN_VERSION_transformers(0,5,6)
+instance (Apply m, Monoid w) => Apply (CPS.WriterT w m) where
+  f <.> a = CPS.writerT $ flap <$> CPS.runWriterT f <.> CPS.runWriterT a where
+    flap (x,m) (y,n) = (x y, m <> n)
+#endif
+
 instance Bind m => Apply (Strict.StateT s m) where
   (<.>) = apDefault
 
@@ -374,6 +384,11 @@ instance (Bind m, Semigroup w) => Apply (Strict.RWST r w s m) where
 -- | An 'RWST r w s m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
+
+#if MIN_VERSION_transformers(0,5,6)
+instance (Bind m, Monoid w) => Apply (CPS.RWST r w s m) where
+  f <.> x = f >>- \f' -> f' <$> x
+#endif
 
 instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
@@ -628,6 +643,14 @@ instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
     Strict.runWriterT (k a) `returning` \ (b, w') ->
       (b, w <> w')
 
+#if MIN_VERSION_transformers(0,5,6)
+instance (Bind m, Monoid w) => Bind (CPS.WriterT w m) where
+  m >>- k = CPS.writerT $
+    CPS.runWriterT m >>- \ (a, w) ->
+    CPS.runWriterT (k a) `returning` \ (b, w') ->
+      (b, w <> w')
+#endif
+
 instance Bind m => Bind (Lazy.StateT s m) where
   m >>- k = Lazy.StateT $ \s ->
     Lazy.runStateT m s >>- \ ~(a, s') ->
@@ -651,6 +674,14 @@ instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
     Strict.runRWST m r s >>- \ (a, s', w) ->
     Strict.runRWST (k a) r s' `returning` \ (b, s'', w') ->
       (b, s'', w <> w')
+
+#if MIN_VERSION_transformers(0,5,6)
+instance (Bind m, Monoid w) => Bind (CPS.RWST r w s m) where
+  m >>- k = CPS.rwsT $ \r s ->
+    CPS.runRWST m r s >>- \ (a, s', w) ->
+    CPS.runRWST (k a) r s' `returning` \ (b, s'', w') ->
+      (b, s'', w <> w')
+#endif
 
 instance Bind (ContT r m) where
   m >>- k = ContT $ \c -> runContT m $ \a -> runContT (k a) c

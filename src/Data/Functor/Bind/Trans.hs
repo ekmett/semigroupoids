@@ -23,6 +23,10 @@ import Control.Monad.Trans.Identity
 -- import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 -- import Control.Monad.Trans.List
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
+#endif
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
@@ -52,6 +56,11 @@ instance Monoid w => BindTrans (Lazy.WriterT w) where
 instance Monoid w => BindTrans (Strict.WriterT w) where
   liftB = Strict.WriterT . fmap (\a -> (a, mempty))
 
+#if MIN_VERSION_transformers(0,5,6)
+instance Monoid w => BindTrans (CPS.WriterT w) where
+  liftB = CPS.writerT . fmap (\a -> (a, mempty))
+#endif
+
 instance BindTrans (Lazy.StateT s) where
   liftB m = Lazy.StateT $ \s -> fmap (\a -> (a, s)) m
 
@@ -63,6 +72,11 @@ instance Monoid w => BindTrans (Lazy.RWST r w s) where
 
 instance Monoid w => BindTrans (Strict.RWST r w s) where
   liftB m = Strict.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
+
+#if MIN_VERSION_transformers(0,5,6)
+instance Monoid w => BindTrans (CPS.RWST r w s) where
+  liftB m = CPS.rwsT $ \ _r s -> fmap (\a -> (a, s, mempty)) m
+#endif
 
 instance BindTrans (ContT r) where
   liftB m = ContT (m >>-)
