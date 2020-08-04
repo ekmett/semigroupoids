@@ -18,6 +18,7 @@ import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 
+import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Decide
@@ -109,7 +110,7 @@ instance Conclude f => Conclude (M1 i c f) where
 instance (Conclude f, Conclude g) => Conclude (f :*: g) where
   conclude f = conclude f :*: conclude f
 
-instance (Applicative f, Conclude g) => Conclude (f :.: g) where
+instance (Apply f, Applicative f, Conclude g) => Conclude (f :.: g) where
   conclude = Comp1 . pure . conclude
 #endif
 
@@ -146,7 +147,7 @@ instance Conclude m => Conclude (Lazy.WriterT w m) where
 instance Conclude m => Conclude (Strict.WriterT w m) where
   conclude f = Strict.WriterT $ contramap fst (conclude f)
 
-instance (Applicative f, Conclude g) => Conclude (Compose f g) where
+instance (Apply f, Applicative f, Conclude g) => Conclude (Compose f g) where
   conclude = Compose . pure . conclude
 
 instance (Conclude f, Conclude g) => Conclude (Product f g) where

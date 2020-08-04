@@ -20,6 +20,7 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 
 import Data.Either
+import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Divise
@@ -68,6 +69,8 @@ decided = decide id
 instance Decide Comparison where decide = choose
 instance Decide Equivalence where decide = choose
 instance Decide Predicate where decide = choose
+
+-- | Unlike 'Decidable', requires no constraint on @r@
 instance Decide (Op r) where
   decide f (Op g) (Op h) = Op $ either g h . f
 
@@ -88,8 +91,9 @@ instance Decide f => Decide (M1 i c f) where
 instance (Decide f, Decide g) => Decide (f :*: g) where
   decide f (l1 :*: r1) (l2 :*: r2) = decide f l1 l2 :*: decide f r1 r2
 
-instance (Applicative f, Decide g) => Decide (f :.: g) where
-  decide f (Comp1 l) (Comp1 r) = Comp1 (decide f <$> l <*> r)
+-- | Unlike 'Decidable', requires only 'Apply' on @f@.
+instance (Apply f, Decide g) => Decide (f :.: g) where
+  decide f (Comp1 l) (Comp1 r) = Comp1 (liftF2 (decide f) l r)
 #endif
 
 instance Decide f => Decide (Backwards f) where
@@ -143,8 +147,9 @@ instance Decide m => Decide (Strict.WriterT w m) where
   decide f (Strict.WriterT l) (Strict.WriterT r) = Strict.WriterT $
     decide (\(a, s') -> either (Left . betuple s') (Right . betuple s') (f a)) l r
 
-instance (Applicative f, Decide g) => Decide (Compose f g) where
-  decide f (Compose l) (Compose r) = Compose (decide f <$> l <*> r)
+-- | Unlike 'Decidable', requires only 'Apply' on @f@.
+instance (Apply f, Decide g) => Decide (Compose f g) where
+  decide f (Compose l) (Compose r) = Compose (liftF2 (decide f) l r)
 
 instance (Decide f, Decide g) => Decide (Product f g) where
   decide f (Pair l1 r1) (Pair l2 r2) = Pair (decide f l1 l2) (decide f r1 r2)

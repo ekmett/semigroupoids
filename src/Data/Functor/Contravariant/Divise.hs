@@ -4,6 +4,7 @@
 module Data.Functor.Contravariant.Divise (
     Divise(..)
   , divised
+  , Contravariant(..)
   ) where
 
 import Control.Applicative
@@ -22,6 +23,7 @@ import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 
+import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Constant
 import Data.Functor.Contravariant
@@ -79,12 +81,19 @@ class Contravariant f => Divise f where
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
 
-instance Monoid r => Divise (Op r) where divise = divide
+-- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
+instance Semigroup r => Divise (Op r) where
+    divise f (Op g) (Op h) = Op $ \a -> case f a of
+      (b, c) -> g b <> h c
 instance Divise Comparison where divise = divide
 instance Divise Equivalence where divise = divide
 instance Divise Predicate where divise = divide
-instance Monoid m => Divise (Const m) where divise = divide
-instance Monoid m => Divise (Constant m) where divise = divide
+-- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
+instance Semigroup m => Divise (Const m) where
+    divise _ (Const a) (Const b) = Const (a <> b)
+-- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
+instance Semigroup m => Divise (Constant m) where
+    divise _ (Constant a) (Constant b) = Constant (a <> b)
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 instance Divise Proxy where divise = divide
@@ -111,8 +120,9 @@ instance Divise f => Divise (M1 i c f) where
 instance (Divise f, Divise g) => Divise (f :*: g) where
   divise f (l1 :*: r1) (l2 :*: r2) = divise f l1 l2 :*: divise f r1 r2
 
-instance (Applicative f, Divise g) => Divise (f :.: g) where
-  divise f (Comp1 l) (Comp1 r) = Comp1 (divise f <$> l <*> r)
+-- | Unlike 'Divisible', requires only 'Apply' on @f@.
+instance (Apply f, Divise g) => Divise (f :.: g) where
+  divise f (Comp1 l) (Comp1 r) = Comp1 (liftF2 (divise f) l r)
 #endif
 
 instance Divise f => Divise (Backwards f) where
@@ -164,8 +174,9 @@ instance Divise m => Divise (Strict.WriterT w m) where
   divise f (Strict.WriterT l) (Strict.WriterT r) = Strict.WriterT $
     divise (strictFanout f) l r
 
-instance (Applicative f, Divise g) => Divise (Compose f g) where
-  divise f (Compose l) (Compose r) = Compose (divise f <$> l <*> r)
+-- | Unlike 'Divisible', requires only 'Apply' on @f@.
+instance (Apply f, Divise g) => Divise (Compose f g) where
+  divise f (Compose l) (Compose r) = Compose (liftF2 (divise f) l r)
 
 instance (Divise f, Divise g) => Divise (Product f g) where
   divise f (Pair l1 r1) (Pair l2 r2) = Pair (divise f l1 l2) (divise f r1 r2)
