@@ -47,6 +47,10 @@ import Data.Monoid (Alt(..))
 import Data.Monoid (Monoid(..))
 #endif
 
+#if MIN_VERSION_base(4,9,10) && !MIN_VERSION_base(4,11,0)
+import Data.Semigroup (Semigroup(..))
+#endif
+
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 import Data.Proxy
 #endif
@@ -96,19 +100,28 @@ class Contravariant f => Divise f where
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
 
+#if MIN_VERSION_base(4,9,0)
 -- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
 instance Semigroup r => Divise (Op r) where
     divise f (Op g) (Op h) = Op $ \a -> case f a of
       (b, c) -> g b <> h c
-instance Divise Comparison where divise = divide
-instance Divise Equivalence where divise = divide
-instance Divise Predicate where divise = divide
+
 -- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
 instance Semigroup m => Divise (Const m) where
     divise _ (Const a) (Const b) = Const (a <> b)
+
 -- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
 instance Semigroup m => Divise (Constant m) where
     divise _ (Constant a) (Constant b) = Constant (a <> b)
+#else
+instance Monoid r => Divise (Op r) where divise = divide
+instance Monoid m => Divise (Const m) where divise = divide
+instance Monoid m => Divise (Constant m) where divise = divide
+#endif
+
+instance Divise Comparison where divise = divide
+instance Divise Equivalence where divise = divide
+instance Divise Predicate where divise = divide
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 instance Divise Proxy where divise = divide
