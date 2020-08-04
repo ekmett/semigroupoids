@@ -77,6 +77,11 @@ import GHC.Generics
 -- that @'Divisible' f@ doesn't that any input consumed will be passed to at
 -- least one sub-consumer; it won't potentially disappear into the void, as
 -- is possible if 'conquer' is available.
+--
+-- Mathematically, a functor being an instance of 'Divise' means that it is
+-- "semgroupoidal" with respect to the contravariant (tupling) Day
+-- convolution.  That is, it is possible to define a function @(f `Day` f)
+-- a -> f a@ in a way that is associative.
 class Contravariant f => Divise f where
     -- | Takes a "splitting" method and the two sub-consumers, and
     -- returns the wrapped/combined consumer.

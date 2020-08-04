@@ -66,6 +66,12 @@ import GHC.Generics
 --
 -- 'decide' takes the "decision" method and the two potential consumers,
 -- and returns the wrapped/combined consumer.
+--
+-- Mathematically, a functor being an instance of 'Decide' means that it is
+-- "semgroupoidal" with respect to the contravariant "either-based" Day
+-- convolution (@data EitherDay f g a = forall b c. EitherDay (f b) (g c) (a -> Either b c)@).
+-- That is, it is possible to define a function @(f `EitherDay` f) a ->
+-- f a@ in a way that is associative.
 class Contravariant f => Decide f where
     -- | Takes the "decision" method and the two potential consumers, and
     -- returns the wrapped/combined consumer.

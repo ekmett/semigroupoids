@@ -75,6 +75,12 @@ import GHC.Generics
 -- @f@ is the deciding function that picks which of the inputs of @decide@
 -- to direct input to; in the situation above, @f@ must /always/ direct all
 -- input to @x@, and never 'concluded'.
+--
+-- Mathematically, a functor being an instance of 'Decide' means that it is
+-- "monoidal" with respect to the contravariant "either-based" Day
+-- convolution described in the documentation of 'Decide'.  On top of
+-- 'Decide', it adds a way to construct an "identity" @conclude@ where
+-- @decide f x (conclude q) == x@, and @decide g (conclude r) y == y@.
 class Decide f => Conclude f where
     -- | The consumer that cannot ever receive /any/ input.
     conclude :: (a -> Void) -> f a
