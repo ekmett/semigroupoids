@@ -183,6 +183,9 @@ library
     Data.Functor.Bind
     Data.Functor.Bind.Class
     Data.Functor.Bind.Trans
+    Data.Functor.Contravariant.Decide
+    Data.Functor.Contravariant.Divise
+    Data.Functor.Contravariant.Loss
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid
