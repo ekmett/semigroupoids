@@ -82,6 +82,9 @@ class Contravariant f => Decide f where
 decided :: Decide f => f b -> f c -> f (Either b c)
 decided = decide id
 
+instance Decidable f => Decide (WrappedDivisible f) where
+    decide f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (choose f x y)
+
 instance Decide Comparison where decide = choose
 instance Decide Equivalence where decide = choose
 instance Decide Predicate where decide = choose

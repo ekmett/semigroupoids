@@ -63,6 +63,7 @@ import GHC.Generics
 
 -- | The contravariant analogue of 'Plus'.  Adds on to 'Decide' the ability
 -- to express a combinator that rejects all input, to act as the dead-end.
+-- Essentially 'Decidable' without a superclass constraint on 'Divisible'.
 --
 -- If one thinks of @f a@ as a consumer of @a@s, then 'conclude' defines
 -- a consumer that cannot ever receive /any/ input.
@@ -98,6 +99,9 @@ class Decide f => Conclude f where
 -- @
 concluded :: Conclude f => f Void
 concluded = conclude id
+
+instance Decidable f => Conclude (WrappedDivisible f) where
+    conclude f = WrapDivisible (lose f)
 
 instance Conclude Comparison where conclude = lose
 instance Conclude Equivalence where conclude = lose

@@ -14,7 +14,7 @@
 module Data.Functor.Contravariant.Divise (
     Divise(..)
   , divised
-  , Contravariant(..)
+  , WrappedDivisible(..)
   ) where
 
 import Control.Applicative
@@ -47,7 +47,7 @@ import Data.Monoid (Alt(..))
 import Data.Monoid (Monoid(..))
 #endif
 
-#if MIN_VERSION_base(4,9,10) && !MIN_VERSION_base(4,11,0)
+#if MIN_VERSION_base(4,9,0) && !MIN_VERSION_base(4,12,0)
 import Data.Semigroup (Semigroup(..))
 #endif
 
@@ -99,6 +99,15 @@ class Contravariant f => Divise f where
 -- @
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
+
+-- | Wrap a 'Divisible' to be used as a member of 'Divise'
+newtype WrappedDivisible f a = WrapDivisible { unwrapDivisible :: f a }
+
+instance Contravariant f => Contravariant (WrappedDivisible f) where
+  contramap f (WrapDivisible a) = WrapDivisible (contramap f a)
+
+instance Divisible f => Divise (WrappedDivisible f) where
+  divise f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (divide f x y)
 
 #if MIN_VERSION_base(4,9,0)
 -- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
