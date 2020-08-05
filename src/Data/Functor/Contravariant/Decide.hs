@@ -1,6 +1,10 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
 
+#if MIN_VERSION_base(4,7,0)
+{-# LANGUAGE EmptyCase     #-}
+#endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -100,6 +104,13 @@ instance Decide f => Decide (Alt f) where
 
 #ifdef GHC_GENERICS
 instance Decide U1 where decide = choose
+
+-- | Has no 'Decidable' or 'Conclude' instance
+#if MIN_VERSION_base(4,7,0)
+instance Decide V1 where decide _ x = case x of {}
+#else
+instance Decide V1 where decide _ x = case x of _ -> error "V1"
+#endif
 
 instance Decide f => Decide (Rec1 f) where
   decide f (Rec1 l) (Rec1 r) = Rec1 $ decide f l r

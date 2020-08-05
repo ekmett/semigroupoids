@@ -1,6 +1,10 @@
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
 
+#if MIN_VERSION_base(4,7,0)
+{-# LANGUAGE EmptyCase     #-}
+#endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -147,6 +151,13 @@ instance Divise f => Divise (Alt f) where
 
 #ifdef GHC_GENERICS
 instance Divise U1 where divise = divide
+
+-- | Has no 'Divisible' instance
+#if MIN_VERSION_base(4,7,0)
+instance Divise V1 where divise _ x = case x of {}
+#else
+instance Divise V1 where divise _ x = case x of _ -> error "V1"
+#endif
 
 instance Divise f => Divise (Rec1 f) where
   divise f (Rec1 l) (Rec1 r) = Rec1 $ divise f l r
