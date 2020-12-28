@@ -25,7 +25,6 @@ tested-with:   GHC == 7.0.4
 build-type:    Custom
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
-  .travis.yml
   .gitignore
   .vim.custom
   README.markdown
