@@ -32,6 +32,7 @@ import Prelude hiding (foldr)
 
 -- $setup
 -- >>> import Data.List.NonEmpty
+-- >>> import Data.Monoid (Monoid (..))
 
 newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 

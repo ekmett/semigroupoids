@@ -22,14 +22,14 @@ tested-with:   GHC == 7.0.4
              , GHC == 8.6.5
              , GHC == 8.8.3
              , GHC == 8.10.1
-build-type:    Custom
+build-type:    Simple
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
   .gitignore
   .vim.custom
   README.markdown
   CHANGELOG.markdown
-  Warning.hs
+
 description:
   Provides a wide array of (semi)groupoids and operations for working with them.
   .
@@ -67,12 +67,6 @@ source-repository head
   type: git
   location: git://github.com/ekmett/semigroupoids.git
 
-custom-setup
-  setup-depends:
-    base          >= 4 && < 5,
-    Cabal,
-    cabal-doctest >= 1 && < 1.1
-
 flag containers
   description:
     You can disable the use of the `containers` package using `-f-containers`.
@@ -100,12 +94,6 @@ flag distributive
     .
     If disabled we will not supply instances of `Distributive`
     .
-  default: True
-  manual: True
-
-flag doctests
-  description:
-    You can disable testing with doctests using `-f-doctests`.
   default: True
   manual: True
 
@@ -204,18 +192,3 @@ library
     ghc-options: -fno-warn-trustworthy-safe
 
   default-language: Haskell2010
-
-test-suite doctests
-  type:             exitcode-stdio-1.0
-  main-is:          doctests.hs
-  hs-source-dirs:   test
-  ghc-options:      -Wall -fno-warn-warnings-deprecations
-  default-language: Haskell2010
-
-  if !flag(doctests)
-    buildable: False
-  else
-    build-depends:
-      base      >= 4      && < 5,
-      doctest   >= 0.11.1 && < 0.18,
-      semigroupoids
