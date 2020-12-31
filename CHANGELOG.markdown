@@ -1,7 +1,9 @@
-5.3.5 [yyyy.mm.dd]
------------------
+5.3.5 [2020.12.31]
+------------------
 * The build-type has been changed from `Custom` to `Simple`.
-  To achieve this, the `doctests` test suite has been removed in favor of using [`cabal-docspec`](https://github.com/phadej/cabal-extras/tree/master/cabal-docspec) to run the doctests.
+  To achieve this, the `doctests` test suite has been removed in favor of using
+  [`cabal-docspec`](https://github.com/phadej/cabal-extras/tree/master/cabal-docspec)
+  to run the doctests.
 * Explicitly mark modules as `Safe`.
 
 5.3.4 [2019.11.26]
