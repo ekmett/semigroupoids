@@ -98,17 +98,19 @@ infixl 3 <!>
 --
 -- If extended to an 'Alternative' then '<!>' should equal '<|>'.
 --
--- Ideally, an instance of 'Alt' also satisfies the \"left distributon\" law of
+-- Ideally, an instance of 'Alt' also satisfies the \"left distribution\" law of
 -- MonadPlus with respect to '<.>':
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 --
--- But 'Maybe', 'IO', @'Either' a@, @'ErrorT' e m@, and 'GHC.Conc.STM' satisfy the alternative
--- \"left catch\" law instead:
+-- 'IO', @'Either' a@, @'ErrorT' e m@ and 'GHC.Conc.STM' instead satisfy the
+-- \"left catch\" law:
 --
 -- > pure a <!> b = pure a
 --
--- However, this variation cannot be stated purely in terms of the dependencies of 'Alt'.
+-- 'Maybe' satisfies both \"left distribution\" and \"left catch\".
+--
+-- These variations cannot be stated purely in terms of the dependencies of 'Alt'.
 --
 -- When and if MonadPlus is successfully refactored, this class should also
 -- be refactored to remove these instances.
@@ -174,7 +176,7 @@ instance Alt (Either a) where
   a      <!> _ = a
 
 -- | This instance does not actually satisfy the ('<.>') right distributive law
--- It instead satisfies the "Left-Catch" law
+-- It instead satisfies the \"left catch\" law
 instance Alt IO where
   m <!> n = catch m (go n) where
     go :: x -> SomeException -> x
