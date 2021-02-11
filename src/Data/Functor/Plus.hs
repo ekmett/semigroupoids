@@ -16,6 +16,7 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Plus
   ( Plus(..)
+  , asum
   , module Data.Functor.Alt
   ) where
 
@@ -38,6 +39,7 @@ import qualified Control.Monad.Trans.Writer.Strict as Strict
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
+import Data.Foldable hiding (asum)
 import Data.Functor.Apply
 import Data.Functor.Alt
 import Data.Functor.Bind
@@ -81,6 +83,13 @@ import GHC.Generics
 
 class Alt f => Plus f where
   zero :: f a
+
+-- | The sum of a collection of actions, generalizing 'concat'.
+--
+-- asum [Just "Hello", Nothing, Just "World"]
+-- Just "Hello"
+asum :: (Foldable t, Plus f) => t (f a) -> f a
+asum = foldr (<!>) zero
 
 instance Plus Proxy where
   zero = Proxy
