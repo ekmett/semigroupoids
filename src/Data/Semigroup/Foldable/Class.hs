@@ -45,6 +45,10 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Complex
 #endif
 
+#if !(MIN_VERSION_base(4,11,0))
+import Data.Semigroup (Option(..))
+#endif
+
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif
@@ -73,7 +77,7 @@ class Foldable t => Foldable1 t where
   foldMap1 :: Semigroup m => (a -> m) -> t a -> m
   toNonEmpty :: t a -> NonEmpty a
 
-  foldMap1 f = maybe (error "foldMap1") id . getOption . foldMap (Option . Just . f)
+  foldMap1 f = maybe (error "foldMap1") id . getOptionCompat . foldMap (optionCompat . Just . f)
   fold1 = foldMap1 id
   toNonEmpty = foldMap1 (:|[])
 
@@ -131,7 +135,9 @@ class Bifoldable t => Bifoldable1 t where
   {-# INLINE bifold1 #-}
 
   bifoldMap1 :: Semigroup m => (a -> m) -> (b -> m) -> t a b -> m
-  bifoldMap1 f g = maybe (error "bifoldMap1") id . getOption . bifoldMap (Option . Just . f) (Option . Just . g)
+  bifoldMap1 f g = maybe (error "bifoldMap1") id
+                 . getOptionCompat
+                 . bifoldMap (optionCompat . Just . f) (optionCompat . Just . g)
   {-# INLINE bifoldMap1 #-}
 
 instance Bifoldable1 Arg where
@@ -254,3 +260,32 @@ instance Foldable1 ((,) a) where
 instance Foldable1 g => Foldable1 (Joker g a) where
   foldMap1 g = foldMap1 g . runJoker
   {-# INLINE foldMap1 #-}
+
+-- The default implementations of foldMap1 and bifoldMap1 above require the use
+-- of a Maybe type with the following Monoid instance:
+--
+--   instance Semigroup a => Monoid (Maybe a) where ...
+--
+-- Unfortunately, Maybe has only had such an instance since base-4.11. Prior
+-- to that, its Monoid instance had an instance context of Monoid a, which is
+-- too strong. To compensate, we use CPP to define an OptionCompat type
+-- synonym, which is an alias for Maybe on recent versions of base and an alias
+-- for Data.Semigroup.Option on older versions of base. We don't want to use
+-- Option on recent versions of base, as it has been removed.
+#if MIN_VERSION_base(4,11,0)
+type OptionCompat = Maybe
+
+optionCompat :: Maybe a -> OptionCompat a
+optionCompat = id
+
+getOptionCompat :: OptionCompat a -> Maybe a
+getOptionCompat = id
+#else
+type OptionCompat = Option
+
+optionCompat :: Maybe a -> OptionCompat a
+optionCompat = Option
+
+getOptionCompat :: OptionCompat a -> Maybe a
+getOptionCompat = getOption
+#endif

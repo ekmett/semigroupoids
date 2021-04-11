@@ -53,7 +53,7 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
-import Data.Semigroup (Option(..), Semigroup(..))
+import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
 import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
@@ -188,9 +188,6 @@ instance Alt [] where
 instance Alt Maybe where
   Nothing <!> b = b
   a       <!> _ = a
-
-instance Alt Option where
-  (<!>) = (<|>)
 
 instance MonadPlus m => Alt (WrappedMonad m) where
   (<!>) = (<|>)

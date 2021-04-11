@@ -1,3 +1,7 @@
+5.4 [????.??.??]
+----------------
+* Remove instances for `Option`, which was removed in `base-4.16`.
+
 5.3.5 [2020.12.31]
 ------------------
 * The build-type has been changed from `Custom` to `Simple`.
