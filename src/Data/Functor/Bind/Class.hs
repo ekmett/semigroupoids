@@ -80,7 +80,7 @@ import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
-import Data.List.NonEmpty
+import Data.List.NonEmpty (NonEmpty)
 import Data.Semigroup as Semigroup
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
