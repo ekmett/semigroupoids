@@ -415,10 +415,10 @@ instance Functor f => Functor (MaybeApply f) where
   fmap f (MaybeApply (Left fa)) = MaybeApply (Left  (f <$> fa))
 
 instance Apply f => Apply (MaybeApply f) where
-  MaybeApply (Right f) <.> MaybeApply (Right a) = MaybeApply (Right (f        a ))
-  MaybeApply (Right f) <.> MaybeApply (Left fa) = MaybeApply (Left  (f    <$> fa))
-  MaybeApply (Left ff) <.> MaybeApply (Right a) = MaybeApply (Left  (($a) <$> ff))
-  MaybeApply (Left ff) <.> MaybeApply (Left fa) = MaybeApply (Left  (ff   <.> fa))
+  MaybeApply (Right f) <.> MaybeApply (Right a) = MaybeApply (Right (f         a ))
+  MaybeApply (Right f) <.> MaybeApply (Left fa) = MaybeApply (Left  (f     <$> fa))
+  MaybeApply (Left ff) <.> MaybeApply (Right a) = MaybeApply (Left  (($ a) <$> ff))
+  MaybeApply (Left ff) <.> MaybeApply (Left fa) = MaybeApply (Left  (ff    <.> fa))
 
   MaybeApply a         <. MaybeApply (Right _) = MaybeApply a
   MaybeApply (Right a) <. MaybeApply (Left fb) = MaybeApply (Left (a  <$ fb))
