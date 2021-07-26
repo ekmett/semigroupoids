@@ -55,8 +55,14 @@ import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
 import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
+import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined)
 import Unsafe.Coerce
+
+#if MIN_VERSION_base(4,8,0)
+import Prelude (mappend)
+#else
+import Data.Monoid (mappend)
+#endif
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -64,11 +70,7 @@ import Data.IntMap (IntMap)
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-# if MIN_VERSION_base(4,8,0)
-import Prelude (mappend)
-# else
-import Data.Monoid (mappend)
-# endif
+import Prelude (Ord)
 #endif
 
 #if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
