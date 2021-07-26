@@ -5,3 +5,6 @@ allow-failures:         <7.3
 -- irc-channels:           irc.freenode.org#haskell-lens
 irc-if-in-origin-repo:  True
 docspec:                True
+
+constraint-set no-containers
+  constraints: semigroupoids -containers
