@@ -132,7 +132,7 @@ library
     bifunctors          >= 5.5.9   && < 6,
     template-haskell    >= 0.2.5.0,
     transformers        >= 0.3     && < 0.6,
-    transformers-compat >= 0.5     && < 0.7
+    transformers-compat >= 0.5     && < 0.8
 
   if impl(ghc >= 7.0 && < 7.2)
     build-depends: generic-deriving >= 1.14 && < 1.15
