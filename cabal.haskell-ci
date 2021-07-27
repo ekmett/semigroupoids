@@ -6,5 +6,8 @@ allow-failures:         <7.3
 irc-if-in-origin-repo:  True
 docspec:                True
 
+constraint-set no-comonad
+  constraints: semigroupoids -comonad
+
 constraint-set no-containers
   constraints: semigroupoids -containers
