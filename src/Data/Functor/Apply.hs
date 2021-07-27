@@ -30,7 +30,7 @@ module Data.Functor.Apply (
   , MaybeApply(..)
   ) where
 
-import Control.Comonad
+import Data.Functor
 import Data.Functor.Bind.Class
 
 infixl 4 <..>
@@ -46,3 +46,12 @@ liftF3 :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 liftF3 f a b c = f <$> a <.> b <.> c
 {-# INLINE liftF3 #-}
 
+#if !(MIN_VERSION_base(4,7,0))
+
+infixl 4 $>
+
+-- | Replace the contents of a functor uniformly with a constant value.
+($>) :: Functor f => f a -> b -> f b
+($>) = flip (<$)
+
+#endif

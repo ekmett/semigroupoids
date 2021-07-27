@@ -199,3 +199,6 @@ jobs:
       - name: constraint set no-containers
         run: |
           $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='semigroupoids -containers' all
+      - name: constraint set no-comonad
+        run: |
+          $CABAL v2-build $ARG_COMPILER --disable-tests --disable-benchmarks --constraint='semigroupoids -comonad' all
