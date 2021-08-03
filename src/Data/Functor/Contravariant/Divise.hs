@@ -29,10 +29,8 @@ module Data.Functor.Contravariant.Divise (
 import Control.Applicative
 import Control.Applicative.Backwards
 import Control.Arrow
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -49,6 +47,11 @@ import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
 
 #if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(..))
@@ -218,9 +221,15 @@ instance (Apply f, Divise g) => Divise (f :.: g) where
 instance Divise f => Divise (Backwards f) where
   divise f (Backwards l) (Backwards r) = Backwards $ divise f l r
 
+#if !(MIN_VERSION_transformers(0,6,0))
 -- | @since 5.3.6
 instance Divise m => Divise (ErrorT e m) where
   divise f (ErrorT l) (ErrorT r) = ErrorT $ divise (funzip . fmap f) l r
+
+-- | @since 5.3.6
+instance Divise m => Divise (ListT m) where
+  divise f (ListT l) (ListT r) = ListT $ divise (funzip . map f) l r
+#endif
 
 -- | @since 5.3.6
 instance Divise m => Divise (ExceptT e m) where
@@ -229,10 +238,6 @@ instance Divise m => Divise (ExceptT e m) where
 -- | @since 5.3.6
 instance Divise f => Divise (IdentityT f) where
   divise f (IdentityT l) (IdentityT r) = IdentityT $ divise f l r
-
--- | @since 5.3.6
-instance Divise m => Divise (ListT m) where
-  divise f (ListT l) (ListT r) = ListT $ divise (funzip . map f) l r
 
 -- | @since 5.3.6
 instance Divise m => Divise (MaybeT m) where

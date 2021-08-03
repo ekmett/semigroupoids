@@ -26,9 +26,7 @@ module Data.Functor.Contravariant.Decide (
   ) where
 
 import Control.Applicative.Backwards
-import Control.Arrow
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -38,7 +36,6 @@ import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
 
-import Data.Either
 import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Contravariant
@@ -46,6 +43,12 @@ import Data.Functor.Contravariant.Divise
 import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Arrow
+import Control.Monad.Trans.List
+import Data.Either
+#endif
 
 #if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(..))
@@ -178,9 +181,11 @@ instance Decide m => Decide (Strict.RWST r w s m) where
                                   (abc a))
            (rsmb r s) (rsmc r s)
 
+#if !(MIN_VERSION_transformers(0,6,0))
 -- | @since 5.3.6
 instance Divise m => Decide (ListT m) where
   decide f (ListT l) (ListT r) = ListT $ divise ((lefts &&& rights) . map f) l r
+#endif
 
 -- | @since 5.3.6
 instance Divise m => Decide (MaybeT m) where
