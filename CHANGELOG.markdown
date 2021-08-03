@@ -1,6 +1,7 @@
 5.3.6 [????.??.??]
 ------------------
 * Allow building with GHC 9.2.
+* Allow building with `transformers-0.6.*`.
 * Add `Alt` instance for `Identity`.
 * Add `Conclude`, `Decide` and `Divise` type classes and instances.
 
