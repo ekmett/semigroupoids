@@ -23,7 +23,6 @@ module Data.Functor.Contravariant.Conclude (
 
 import Control.Applicative.Backwards
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -42,6 +41,10 @@ import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Void
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.List
+#endif
 
 #if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(..))
@@ -179,9 +182,11 @@ instance Conclude m => Conclude (Lazy.RWST r w s m) where
 instance Conclude m => Conclude (Strict.RWST r w s m) where
   conclude f = Strict.RWST $ \_ _ -> contramap (\(a, _, _) -> a) (conclude f)
 
+#if !(MIN_VERSION_transformers(0,6,0))
 -- | @since 5.3.6
 instance (Divisible m, Divise m) => Conclude (ListT m) where
   conclude _ = ListT conquer
+#endif
 
 -- | @since 5.3.6
 instance (Divisible m, Divise m) => Conclude (MaybeT m) where

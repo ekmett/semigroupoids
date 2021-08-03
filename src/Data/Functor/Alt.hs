@@ -35,9 +35,7 @@ import Control.Arrow
 import Control.Exception (catch, SomeException)
 import Control.Monad
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -58,6 +56,11 @@ import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
 import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat)
 import Unsafe.Coerce
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
 
 #if MIN_VERSION_base(4,8,0)
 import Prelude (mappend)
@@ -110,7 +113,7 @@ infixl 3 <!>
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 --
--- 'IO', @'Either' a@, @'ErrorT' e m@ and 'GHC.Conc.STM' instead satisfy the
+-- 'IO', @'Either' a@, @'ExceptT' e m@ and 'GHC.Conc.STM' instead satisfy the
 -- \"left catch\" law:
 --
 -- > pure a <!> b = pure a
@@ -252,12 +255,17 @@ instance (Bind f, Monad f) => Alt (MaybeT f) where
       Nothing -> b
       Just _ -> return v
 
+#if !(MIN_VERSION_transformers(0,6,0))
 instance (Bind f, Monad f) => Alt (ErrorT e f) where
   ErrorT m <!> ErrorT n = ErrorT $ do
     a <- m
     case a of
       Left _ -> n
       Right r -> return (Right r)
+
+instance Apply f => Alt (ListT f) where
+  ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
+#endif
 
 instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
   ExceptT m <!> ExceptT n = ExceptT $ do
@@ -266,8 +274,6 @@ instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
       Left e -> liftM (either (Left . (<>) e) Right) n
       Right x -> return (Right x)
 
-instance Apply f => Alt (ListT f) where
-  ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
 
 instance Alt f => Alt (Strict.StateT e f) where
   Strict.StateT m <!> Strict.StateT n = Strict.StateT $ \s -> m s <!> n s
