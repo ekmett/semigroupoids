@@ -53,12 +53,10 @@ import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
 import Control.Monad.Trans.Cont
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
-import Control.Monad.Trans.List
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
@@ -86,6 +84,11 @@ import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
 
 #if MIN_VERSION_base(4,6,0)
 import Data.Ord (Down (..))
@@ -337,9 +340,14 @@ instance (Hashable k, Eq k) => Apply (HashMap k) where
 instance (Functor m, Monad m) => Apply (MaybeT m) where
   (<.>) = apDefault
 
+#if !(MIN_VERSION_transformers(0,6,0))
 -- ErrorT e is _not_ the same as Compose f (Either e)
 instance (Functor m, Monad m) => Apply (ErrorT e m) where
   (<.>) = apDefault
+
+instance Apply m => Apply (ListT m) where
+  ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
+#endif
 
 instance (Functor m, Monad m) => Apply (ExceptT e m) where
   (<.>) = apDefault
@@ -347,8 +355,6 @@ instance (Functor m, Monad m) => Apply (ExceptT e m) where
 instance Apply m => Apply (ReaderT e m) where
   ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e
 
-instance Apply m => Apply (ListT m) where
-  ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
 
 -- unfortunately, WriterT has its wrapped product in the wrong order to just use (<.>) instead of flap
 -- | A @'Strict.WriterT' w m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
@@ -594,6 +600,7 @@ instance Monad m => Bind (WrappedMonad m) where
 instance (Functor m, Monad m) => Bind (MaybeT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @Nothing@
 
+#if !(MIN_VERSION_transformers(0,6,0))
 instance (Apply m, Monad m) => Bind (ListT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @[]@
 
@@ -603,6 +610,7 @@ instance (Functor m, Monad m) => Bind (ErrorT e m) where
     case a of
       Left l -> return (Left l)
       Right r -> runErrorT (k r)
+#endif
 
 instance (Functor m, Monad m) => Bind (ExceptT e m) where
   m >>- k = ExceptT $ do
