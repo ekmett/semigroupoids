@@ -37,6 +37,9 @@ module Data.Functor.Bind.Class (
   -- * Wrappers
   , WrappedApplicative(..)
   , MaybeApply(..)
+  , (<.*>)
+  , (<*.>)
+  , traverse1Maybe
   -- * Bindable functors
   , Bind(..)
   , apDefault
@@ -125,6 +128,10 @@ import qualified Data.HashMap.Lazy as HashMap
 import Generics.Deriving.Base as Generics
 #else
 import GHC.Generics as Generics
+#endif
+
+#if __GLASGOW_HASKELL__ < 710
+import Data.Traversable
 #endif
 
 #ifdef MIN_VERSION_comonad
@@ -409,6 +416,22 @@ instance Alternative f => Alternative (WrappedApplicative f) where
 
 -- | Transform an Apply into an Applicative by adding a unit.
 newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
+
+-- | Apply a non-empty container of functions to a possibly-empty-with-unit container of values.
+(<.*>) :: (Apply f) => f (a -> b) -> MaybeApply f a -> f b
+ff <.*> MaybeApply (Left fa) = ff <.> fa
+ff <.*> MaybeApply (Right a) = ($ a) <$> ff
+infixl 4 <.*>
+
+-- | Apply a possibly-empty-with-unit container of functions to a non-empty container of values.
+(<*.>) :: (Apply f) => MaybeApply f (a -> b) -> f a -> f b
+MaybeApply (Left ff) <*.> fa = ff <.> fa
+MaybeApply (Right f) <*.> fa = f <$> fa
+infixl 4 <*.>
+
+-- | Traverse a 'Traversable' using 'Apply', getting the results back in a 'MaybeApply'.
+traverse1Maybe :: (Traversable t, Apply f) => (a -> f b) -> t a -> MaybeApply f (t b)
+traverse1Maybe f = traverse (MaybeApply . Left . f)
 
 instance Functor f => Functor (MaybeApply f) where
   fmap f (MaybeApply (Right a)) = MaybeApply (Right (f     a ))

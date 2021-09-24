@@ -28,6 +28,8 @@ module Data.Functor.Apply (
   -- * Wrappers
   , WrappedApplicative(..)
   , MaybeApply(..)
+  , (<.*>)
+  , (<*.>)
   ) where
 
 import Data.Functor
