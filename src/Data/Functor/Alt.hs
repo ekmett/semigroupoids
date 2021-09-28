@@ -49,13 +49,14 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Bind
 import Data.Functor.Compose
+import Data.Functor.Identity (Identity (Identity))
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
 import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined)
+import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat)
 import Unsafe.Coerce
 
 #if MIN_VERSION_base(4,8,0)
@@ -110,7 +111,7 @@ infixl 3 <!>
 --
 -- > pure a <!> b = pure a
 --
--- 'Maybe' satisfies both \"left distribution\" and \"left catch\".
+-- 'Maybe' and 'Identity' satisfy both \"left distribution\" and \"left catch\".
 --
 -- These variations cannot be stated purely in terms of the dependencies of 'Alt'.
 --
@@ -183,6 +184,16 @@ instance Alt IO where
   m <!> n = catch m (go n) where
     go :: x -> SomeException -> x
     go = const
+
+-- | Choose the first option every time. While \'choose the last option\' every
+-- time is also valid, this instance satisfies more laws.
+--
+-- @since 5.4
+instance Alt Identity where
+  {-# INLINEABLE (<!>) #-}
+  m <!> _ = m
+  some (Identity x) = Identity . repeat $ x
+  many (Identity x) = Identity . repeat $ x
 
 instance Alt [] where
   (<!>) = (++)
