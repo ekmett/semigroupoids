@@ -2,6 +2,7 @@
 ----------------
 * Remove instances for `Option`, which was removed in `base-4.16`.
 * Add `Alt` instance for `Identity`.
+* Add `Conclude`, `Decide` and `Divise` type classes and instances.
 
 5.3.5 [2020.12.31]
 ------------------

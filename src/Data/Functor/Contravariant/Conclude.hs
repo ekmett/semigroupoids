@@ -1,9 +1,10 @@
 {-# LANGUAGE CPP           #-}
+{-# LANGUAGE Safe          #-}
 {-# LANGUAGE TypeOperators #-}
 
 -----------------------------------------------------------------------------
 -- |
--- Copyright   :  (C) 2011-2015 Edward Kmett
+-- Copyright   :  (C) 2021 Edward Kmett
 -- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  Edward Kmett <ekmett@gmail.com>
@@ -82,10 +83,12 @@ import GHC.Generics
 -- input to @x@, and never 'concluded'.
 --
 -- Mathematically, a functor being an instance of 'Decide' means that it is
--- "monoidal" with respect to the contravariant "either-based" Day
+-- \"monoidal\" with respect to the contravariant "either-based" Day
 -- convolution described in the documentation of 'Decide'.  On top of
--- 'Decide', it adds a way to construct an "identity" @conclude@ where
+-- 'Decide', it adds a way to construct an \"identity\" @conclude@ where
 -- @decide f x (conclude q) == x@, and @decide g (conclude r) y == y@.
+--
+-- @since 5.4
 class Decide f => Conclude f where
     -- | The consumer that cannot ever receive /any/ input.
     conclude :: (a -> Void) -> f a
@@ -97,89 +100,122 @@ class Decide f => Conclude f where
 -- @
 -- 'concluded' = 'conclude' 'id'
 -- @
+--
+-- @since 5.4
 concluded :: Conclude f => f Void
 concluded = conclude id
 
+-- | @since 5.4
 instance Decidable f => Conclude (WrappedDivisible f) where
     conclude f = WrapDivisible (lose f)
 
+-- | @since 5.4
 instance Conclude Comparison where conclude = lose
+
+-- | @since 5.4
 instance Conclude Equivalence where conclude = lose
+
+-- | @since 5.4
 instance Conclude Predicate where conclude = lose
+
+-- | @since 5.4
 instance Conclude (Op r) where
   conclude f = Op $ absurd . f
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
+-- | @since 5.4
 instance Conclude Proxy where conclude = lose
 #endif
 
 #ifdef MIN_VERSION_StateVar
+-- | @since 5.4
 instance Conclude SettableStateVar where conclude = lose
 #endif
 
 #if MIN_VERSION_base(4,8,0)
+-- | @since 5.4
 instance Conclude f => Conclude (Alt f) where
   conclude = Alt . conclude
 #endif
 
 #ifdef GHC_GENERICS
+-- | @since 5.4
 instance Conclude U1 where conclude = lose
 
+-- | @since 5.4
 instance Conclude f => Conclude (Rec1 f) where
   conclude = Rec1 . conclude
 
+-- | @since 5.4
 instance Conclude f => Conclude (M1 i c f) where
   conclude = M1 . conclude
 
+-- | @since 5.4
 instance (Conclude f, Conclude g) => Conclude (f :*: g) where
   conclude f = conclude f :*: conclude f
 
+-- | @since 5.4
 instance (Apply f, Applicative f, Conclude g) => Conclude (f :.: g) where
   conclude = Comp1 . pure . conclude
 #endif
 
+-- | @since 5.4
 instance Conclude f => Conclude (Backwards f) where
   conclude = Backwards . conclude
 
+-- | @since 5.4
 instance Conclude f => Conclude (IdentityT f) where
   conclude = IdentityT . conclude
 
+-- | @since 5.4
 instance Conclude m => Conclude (ReaderT r m) where
   conclude f = ReaderT $ \_ -> conclude f
 
+-- | @since 5.4
 instance Conclude m => Conclude (Lazy.RWST r w s m) where
   conclude f = Lazy.RWST $ \_ _ -> contramap (\ ~(a, _, _) -> a) (conclude f)
 
+-- | @since 5.4
 instance Conclude m => Conclude (Strict.RWST r w s m) where
   conclude f = Strict.RWST $ \_ _ -> contramap (\(a, _, _) -> a) (conclude f)
 
+-- | @since 5.4
 instance (Divisible m, Divise m) => Conclude (ListT m) where
   conclude _ = ListT conquer
 
+-- | @since 5.4
 instance (Divisible m, Divise m) => Conclude (MaybeT m) where
   conclude _ = MaybeT conquer
 
+-- | @since 5.4
 instance Conclude m => Conclude (Lazy.StateT s m) where
   conclude f = Lazy.StateT $ \_ -> contramap lazyFst (conclude f)
 
+-- | @since 5.4
 instance Conclude m => Conclude (Strict.StateT s m) where
   conclude f = Strict.StateT $ \_ -> contramap fst (conclude f)
 
+-- | @since 5.4
 instance Conclude m => Conclude (Lazy.WriterT w m) where
   conclude f = Lazy.WriterT $ contramap lazyFst (conclude f)
 
+-- | @since 5.4
 instance Conclude m => Conclude (Strict.WriterT w m) where
   conclude f = Strict.WriterT $ contramap fst (conclude f)
 
+-- | @since 5.4
 instance (Apply f, Applicative f, Conclude g) => Conclude (Compose f g) where
   conclude = Compose . pure . conclude
 
+-- | @since 5.4
 instance (Conclude f, Conclude g) => Conclude (Product f g) where
   conclude f = Pair (conclude f) (conclude f)
 
+-- | @since 5.4
 instance Conclude f => Conclude (Reverse f) where
   conclude = Reverse . conclude
 
+-- Helpers
+
 lazyFst :: (a, b) -> a
 lazyFst ~(a, _) = a
-
