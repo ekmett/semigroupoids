@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE Safe          #-}

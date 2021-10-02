@@ -44,16 +44,32 @@ description:
   .
   Similarly many structures are nearly a comonad, but not quite, for instance lists provide a reasonable 'extend' operation in the form of 'tails', but do not always contain a value.
   .
-  Ideally the following relationships would hold:
+  Ideally the following relationships would hold. Firstly, for the \'covariant
+  hierarchy\':
   .
-  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus           Semigroupoid
-  >      |               |            |                              |                  |
-  >      v               v            v                              v                  v
-  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative      Category
-  >                                   |               |              |                  |
-  >                                   v               v              v                  v
-  >                                 Bind ---------> Monad -------> MonadPlus          Arrow
+  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus
+  >      |               |            |                              |
+  >      v               v            v                              v
+  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative
+  >                                   |               |              |
+  >                                   v               v              v
+  >                                 Bind ---------> Monad -------> MonadPlus
   >
+  .
+  Then, for the \'contravariant hierarchy\':
+  > Divise <--- Contravariant ---> Decide
+  >    |                              |
+  >    v                              v
+  > Divisible ---> Decidable  <--- Conclude
+  .
+  Lastly, for the \'profunctor hierarchy\':
+  > Semigroupoid
+  >       |
+  >       v
+  >   Category
+  >       |
+  >       v
+  >     Arrow
   .
   Apply, Bind, and Extend (not shown) give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
