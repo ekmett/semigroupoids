@@ -140,6 +140,9 @@ library
   if impl(ghc >= 7.2 && < 7.6)
     build-depends: ghc-prim
 
+  if !impl(ghc >= 7.10)
+    build-depends: void >= 0.4 && < 1
+
   if !impl(ghc >= 8.0)
     build-depends: semigroups >= 0.18.5 && < 1
 
@@ -175,6 +178,9 @@ library
     Data.Functor.Bind
     Data.Functor.Bind.Class
     Data.Functor.Bind.Trans
+    Data.Functor.Contravariant.Conclude
+    Data.Functor.Contravariant.Decide
+    Data.Functor.Contravariant.Divise
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid
