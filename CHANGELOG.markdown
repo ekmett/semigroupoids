@@ -1,5 +1,5 @@
-next [????.??.??]
-----------------
+5.3.6 [????.??.??]
+------------------
 * Add `Alt` instance for `Identity`.
 * Add `Conclude`, `Decide` and `Divise` type classes and instances.
 
