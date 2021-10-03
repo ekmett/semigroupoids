@@ -1,6 +1,5 @@
-5.4 [????.??.??]
+next [????.??.??]
 ----------------
-* Remove instances for `Option`, which was removed in `base-4.16`.
 * Add `Alt` instance for `Identity`.
 * Add `Conclude`, `Decide` and `Divise` type classes and instances.
 

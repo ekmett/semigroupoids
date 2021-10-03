@@ -106,6 +106,9 @@ instance Plus [] where
 instance Plus Maybe where
   zero = Nothing
 
+instance Plus Option where
+  zero = empty
+
 instance MonadPlus m => Plus (WrappedMonad m) where
   zero = empty
 
