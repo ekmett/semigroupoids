@@ -279,6 +279,11 @@ instance Apply Maybe where
   (<. ) = (<* )
   ( .>) = ( *>)
 
+instance Apply Option where
+  (<.>) = (<*>)
+  (<. ) = (<* )
+  ( .>) = ( *>)
+
 instance Apply Identity where
   (<.>) = (<*>)
   (<. ) = (<* )
@@ -592,6 +597,9 @@ instance Bind IO where
   (>>-) = (>>=)
 
 instance Bind Maybe where
+  (>>-) = (>>=)
+
+instance Bind Option where
   (>>-) = (>>=)
 
 instance Bind Identity where
