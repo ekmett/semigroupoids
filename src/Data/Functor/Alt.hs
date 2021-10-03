@@ -188,7 +188,7 @@ instance Alt IO where
 -- | Choose the first option every time. While \'choose the last option\' every
 -- time is also valid, this instance satisfies more laws.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance Alt Identity where
   {-# INLINEABLE (<!>) #-}
   m <!> _ = m

@@ -97,7 +97,7 @@ import GHC.Generics
 -- convolution.  That is, it is possible to define a function @(f `Day` f)
 -- a -> f a@ in a way that is associative.
 --
--- /Since: 5.4/
+-- @since 5.4
 class Contravariant f => Divise f where
     -- | Takes a \"splitting\" method and the two sub-consumers, and
     -- returns the wrapped/combined consumer.
@@ -110,183 +110,183 @@ class Contravariant f => Divise f where
 -- 'divised' = 'divise' 'id'
 -- @
 --
--- /Since: 5.4/
+-- @since 5.4
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
 
 -- | Wrap a 'Divisible' to be used as a member of 'Divise'
 --
--- /Since: 5.4/
+-- @since 5.4
 newtype WrappedDivisible f a = WrapDivisible { unwrapDivisible :: f a }
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Contravariant f => Contravariant (WrappedDivisible f) where
   contramap f (WrapDivisible a) = WrapDivisible (contramap f a)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divisible f => Divise (WrappedDivisible f) where
   divise f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (divide f x y)
 
 #if MIN_VERSION_base(4,9,0)
 -- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance Semigroup r => Divise (Op r) where
     divise f (Op g) (Op h) = Op $ \a -> case f a of
       (b, c) -> g b <> h c
 
 -- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance Semigroup m => Divise (Const m) where
     divise _ (Const a) (Const b) = Const (a <> b)
 
 -- | Unlike 'Divisible', requires only 'Semigroup' on @m@.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance Semigroup m => Divise (Constant m) where
     divise _ (Constant a) (Constant b) = Constant (a <> b)
 #else
--- | /Since: 5.4/
+-- | @since 5.4
 instance Monoid r => Divise (Op r) where divise = divide
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Monoid m => Divise (Const m) where divise = divide
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Monoid m => Divise (Constant m) where divise = divide
 #endif
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise Comparison where divise = divide
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise Equivalence where divise = divide
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise Predicate where divise = divide
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise Proxy where divise = divide
 #endif
 
 #ifdef MIN_VERSION_StateVar
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise SettableStateVar where divise = divide
 #endif
 
 #if MIN_VERSION_base(4,8,0)
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (Alt f) where
   divise f (Alt l) (Alt r) = Alt $ divise f l r
 #endif
 
 #ifdef GHC_GENERICS
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise U1 where divise = divide
 
 -- | Has no 'Divisible' instance.
 --
--- /Since: 5.4/
+-- @since 5.4
 #if MIN_VERSION_base(4,7,0)
 instance Divise V1 where divise _ x = case x of {}
 #else
 instance Divise V1 where divise _ !_ = error "V1"
 #endif
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (Rec1 f) where
   divise f (Rec1 l) (Rec1 r) = Rec1 $ divise f l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (M1 i c f) where
   divise f (M1 l) (M1 r) = M1 $ divise f l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance (Divise f, Divise g) => Divise (f :*: g) where
   divise f (l1 :*: r1) (l2 :*: r2) = divise f l1 l2 :*: divise f r1 r2
 
 -- | Unlike 'Divisible', requires only 'Apply' on @f@.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance (Apply f, Divise g) => Divise (f :.: g) where
   divise f (Comp1 l) (Comp1 r) = Comp1 (liftF2 (divise f) l r)
 #endif
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (Backwards f) where
   divise f (Backwards l) (Backwards r) = Backwards $ divise f l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (ErrorT e m) where
   divise f (ErrorT l) (ErrorT r) = ErrorT $ divise (funzip . fmap f) l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (ExceptT e m) where
   divise f (ExceptT l) (ExceptT r) = ExceptT $ divise (funzip . fmap f) l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (IdentityT f) where
   divise f (IdentityT l) (IdentityT r) = IdentityT $ divise f l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (ListT m) where
   divise f (ListT l) (ListT r) = ListT $ divise (funzip . map f) l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (MaybeT m) where
   divise f (MaybeT l) (MaybeT r) = MaybeT $ divise (funzip . fmap f) l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (ReaderT r m) where
   divise abc (ReaderT rmb) (ReaderT rmc) = ReaderT $ \r -> divise abc (rmb r) (rmc r)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Lazy.RWST r w s m) where
   divise abc (Lazy.RWST rsmb) (Lazy.RWST rsmc) = Lazy.RWST $ \r s ->
     divise (\ ~(a, s', w) -> case abc a of
                                   ~(b, c) -> ((b, s', w), (c, s', w)))
            (rsmb r s) (rsmc r s)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Strict.RWST r w s m) where
   divise abc (Strict.RWST rsmb) (Strict.RWST rsmc) = Strict.RWST $ \r s ->
     divise (\(a, s', w) -> case abc a of
                                 (b, c) -> ((b, s', w), (c, s', w)))
            (rsmb r s) (rsmc r s)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Lazy.StateT s m) where
   divise f (Lazy.StateT l) (Lazy.StateT r) = Lazy.StateT $ \s ->
     divise (lazyFanout f) (l s) (r s)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Strict.StateT s m) where
   divise f (Strict.StateT l) (Strict.StateT r) = Strict.StateT $ \s ->
     divise (strictFanout f) (l s) (r s)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Lazy.WriterT w m) where
   divise f (Lazy.WriterT l) (Lazy.WriterT r) = Lazy.WriterT $
     divise (lazyFanout f) l r
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise m => Divise (Strict.WriterT w m) where
   divise f (Strict.WriterT l) (Strict.WriterT r) = Strict.WriterT $
     divise (strictFanout f) l r
 
 -- | Unlike 'Divisible', requires only 'Apply' on @f@.
 --
--- /Since: 5.4/
+-- @since 5.4
 instance (Apply f, Divise g) => Divise (Compose f g) where
   divise f (Compose l) (Compose r) = Compose (liftF2 (divise f) l r)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance (Divise f, Divise g) => Divise (Product f g) where
   divise f (Pair l1 r1) (Pair l2 r2) = Pair (divise f l1 l2) (divise f r1 r2)
 
--- | /Since: 5.4/
+-- | @since 5.4
 instance Divise f => Divise (Reverse f) where
   divise f (Reverse l) (Reverse r) = Reverse $ divise f l r
 
