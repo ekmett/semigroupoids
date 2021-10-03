@@ -279,10 +279,12 @@ instance Apply Maybe where
   (<. ) = (<* )
   ( .>) = ( *>)
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Apply Option where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
+#endif
 
 instance Apply Identity where
   (<.>) = (<*>)
@@ -599,8 +601,10 @@ instance Bind IO where
 instance Bind Maybe where
   (>>-) = (>>=)
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Bind Option where
   (>>-) = (>>=)
+#endif
 
 instance Bind Identity where
   (>>-) = (>>=)

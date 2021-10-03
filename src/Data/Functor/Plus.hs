@@ -106,8 +106,10 @@ instance Plus [] where
 instance Plus Maybe where
   zero = Nothing
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Plus Option where
   zero = empty
+#endif
 
 instance MonadPlus m => Plus (WrappedMonad m) where
   zero = empty

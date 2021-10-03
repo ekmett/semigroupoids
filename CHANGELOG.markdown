@@ -1,5 +1,6 @@
 5.3.6 [????.??.??]
 ------------------
+* Allow building with GHC 9.2.
 * Add `Alt` instance for `Identity`.
 * Add `Conclude`, `Decide` and `Divise` type classes and instances.
 

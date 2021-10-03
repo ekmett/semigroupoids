@@ -54,7 +54,7 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
-import Data.Semigroup (Option(..), Semigroup(..))
+import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
 import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat)
 import Unsafe.Coerce
@@ -63,6 +63,10 @@ import Unsafe.Coerce
 import Prelude (mappend)
 #else
 import Data.Monoid (mappend)
+#endif
+
+#if !(MIN_VERSION_base(4,16,0))
+import Data.Semigroup (Option(..))
 #endif
 
 #ifdef MIN_VERSION_containers
@@ -202,8 +206,10 @@ instance Alt Maybe where
   Nothing <!> b = b
   a       <!> _ = a
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Alt Option where
   (<!>) = (<|>)
+#endif
 
 instance MonadPlus m => Alt (WrappedMonad m) where
   (<!>) = (<|>)
