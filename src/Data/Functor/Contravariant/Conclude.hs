@@ -43,14 +43,10 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Void
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
-#endif
-
 #if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(..))
 #else
-import Data.Monoid (Monoid(..))
+import Control.Applicative
 #endif
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)

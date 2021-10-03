@@ -49,8 +49,6 @@ import Data.Functor.Reverse
 
 #if MIN_VERSION_base(4,8,0)
 import Data.Monoid (Alt(..))
-#else
-import Data.Monoid (Monoid(..))
 #endif
 
 #if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
