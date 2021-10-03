@@ -1,7 +1,11 @@
 {-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE Safe          #-}
+#if __GLASGOW_HASKELL__ >= 704
+{-# LANGUAGE Safe #-}
+#elif __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
 #if MIN_VERSION_base(4,7,0)
 {-# LANGUAGE EmptyCase     #-}
 #endif
