@@ -35,7 +35,7 @@ foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
 
 -- $traversable1instances
--- Defining 'Traversable1' instances for types with both 'Traversable1' and 'Traversable' 
+-- Defining 'Traversable1' instances for types with both 'Traversable1' and 'Traversable'
 -- substructures can be done with 'traverse1Maybe', '(<*.>)', and '(<.*>)'.
 --
 -- > data Foo a = Foo (Maybe a) (Maybe a) a [a]
