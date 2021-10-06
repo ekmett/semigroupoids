@@ -16,7 +16,7 @@ nodes correspond to type classes defined in this package; thin-bordered ones are
 from elsewhere. Solid edges represent subclass relationships that actually
 exist; dashed edges are those which _should_ exist in theory.
 
-![A diagram of the relationships between type classes defined in this package and elsewhere.](https://raw.githubusercontent.com/ekmett/semigroupoids/master/img/classes.svg)
+![A diagram of the relationships between type classes defined in this package and elsewhere.](https://raw.github.com/ekmett/semigroupoids/master/img/classes.svg)
 
 We also provide the following table. This is structured in superclass order -
 thus, for any type class `T`, all superclasses of `T` will be listed before `T`
