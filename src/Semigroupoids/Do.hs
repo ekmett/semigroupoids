@@ -46,15 +46,19 @@ module Semigroupoids.Do
   , join
   , pure
   , return
+  , fail
   )
 where
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure)
+import Prelude (String, fmap, return)
+#else
+import Prelude (String, fmap, pure, return)
 #endif
 import Data.Functor.Apply (Apply, (<.), (.>), (<.>))
 import Data.Functor.Bind (Bind, (>>-), join)
-import Prelude ()
+import Data.Functor.Plus (Plus, zero)
 
 -- | @since 5.3.6
 (<*) :: Apply f => f a -> f b -> f a
@@ -84,7 +88,6 @@ import Prelude ()
 --
 -- @since 5.3.6
 fail ::
-  forall (m :: Type -> Type) (a :: Type).
   (Plus m) =>
   String ->
   m a
