@@ -226,8 +226,7 @@ instance Traversable1 Tree where
 #endif
 
 instance Traversable1 NonEmpty where
-  traverse1 f (a :| []) = (:|[]) <$> f a
-  traverse1 f (a :| (b: bs)) = (\a' (b':| bs') -> a' :| b': bs') <$> f a <.> traverse1 f (b :| bs)
+  traverse1 f (a :| as) = foldr (\b g x -> (\a' (b':| bs') -> a' :| b': bs') <$> f x <.> g b) (fmap (:|[]) . f) as a
 
 instance Traversable1 ((,) a) where
   traverse1 f (a, b) = (,) a <$> f b
