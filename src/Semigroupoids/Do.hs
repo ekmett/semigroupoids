@@ -56,23 +56,23 @@ import Data.Functor.Apply (Apply, (<.), (.>), (<.>))
 import Data.Functor.Bind (Bind, (>>-), join)
 import Prelude ()
 
--- | /Since: 5.3.6/
+-- | @since 5.3.6
 (<*) :: Apply f => f a -> f b -> f a
 (<*) = (<.)
 
--- | /Since: 5.3.6/
+-- | @since 5.3.6
 (*>) :: Apply f => f a -> f b -> f b
 (*>) = (.>)
 
--- | /Since: 5.3.6/
+-- | @since 5.3.6
 (<*>) :: Apply f => f (a -> b) -> f a -> f b
 (<*>) = (<.>)
 
--- | /Since: 5.3.6/
+-- | @since 5.3.6
 (>>) :: Bind m => m a -> m b -> m b
 (>>) = (.>)
 
--- | /Since: 5.3.6/
+-- | @since 5.3.6
 (>>=) :: Bind m => m a -> (a -> m b) -> m b
 (>>=) = (>>-)
 
@@ -82,11 +82,10 @@ import Prelude ()
 -- as a form of labelled error; instead, it should only be defaulted to when a
 -- pattern match fails.
 --
--- /Since: 5.3.6/
+-- @since 5.3.6
 fail ::
   forall (m :: Type -> Type) (a :: Type).
   (Plus m) =>
   String ->
   m a
 fail _ = zero
-
