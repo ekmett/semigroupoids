@@ -35,9 +35,7 @@ import Control.Arrow
 import Control.Exception (catch, SomeException)
 import Control.Monad
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -49,14 +47,30 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
 import Data.Functor.Bind
 import Data.Functor.Compose
+import Data.Functor.Identity (Identity (Identity))
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
-import Data.Semigroup (Option(..), Semigroup(..))
+import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,Ord,(++),(.),either,seq,undefined)
+import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat)
 import Unsafe.Coerce
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
+
+#if MIN_VERSION_base(4,8,0)
+import Prelude (mappend)
+#else
+import Data.Monoid (mappend)
+#endif
+
+#if !(MIN_VERSION_base(4,16,0))
+import Data.Semigroup (Option(..))
+#endif
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -64,11 +78,7 @@ import Data.IntMap (IntMap)
 import Data.Sequence (Seq)
 import qualified Data.Map as Map
 import Data.Map (Map)
-# if MIN_VERSION_base(4,8,0)
-import Prelude (mappend)
-# else
-import Data.Monoid (mappend)
-# endif
+import Prelude (Ord)
 #endif
 
 #if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
@@ -103,12 +113,12 @@ infixl 3 <!>
 --
 -- > <.> right-distributes over <!>: (a <!> b) <.> c = (a <.> c) <!> (b <.> c)
 --
--- 'IO', @'Either' a@, @'ErrorT' e m@ and 'GHC.Conc.STM' instead satisfy the
+-- 'IO', @'Either' a@, @'ExceptT' e m@ and 'GHC.Conc.STM' instead satisfy the
 -- \"left catch\" law:
 --
 -- > pure a <!> b = pure a
 --
--- 'Maybe' satisfies both \"left distribution\" and \"left catch\".
+-- 'Maybe' and 'Identity' satisfy both \"left distribution\" and \"left catch\".
 --
 -- These variations cannot be stated purely in terms of the dependencies of 'Alt'.
 --
@@ -182,6 +192,16 @@ instance Alt IO where
     go :: x -> SomeException -> x
     go = const
 
+-- | Choose the first option every time. While \'choose the last option\' every
+-- time is also valid, this instance satisfies more laws.
+--
+-- @since 5.3.6
+instance Alt Identity where
+  {-# INLINEABLE (<!>) #-}
+  m <!> _ = m
+  some (Identity x) = Identity . repeat $ x
+  many (Identity x) = Identity . repeat $ x
+
 instance Alt [] where
   (<!>) = (++)
 
@@ -189,8 +209,10 @@ instance Alt Maybe where
   Nothing <!> b = b
   a       <!> _ = a
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Alt Option where
   (<!>) = (<|>)
+#endif
 
 instance MonadPlus m => Alt (WrappedMonad m) where
   (<!>) = (<|>)
@@ -233,12 +255,17 @@ instance (Bind f, Monad f) => Alt (MaybeT f) where
       Nothing -> b
       Just _ -> return v
 
+#if !(MIN_VERSION_transformers(0,6,0))
 instance (Bind f, Monad f) => Alt (ErrorT e f) where
   ErrorT m <!> ErrorT n = ErrorT $ do
     a <- m
     case a of
       Left _ -> n
       Right r -> return (Right r)
+
+instance Apply f => Alt (ListT f) where
+  ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
+#endif
 
 instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
   ExceptT m <!> ExceptT n = ExceptT $ do
@@ -247,8 +274,6 @@ instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
       Left e -> liftM (either (Left . (<>) e) Right) n
       Right x -> return (Right x)
 
-instance Apply f => Alt (ListT f) where
-  ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
 
 instance Alt f => Alt (Strict.StateT e f) where
   Strict.StateT m <!> Strict.StateT n = Strict.StateT $ \s -> m s <!> n s

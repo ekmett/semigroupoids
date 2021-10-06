@@ -20,8 +20,9 @@ tested-with:   GHC == 7.0.4
              , GHC == 8.2.2
              , GHC == 8.4.4
              , GHC == 8.6.5
-             , GHC == 8.8.3
-             , GHC == 8.10.1
+             , GHC == 8.8.4
+             , GHC == 8.10.4
+             , GHC == 9.0.1
 build-type:    Simple
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
@@ -43,16 +44,34 @@ description:
   .
   Similarly many structures are nearly a comonad, but not quite, for instance lists provide a reasonable 'extend' operation in the form of 'tails', but do not always contain a value.
   .
-  Ideally the following relationships would hold:
+  Ideally the following relationships would hold. Firstly, for the \'covariant
+  hierarchy\':
   .
-  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus           Semigroupoid
-  >      |               |            |                              |                  |
-  >      v               v            v                              v                  v
-  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative      Category
-  >                                   |               |              |                  |
-  >                                   v               v              v                  v
-  >                                 Bind ---------> Monad -------> MonadPlus          Arrow
+  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus
+  >      |               |            |                              |
+  >      v               v            v                              v
+  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative
+  >                                   |               |              |
+  >                                   v               v              v
+  >                                 Bind ---------> Monad -------> MonadPlus
   >
+  .
+  Then, for the \'contravariant hierarchy\':
+  .
+  > Divise <--- Contravariant ---> Decide
+  >    |                              |
+  >    v                              v
+  > Divisible ---> Decidable  <--- Conclude
+  .
+  Lastly, for the \'profunctor hierarchy\':
+  .
+  > Semigroupoid
+  >       |
+  >       v
+  >   Category
+  >       |
+  >       v
+  >     Arrow
   .
   Apply, Bind, and Extend (not shown) give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
@@ -130,14 +149,17 @@ library
     base-orphans        >= 0.8.4   && < 1,
     bifunctors          >= 5.5.9   && < 6,
     template-haskell    >= 0.2.5.0,
-    transformers        >= 0.3     && < 0.6,
-    transformers-compat >= 0.5     && < 0.7
+    transformers        >= 0.3     && < 0.7,
+    transformers-compat >= 0.5     && < 0.8
 
   if impl(ghc >= 7.0 && < 7.2)
     build-depends: generic-deriving >= 1.14 && < 1.15
 
   if impl(ghc >= 7.2 && < 7.6)
     build-depends: ghc-prim
+
+  if !impl(ghc >= 7.10)
+    build-depends: void >= 0.4 && < 1
 
   if !impl(ghc >= 8.0)
     build-depends: semigroups >= 0.18.5 && < 1
@@ -174,6 +196,9 @@ library
     Data.Functor.Bind
     Data.Functor.Bind.Class
     Data.Functor.Bind.Trans
+    Data.Functor.Contravariant.Conclude
+    Data.Functor.Contravariant.Decide
+    Data.Functor.Contravariant.Divise
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid

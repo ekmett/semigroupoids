@@ -37,7 +37,7 @@ import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
 
 -- $setup
--- >>> import Data.List.NonEmpty
+-- >>> import Data.List.NonEmpty (NonEmpty (..))
 -- >>> import Data.Monoid (Monoid (..))
 
 newtype JoinWith a = JoinWith {joinee :: (a -> a)}
@@ -120,7 +120,7 @@ foldrM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
 foldrM1 f = go . toNonEmpty
   where
     g = (=<<) . f
-    
+
     go (e:|es) =
       case es of
         []   -> return e

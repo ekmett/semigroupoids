@@ -27,9 +27,7 @@ import Control.Arrow
 import Control.Monad
 import Control.Monad.Trans.Identity
 -- import Control.Monad.Trans.Cont
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import qualified Control.Monad.Trans.RWS.Strict as Strict
@@ -47,6 +45,11 @@ import Data.Functor.Reverse
 import qualified Data.Monoid as Monoid
 import Data.Semigroup hiding (Product)
 import Prelude hiding (id, (.))
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
 
 #ifdef MIN_VERSION_containers
 import qualified Data.IntMap as IntMap
@@ -106,8 +109,10 @@ instance Plus [] where
 instance Plus Maybe where
   zero = Nothing
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Plus Option where
   zero = empty
+#endif
 
 instance MonadPlus m => Plus (WrappedMonad m) where
   zero = empty
@@ -143,14 +148,16 @@ instance Plus f => Plus (ReaderT e f) where
 instance (Bind f, Monad f) => Plus (MaybeT f) where
   zero = MaybeT $ return zero
 
+#if !(MIN_VERSION_transformers(0,6,0))
 instance (Bind f, Monad f, Error e) => Plus (ErrorT e f) where
   zero = ErrorT $ return $ Left noMsg
 
-instance (Bind f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
-  zero = ExceptT $ return $ Left mempty
-
 instance (Apply f, Applicative f) => Plus (ListT f) where
   zero = ListT $ pure []
+#endif
+
+instance (Bind f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
+  zero = ExceptT $ return $ Left mempty
 
 instance Plus f => Plus (Strict.StateT e f) where
   zero = Strict.StateT $ \_ -> zero

@@ -10,7 +10,8 @@
 
 {-|
 
-This module re-exports operators from 'Data.Functor.Apply' and 'Data.Functor.Bind', but under the same
+This module re-exports operators from "Data.Functor.Apply" and 
+"Data.Functor.Bind", but under the same
 names as their 'Applicative' and 'Monad' counterparts. This makes it convenient
 to use do-notation on a type that is a 'Bind' but not a monad (or an 'Apply'
 but not an 'Applicative' with @ApplicativeDo@), either using the
