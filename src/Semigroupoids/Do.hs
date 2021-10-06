@@ -10,10 +10,10 @@
 
 {-|
 
-This module re-exports operators from 'Apply' and 'Bind', but under the same
-names their 'Applicative' and 'Monad' counterparts. This makes it convenient
+This module re-exports operators from 'Data.Functor.Apply' and 'Data.Functor.Bind', but under the same
+names as their 'Applicative' and 'Monad' counterparts. This makes it convenient
 to use do-notation on a type that is a 'Bind' but not a monad (or an 'Apply'
-but not an 'Applciative' with @ApplicativeDo@), either using the
+but not an 'Applicative' with @ApplicativeDo@), either using the
 @QualifiedDo@ extension or the more traditional @RebindableSyntax@.
 
 @
@@ -35,8 +35,7 @@ bar f as bs = Semi.do
 @
 
 -}
-
-module Semi
+module Semigroupoids.Do
   ( fmap
   , (<*)
   , (*>)
@@ -49,37 +48,44 @@ module Semi
   )
 where
 
-#if __GLASGOW_HASKELL__ <= 708
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure)
 #endif
 import Data.Functor.Apply (Apply, (<.), (.>), (<.>))
 import Data.Functor.Bind (Bind, (>>-), join)
-import Prelude hiding
-  ( (>>)
-  , (>>=)
-#if __GLASGOW_HASKELL__ > 708
-  , (<*)
-  , (*>)
-  , (<*>)
-#endif
-  )
+import Prelude ()
 
-
+-- | /Since: 5.3.6/
 (<*) :: Apply f => f a -> f b -> f a
 (<*) = (<.)
 
-
+-- | /Since: 5.3.6/
 (*>) :: Apply f => f a -> f b -> f b
 (*>) = (.>)
 
-
+-- | /Since: 5.3.6/
 (<*>) :: Apply f => f (a -> b) -> f a -> f b
 (<*>) = (<.>)
 
-
+-- | /Since: 5.3.6/
 (>>) :: Bind m => m a -> m b -> m b
 (>>) = (.>)
 
-
+-- | /Since: 5.3.6/
 (>>=) :: Bind m => m a -> (a -> m b) -> m b
 (>>=) = (>>-)
+
+-- | = Important note
+--
+-- This /ignores/ whatever 'String' you give it. It is a bad idea to use 'fail'
+-- as a form of labelled error; instead, it should only be defaulted to when a
+-- pattern match fails.
+--
+-- /Since: 5.3.6/
+fail ::
+  forall (m :: Type -> Type) (a :: Type).
+  (Plus m) =>
+  String ->
+  m a
+fail _ = zero
+

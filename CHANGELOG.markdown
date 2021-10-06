@@ -1,3 +1,14 @@
+5.3.6 [????.??.??]
+------------------
+* Allow building with GHC 9.2.
+* Allow building with `transformers-0.6.*`.
+* Add `Alt` instance for `Identity`.
+* Add `Conclude`, `Decide` and `Divise` type classes and instances.
+* Add `(<.*>)`, `(<*.>)`, and `traverseMaybe` functions, which make it easier
+  to defined `Traversable1` instances for data types that have fields with a
+  combination of `Traversable` and `Traversable1` instances.
+* Add `Semigroupoids.Do` module with overloads for use with `QualifiedDo`.
+
 5.3.5 [2020.12.31]
 ------------------
 * The build-type has been changed from `Custom` to `Simple`.

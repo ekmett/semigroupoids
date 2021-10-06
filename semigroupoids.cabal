@@ -1,6 +1,6 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       5.3.5
+version:       5.3.6
 license:       BSD3
 cabal-version: >= 1.10
 license-file:  LICENSE
@@ -189,7 +189,7 @@ library
     Data.Semigroupoid.Ob
     Data.Semigroupoid.Static
     Data.Traversable.Instances
-    Semi
+    Semigroupoids.Do
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
 
