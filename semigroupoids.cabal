@@ -214,6 +214,7 @@ library
     Data.Semigroupoid.Ob
     Data.Semigroupoid.Static
     Data.Traversable.Instances
+    Data.Point
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
 
