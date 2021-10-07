@@ -23,16 +23,15 @@ import Control.Applicative hiding (some, many)
 import Control.Applicative.Backwards
 import Control.Applicative.Lift
 import Control.Arrow
--- import Control.Exception
 import Control.Monad
 import Control.Monad.Trans.Identity
--- import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
+import Unsafe.Coerce (unsafeCoerce)
 #endif
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
@@ -176,8 +175,9 @@ instance Plus f => Plus (Lazy.WriterT w f) where
   zero = Lazy.WriterT zero
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Plus f, Monoid w) => Plus (CPS.WriterT w f) where
-  zero = CPS.writerT zero
+-- | @since 5.3.6
+instance (Plus f) => Plus (CPS.WriterT w f) where
+  zero = mkWriterT $ const zero
 #endif
 
 instance Plus f => Plus (Strict.RWST r w s f) where
@@ -187,8 +187,9 @@ instance Plus f => Plus (Lazy.RWST r w s f) where
   zero = Lazy.RWST $ \_ _ -> zero
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Plus f, Monoid w) => Plus (CPS.RWST r w s f) where
-  zero = CPS.rwsT $ \_ _ -> zero
+-- | @since 5.3.6
+instance (Plus f) => Plus (CPS.RWST r w s f) where
+  zero = mkRWST $ \_ _ _ -> zero 
 #endif
 
 instance Plus f => Plus (Backwards f) where
@@ -211,3 +212,15 @@ instance Plus Monoid.First where
 
 instance Plus Monoid.Last where
   zero = Monoid.Last Nothing
+
+-- Helpers
+
+-- Required to work around https://hub.darcs.net/ross/transformers/issue/67
+
+#if MIN_VERSION_transformers(0,5,6)
+mkWriterT :: (w -> m (a, w)) -> CPS.WriterT w m a
+mkWriterT = unsafeCoerce
+
+mkRWST :: (r -> s -> w -> m (a, s, w)) -> CPS.RWST r w s m a
+mkRWST = unsafeCoerce
+#endif

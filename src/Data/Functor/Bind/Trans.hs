@@ -62,6 +62,7 @@ instance Monoid w => BindTrans (Strict.WriterT w) where
   liftB = Strict.WriterT . fmap (\a -> (a, mempty))
 
 #if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
 instance Monoid w => BindTrans (CPS.WriterT w) where
   liftB = CPS.writerT . fmap (\a -> (a, mempty))
 #endif
@@ -79,6 +80,7 @@ instance Monoid w => BindTrans (Strict.RWST r w s) where
   liftB m = Strict.RWST $ \ _r s -> fmap (\a -> (a, s, mempty)) m
 
 #if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
 instance Monoid w => BindTrans (CPS.RWST r w s) where
   liftB m = CPS.rwsT $ \ _r s -> fmap (\a -> (a, s, mempty)) m
 #endif

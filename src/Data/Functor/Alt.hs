@@ -292,8 +292,9 @@ instance Alt f => Alt (Lazy.WriterT w f) where
   Lazy.WriterT m <!> Lazy.WriterT n = Lazy.WriterT $ m <!> n
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Alt f, Monoid.Monoid w) => Alt (CPS.WriterT w f) where
-  m <!> n = CPS.writerT $ CPS.runWriterT m <!> CPS.runWriterT n
+-- | @since 5.3.6
+instance (Alt f) => Alt (CPS.WriterT w f) where
+  m <!> n = mkWriterT $ \w -> unWriterT m w <!> unWriterT n w
 #endif
 
 instance Alt f => Alt (Strict.RWST r w s f) where
@@ -303,8 +304,9 @@ instance Alt f => Alt (Lazy.RWST r w s f) where
   Lazy.RWST m <!> Lazy.RWST n = Lazy.RWST $ \r s -> m r s <!> n r s
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Alt f, Monoid.Monoid w) => Alt (CPS.RWST r w s f) where
-  m <!> n = CPS.rwsT $ \r s -> CPS.runRWST m r s <!> CPS.runRWST n r s
+-- | @since 5.3.6
+instance (Alt f) => Alt (CPS.RWST r w s f) where
+  m <!> n = mkRWST $ \r s w -> unRWST m r s w <!> unRWST n r s w
 #endif
 
 instance Alt f => Alt (Backwards f) where
@@ -335,3 +337,21 @@ instance Alt Monoid.First where
 
 instance Alt Monoid.Last where
   (<!>) = mappend
+
+-- Helpers
+
+-- Required to work around https://hub.darcs.net/ross/transformers/issue/67
+
+#if MIN_VERSION_transformers(0,5,6)
+mkWriterT :: (w -> m (a, w)) -> CPS.WriterT w m a
+mkWriterT = unsafeCoerce
+
+unWriterT :: CPS.WriterT w m a -> w -> m (a, w)
+unWriterT = unsafeCoerce
+
+mkRWST :: (r -> s -> w -> m (a, s, w)) -> CPS.RWST r w s m a
+mkRWST = unsafeCoerce
+
+unRWST :: CPS.RWST r w s m a -> r -> s -> w -> m (a, s, w)
+unRWST = unsafeCoerce
+#endif

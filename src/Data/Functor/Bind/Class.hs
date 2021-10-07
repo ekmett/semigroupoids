@@ -63,6 +63,7 @@ import Control.Monad.Trans.Reader
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
+import Unsafe.Coerce (unsafeCoerce)
 #endif
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
@@ -380,9 +381,10 @@ instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Apply m, Monoid w) => Apply (CPS.WriterT w m) where
-  f <.> a = CPS.writerT $ flap <$> CPS.runWriterT f <.> CPS.runWriterT a where
-    flap (x,m) (y,n) = (x y, m <> n)
+-- | @since 5.3.6
+instance (Bind m) => Apply (CPS.WriterT w m) where
+  mf <.> mx = mkWriterT $ \w ->
+    unWriterT mf w >>- \(f, w') -> unWriterT (f <$> mx) w'
 #endif
 
 instance Bind m => Apply (Strict.StateT s m) where
@@ -400,8 +402,10 @@ instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Bind m, Monoid w) => Apply (CPS.RWST r w s m) where
-  f <.> x = f >>- \f' -> f' <$> x
+-- | @since 5.3.6
+instance (Bind m) => Apply (CPS.RWST r w s m) where
+  mf <.> mx = mkRWST $ \ r s w ->
+    unRWST mf r s w >>- \(f, s', w') -> unRWST (f <$> mx) r s' w'
 #endif
 
 instance Apply (ContT r m) where
@@ -678,11 +682,10 @@ instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
       (b, w <> w')
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Bind m, Monoid w) => Bind (CPS.WriterT w m) where
-  m >>- k = CPS.writerT $
-    CPS.runWriterT m >>- \ (a, w) ->
-    CPS.runWriterT (k a) `returning` \ (b, w') ->
-      (b, w <> w')
+-- | @since 5.3.6
+instance (Bind m) => Bind (CPS.WriterT w m) where
+  m >>- k = mkWriterT $ \ w ->
+    unWriterT m w >>- \(a, w') -> unWriterT (k a) w'
 #endif
 
 instance Bind m => Bind (Lazy.StateT s m) where
@@ -710,11 +713,10 @@ instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
       (b, s'', w <> w')
 
 #if MIN_VERSION_transformers(0,5,6)
-instance (Bind m, Monoid w) => Bind (CPS.RWST r w s m) where
-  m >>- k = CPS.rwsT $ \r s ->
-    CPS.runRWST m r s >>- \ (a, s', w) ->
-    CPS.runRWST (k a) r s' `returning` \ (b, s'', w') ->
-      (b, s'', w <> w')
+-- | @since 5.3.6
+instance (Bind m) => Bind (CPS.RWST r w s m) where
+  m >>- k = mkRWST $ \ r s w ->
+    unRWST m r s w >>- \(a, s', w') -> unRWST (k a) r s' w'
 #endif
 
 instance Bind (ContT r m) where
@@ -866,3 +868,21 @@ instance (Apply f, Biapply p) => Biapply (Tannen f p) where
 instance Biapply p => Biapply (WrappedBifunctor p) where
   WrapBifunctor fg <<.>> WrapBifunctor xy = WrapBifunctor (fg <<.>> xy)
   {-# INLINE (<<.>>) #-}
+
+-- Helpers
+
+-- Required to work around https://hub.darcs.net/ross/transformers/issue/67
+
+#if MIN_VERSION_transformers(0,5,6)
+mkWriterT :: (w -> m (a, w)) -> CPS.WriterT w m a
+mkWriterT = unsafeCoerce
+
+unWriterT :: CPS.WriterT w m a -> w -> m (a, w)
+unWriterT = unsafeCoerce
+
+mkRWST :: (r -> s -> w -> m (a, s, w)) -> CPS.RWST r w s m a
+mkRWST = unsafeCoerce
+
+unRWST :: CPS.RWST r w s m a -> r -> s -> w -> m (a, s, w)
+unRWST = unsafeCoerce
+#endif
