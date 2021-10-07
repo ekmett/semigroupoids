@@ -16,6 +16,7 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Plus
   ( Plus(..)
+  , psum
   , module Data.Functor.Alt
   ) where
 
@@ -23,10 +24,8 @@ import Control.Applicative hiding (some, many)
 import Control.Applicative.Backwards
 import Control.Applicative.Lift
 import Control.Arrow
--- import Control.Exception
 import Control.Monad
 import Control.Monad.Trans.Identity
--- import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
@@ -36,6 +35,7 @@ import qualified Control.Monad.Trans.Writer.Strict as Strict
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
+import Data.Foldable hiding (asum)
 import Data.Functor.Apply
 import Data.Functor.Alt
 import Data.Functor.Bind
@@ -44,7 +44,7 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import qualified Data.Monoid as Monoid
 import Data.Semigroup hiding (Product)
-import Prelude hiding (id, (.))
+import Prelude hiding (id, (.), foldr)
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.Error
@@ -81,9 +81,17 @@ import GHC.Generics
 -- > m <!> zero = m
 --
 -- If extended to an 'Alternative' then 'zero' should equal 'empty'.
-
 class Alt f => Plus f where
   zero :: f a
+
+-- | The sum of a collection of actions, generalizing 'concat'.
+--
+-- >>> psum [Just "Hello", Nothing, Just "World"]
+-- Just "Hello"
+--
+-- @since 5.3.6
+psum :: (Foldable t, Plus f) => t (f a) -> f a
+psum = foldr (<!>) zero
 
 instance Plus Proxy where
   zero = Proxy
