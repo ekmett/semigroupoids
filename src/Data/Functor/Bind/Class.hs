@@ -37,6 +37,9 @@ module Data.Functor.Bind.Class (
   -- * Wrappers
   , WrappedApplicative(..)
   , MaybeApply(..)
+  , (<.*>)
+  , (<*.>)
+  , traverse1Maybe
   -- * Bindable functors
   , Bind(..)
   , apDefault
@@ -53,12 +56,10 @@ import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
 import Control.Monad.Trans.Cont
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
-import Control.Monad.Trans.List
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
@@ -80,12 +81,17 @@ import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
-import Data.List.NonEmpty
+import Data.List.NonEmpty (NonEmpty)
 import Data.Semigroup as Semigroup
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
+
+#if !(MIN_VERSION_transformers(0,6,0))
+import Control.Monad.Trans.Error
+import Control.Monad.Trans.List
+#endif
 
 #if MIN_VERSION_base(4,6,0)
 import Data.Ord (Down (..))
@@ -125,6 +131,10 @@ import qualified Data.HashMap.Lazy as HashMap
 import Generics.Deriving.Base as Generics
 #else
 import GHC.Generics as Generics
+#endif
+
+#if __GLASGOW_HASKELL__ < 710
+import Data.Traversable
 #endif
 
 #ifdef MIN_VERSION_comonad
@@ -201,7 +211,7 @@ instance Apply f => Apply (Backwards f) where
 instance (Apply f, Apply g) => Apply (Compose f g) where
   Compose f <.> Compose x = Compose ((<.>) <$> f <.> x)
 
--- | A 'Constant f' is not 'Applicative' unless its 'f' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'Constant' f@ is not 'Applicative' unless its @f@ is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup f => Apply (Constant f) where
   Constant a <.> Constant b = Constant (a <> b)
   Constant a <.  Constant b = Constant (a <> b)
@@ -219,7 +229,7 @@ instance (Apply f, Apply g) => Apply (Functor.Product f g) where
 instance Apply f => Apply (Reverse f) where
   Reverse a <.> Reverse b = Reverse (a <.> b)
 
--- | A '(,) m' is not 'Applicative' unless its 'm' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'(,)' m@ is not 'Applicative' unless its @m@ is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup m => Apply ((,)m) where
   (m, f) <.> (n, a) = (m <> n, f a)
   (m, a) <.  (n, _) = (m <> n, a)
@@ -241,7 +251,7 @@ instance Apply (Either a) where
   Right _  .> Left a  = Left a
   Right _  .> Right b = Right b
 
--- | A 'Const m' is not 'Applicative' unless its 'm' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'Const' m@ is not 'Applicative' unless its @m@ is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup m => Apply (Const m) where
   Const m <.> Const n = Const (m <> n)
   Const m <.  Const n = Const (m <> n)
@@ -272,10 +282,12 @@ instance Apply Maybe where
   (<. ) = (<* )
   ( .>) = ( *>)
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Apply Option where
   (<.>) = (<*>)
   (<. ) = (<* )
   ( .>) = ( *>)
+#endif
 
 instance Apply Identity where
   (<.>) = (<*>)
@@ -337,9 +349,14 @@ instance (Hashable k, Eq k) => Apply (HashMap k) where
 instance (Functor m, Monad m) => Apply (MaybeT m) where
   (<.>) = apDefault
 
+#if !(MIN_VERSION_transformers(0,6,0))
 -- ErrorT e is _not_ the same as Compose f (Either e)
 instance (Functor m, Monad m) => Apply (ErrorT e m) where
   (<.>) = apDefault
+
+instance Apply m => Apply (ListT m) where
+  ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
+#endif
 
 instance (Functor m, Monad m) => Apply (ExceptT e m) where
   (<.>) = apDefault
@@ -347,16 +364,14 @@ instance (Functor m, Monad m) => Apply (ExceptT e m) where
 instance Apply m => Apply (ReaderT e m) where
   ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e
 
-instance Apply m => Apply (ListT m) where
-  ListT f <.> ListT a = ListT $ (<.>) <$> f <.> a
 
 -- unfortunately, WriterT has its wrapped product in the wrong order to just use (<.>) instead of flap
--- | A 'WriterT w m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'Strict.WriterT' w m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
   Strict.WriterT f <.> Strict.WriterT a = Strict.WriterT $ flap <$> f <.> a where
     flap (x,m) (y,n) = (x y, m <> n)
 
--- | A 'WriterT w m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'Lazy.WriterT' w m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
@@ -367,11 +382,11 @@ instance Bind m => Apply (Strict.StateT s m) where
 instance Bind m => Apply (Lazy.StateT s m) where
   (<.>) = apDefault
 
--- | An 'RWST r w s m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
+-- | An @'Strict.RWST' r w s m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Strict.RWST r w s m) where
   (<.>) = apDefault
 
--- | An 'RWST r w s m' is not 'Applicative' unless its 'w' is a 'Monoid', but it is an instance of 'Apply'
+-- | An @'Lazy.RWST' r w s m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
 
@@ -379,11 +394,11 @@ instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
 
 #ifdef MIN_VERSION_comonad
--- | An 'EnvT e w' is not 'Applicative' unless its 'e' is a 'Monoid', but it is an instance of 'Apply'
+-- | An @'EnvT' e w@ is not 'Applicative' unless its @e@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Semigroup e, Apply w) => Apply (EnvT e w) where
   EnvT ef wf <.> EnvT ea wa = EnvT (ef <> ea) (wf <.> wa)
 
--- | A 'StoreT s w' is not 'Applicative' unless its 's' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'StoreT' s w@ is not 'Applicative' unless its @s@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply w, Semigroup s) => Apply (StoreT s w) where
   StoreT ff m <.> StoreT fa n = StoreT ((<*>) <$> ff <.> fa) (m <> n)
 
@@ -415,15 +430,31 @@ instance Alternative f => Alternative (WrappedApplicative f) where
 -- | Transform an Apply into an Applicative by adding a unit.
 newtype MaybeApply f a = MaybeApply { runMaybeApply :: Either (f a) a }
 
+-- | Apply a non-empty container of functions to a possibly-empty-with-unit container of values.
+(<.*>) :: (Apply f) => f (a -> b) -> MaybeApply f a -> f b
+ff <.*> MaybeApply (Left fa) = ff <.> fa
+ff <.*> MaybeApply (Right a) = ($ a) <$> ff
+infixl 4 <.*>
+
+-- | Apply a possibly-empty-with-unit container of functions to a non-empty container of values.
+(<*.>) :: (Apply f) => MaybeApply f (a -> b) -> f a -> f b
+MaybeApply (Left ff) <*.> fa = ff <.> fa
+MaybeApply (Right f) <*.> fa = f <$> fa
+infixl 4 <*.>
+
+-- | Traverse a 'Traversable' using 'Apply', getting the results back in a 'MaybeApply'.
+traverse1Maybe :: (Traversable t, Apply f) => (a -> f b) -> t a -> MaybeApply f (t b)
+traverse1Maybe f = traverse (MaybeApply . Left . f)
+
 instance Functor f => Functor (MaybeApply f) where
   fmap f (MaybeApply (Right a)) = MaybeApply (Right (f     a ))
   fmap f (MaybeApply (Left fa)) = MaybeApply (Left  (f <$> fa))
 
 instance Apply f => Apply (MaybeApply f) where
-  MaybeApply (Right f) <.> MaybeApply (Right a) = MaybeApply (Right (f        a ))
-  MaybeApply (Right f) <.> MaybeApply (Left fa) = MaybeApply (Left  (f    <$> fa))
-  MaybeApply (Left ff) <.> MaybeApply (Right a) = MaybeApply (Left  (($a) <$> ff))
-  MaybeApply (Left ff) <.> MaybeApply (Left fa) = MaybeApply (Left  (ff   <.> fa))
+  MaybeApply (Right f) <.> MaybeApply (Right a) = MaybeApply (Right (f         a ))
+  MaybeApply (Right f) <.> MaybeApply (Left fa) = MaybeApply (Left  (f     <$> fa))
+  MaybeApply (Left ff) <.> MaybeApply (Right a) = MaybeApply (Left  (($ a) <$> ff))
+  MaybeApply (Left ff) <.> MaybeApply (Left fa) = MaybeApply (Left  (ff    <.> fa))
 
   MaybeApply a         <. MaybeApply (Right _) = MaybeApply a
   MaybeApply (Right a) <. MaybeApply (Left fb) = MaybeApply (Left (a  <$ fb))
@@ -481,7 +512,7 @@ instance (Apply f, Apply g) => Apply (f :.: g) where
 
 instance Apply U1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 
--- | A 'K1 i c' is not 'Applicative' unless its 'c' is a 'Monoid', but it is an instance of 'Apply'
+-- | A @'K1' i c@ is not 'Applicative' unless its @c@ is a 'Monoid', but it is an instance of 'Apply'
 instance Semigroup c => Apply (K1 i c) where
   K1 a <.> K1 b = K1 (a <> b)
   K1 a <.  K1 b = K1 (a <> b)
@@ -536,8 +567,8 @@ returning = flip fmap
 apDefault :: Bind f => f (a -> b) -> f a -> f b
 apDefault f x = f >>- \f' -> f' <$> x
 
--- | A '(,) m' is not a 'Monad' unless its 'm' is a 'Monoid', but it is an instance of 'Bind'
-instance Semigroup m => Bind ((,)m) where
+-- | A @'(,)' m@ is not a 'Monad' unless its @m@ is a 'Monoid', but it is an instance of 'Bind'
+instance Semigroup m => Bind ((,) m) where
   ~(m, a) >>- f = let (n, b) = f a in (m <> n, b)
 
 #ifdef MIN_VERSION_tagged
@@ -576,8 +607,10 @@ instance Bind IO where
 instance Bind Maybe where
   (>>-) = (>>=)
 
+#if !(MIN_VERSION_base(4,16,0))
 instance Bind Option where
   (>>-) = (>>=)
+#endif
 
 instance Bind Identity where
   (>>-) = (>>=)
@@ -594,6 +627,7 @@ instance Monad m => Bind (WrappedMonad m) where
 instance (Functor m, Monad m) => Bind (MaybeT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @Nothing@
 
+#if !(MIN_VERSION_transformers(0,6,0))
 instance (Apply m, Monad m) => Bind (ListT m) where
   (>>-) = (>>=) -- distributive law requires Monad to inject @[]@
 
@@ -603,6 +637,7 @@ instance (Functor m, Monad m) => Bind (ErrorT e m) where
     case a of
       Left l -> return (Left l)
       Right r -> runErrorT (k r)
+#endif
 
 instance (Functor m, Monad m) => Bind (ExceptT e m) where
   m >>- k = ExceptT $ do
@@ -614,14 +649,14 @@ instance (Functor m, Monad m) => Bind (ExceptT e m) where
 instance Bind m => Bind (ReaderT e m) where
   ReaderT m >>- f = ReaderT $ \e -> m e >>- \x -> runReaderT (f x) e
 
--- | A 'WriterT w m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
+-- | A @'Lazy.WriterT' w m@ is not a 'Monad' unless its @w@ is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Lazy.WriterT w m) where
   m >>- k = Lazy.WriterT $
     Lazy.runWriterT m >>- \ ~(a, w) ->
     Lazy.runWriterT (k a) `returning` \ ~(b, w') ->
       (b, w <> w')
 
--- | A 'WriterT w m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
+-- | A @'Strict.WriterT' w m@ is not a 'Monad' unless its @w@ is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
   m >>- k = Strict.WriterT $
     Strict.runWriterT m >>- \ (a, w) ->
@@ -638,14 +673,14 @@ instance Bind m => Bind (Strict.StateT s m) where
     Strict.runStateT m s >>- \ ~(a, s') ->
     Strict.runStateT (k a) s'
 
--- | An 'RWST r w s m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
+-- | An @'Lazy.RWST' r w s m@ is not a 'Monad' unless its @w@ is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Lazy.RWST r w s m) where
   m >>- k = Lazy.RWST $ \r s ->
     Lazy.runRWST m r s >>- \ ~(a, s', w) ->
     Lazy.runRWST (k a) r s' `returning` \ ~(b, s'', w') ->
       (b, s'', w <> w')
 
--- | An 'RWST r w s m' is not a 'Monad' unless its 'w' is a 'Monoid', but it is an instance of 'Bind'
+-- | An @'Strict.RWST' r w s m@ is not a 'Monad' unless its @w@ is a 'Monoid', but it is an instance of 'Bind'
 instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
   m >>- k = Strict.RWST $ \r s ->
     Strict.runRWST m r s >>- \ (a, s', w) ->

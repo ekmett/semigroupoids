@@ -1,3 +1,9 @@
+{-# LANGUAGE CPP #-}
+#if __GLASGOW_HASKELL__ >= 704
+{-# LANGUAGE Safe #-}
+#elif __GLASGOW_HASKELL__ >= 702
+{-# LANGUAGE Trustworthy #-}
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -31,14 +37,15 @@ import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
 
 -- $setup
--- >>> import Data.List.NonEmpty
+-- >>> import Data.List.NonEmpty (NonEmpty (..))
+-- >>> import Data.Monoid (Monoid (..))
 
 newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 
 instance Semigroup a => Semigroup (JoinWith a) where
   JoinWith a <> JoinWith b = JoinWith $ \j -> a j <> j <> b j
 
--- | Insert an 'm' between each pair of 't m'.  Equivalent to
+-- | Insert an @m@ between each pair of @t m@.  Equivalent to
 -- 'intercalateMap1' with 'id' as the second argument.
 --
 -- >>> intercalate1 ", " $ "hello" :| ["how", "are", "you"]
@@ -53,7 +60,7 @@ intercalate1 :: (Foldable1 t, Semigroup m) => m -> t m -> m
 intercalate1 = flip intercalateMap1 id
 {-# INLINE intercalate1 #-}
 
--- | Insert 'm' between each pair of 'm' derived from 'a'.
+-- | Insert @m@ between each pair of @m@ derived from @a@.
 --
 -- >>> intercalateMap1 " " show $ True :| [False, True]
 -- "True False True"
@@ -113,7 +120,7 @@ foldrM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
 foldrM1 f = go . toNonEmpty
   where
     g = (=<<) . f
-    
+
     go (e:|es) =
       case es of
         []   -> return e

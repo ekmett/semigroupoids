@@ -1,8 +1,8 @@
 name:          semigroupoids
 category:      Control, Comonads
-version:       5.3.4
+version:       5.3.6
 license:       BSD3
-cabal-version: >= 1.8
+cabal-version: 1.18
 license-file:  LICENSE
 author:        Edward A. Kmett
 maintainer:    Edward A. Kmett <ekmett@gmail.com>
@@ -20,16 +20,20 @@ tested-with:   GHC == 7.0.4
              , GHC == 8.2.2
              , GHC == 8.4.4
              , GHC == 8.6.5
-             , GHC == 8.8.1
-build-type:    Custom
+             , GHC == 8.8.4
+             , GHC == 8.10.4
+             , GHC == 9.0.1
+build-type:    Simple
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
-  .travis.yml
   .gitignore
   .vim.custom
   README.markdown
   CHANGELOG.markdown
-  Warning.hs
+  img/classes.dot
+extra-doc-files:
+  img/classes.svg
+
 description:
   Provides a wide array of (semi)groupoids and operations for working with them.
   .
@@ -43,16 +47,14 @@ description:
   .
   Similarly many structures are nearly a comonad, but not quite, for instance lists provide a reasonable 'extend' operation in the form of 'tails', but do not always contain a value.
   .
-  Ideally the following relationships would hold:
+  We describe the relationships between the type classes defined in this package
+  and those from `base` (and some from `contravariant`) in the diagram below.
+  Thick-bordered nodes correspond to type classes defined in this package;
+  thin-bordered ones correspond to type classes from elsewhere. Solid edges
+  indicate a subclass relationship that actually exists; dashed edges indicate a
+  subclass relationship that /should/ exist, but currently doesn't.
   .
-  > Foldable ----> Traversable <--- Functor ------> Alt ---------> Plus           Semigroupoid
-  >      |               |            |                              |                  |
-  >      v               v            v                              v                  v
-  > Foldable1 ---> Traversable1     Apply --------> Applicative -> Alternative      Category
-  >                                   |               |              |                  |
-  >                                   v               v              v                  v
-  >                                 Bind ---------> Monad -------> MonadPlus          Arrow
-  >
+  <<img/classes.svg Relationships among type classes from this package and others>>
   .
   Apply, Bind, and Extend (not shown) give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
@@ -66,12 +68,6 @@ description:
 source-repository head
   type: git
   location: git://github.com/ekmett/semigroupoids.git
-
-custom-setup
-  setup-depends:
-    base          >= 4 && < 5,
-    Cabal,
-    cabal-doctest >= 1 && < 1.1
 
 flag containers
   description:
@@ -100,12 +96,6 @@ flag distributive
     .
     If disabled we will not supply instances of `Distributive`
     .
-  default: True
-  manual: True
-
-flag doctests
-  description:
-    You can disable testing with doctests using `-f-doctests`.
   default: True
   manual: True
 
@@ -139,39 +129,46 @@ flag unordered-containers
 library
   build-depends:
     base                >= 4.3     && < 5,
-    base-orphans        >= 0.8     && < 1,
-    bifunctors          >= 5       && < 6,
-    template-haskell,
-    transformers        >= 0.2     && < 0.6,
-    transformers-compat >= 0.5     && < 0.7
+    base-orphans        >= 0.8.4   && < 1,
+    bifunctors          >= 5.5.9   && < 6,
+    template-haskell    >= 0.2.5.0,
+    transformers        >= 0.3     && < 0.7,
+    transformers-compat >= 0.5     && < 0.8
 
   if impl(ghc >= 7.0 && < 7.2)
-    build-depends: generic-deriving >= 1.11 && < 1.14
+    build-depends: generic-deriving >= 1.14 && < 1.15
 
   if impl(ghc >= 7.2 && < 7.6)
     build-depends: ghc-prim
 
+  if !impl(ghc >= 7.10)
+    build-depends: void >= 0.4 && < 1
+
   if !impl(ghc >= 8.0)
-    build-depends: semigroups >= 0.16.2 && < 1
+    build-depends: semigroups >= 0.18.5 && < 1
 
   if flag(containers)
     build-depends: containers >= 0.3 && < 0.7
 
   if flag(contravariant)
-    build-depends: contravariant >= 0.2.0.1 && < 2
+    build-depends: contravariant >= 1.5.3 && < 2
 
   if flag(distributive)
-    build-depends: distributive >= 0.2.2 && < 1
+    build-depends: distributive >= 0.5.2 && < 1
 
   if flag(comonad)
-    build-depends: comonad >= 4.2.6 && < 6
+    build-depends: comonad >= 5.0.8 && < 6
 
   if flag(tagged)
-    build-depends: tagged >= 0.8.5 && < 1
+    build-depends: tagged >= 0.8.6.1 && < 1
 
   if flag(unordered-containers)
-    build-depends: hashable >= 1.1  && < 1.4,
-                   unordered-containers >= 0.2  && < 0.3
+    if impl(ghc >= 7.4)
+      build-depends: hashable >= 1.2.7.0  && < 1.4,
+                     unordered-containers >= 0.2.8.0  && < 0.3
+    else
+      build-depends: hashable >= 1.2.5.0  && < 1.4,
+                     unordered-containers >= 0.2.8.0  && < 0.3
 
   hs-source-dirs: src
 
@@ -182,6 +179,9 @@ library
     Data.Functor.Bind
     Data.Functor.Bind.Class
     Data.Functor.Bind.Trans
+    Data.Functor.Contravariant.Conclude
+    Data.Functor.Contravariant.Decide
+    Data.Functor.Contravariant.Divise
     Data.Functor.Extend
     Data.Functor.Plus
     Data.Groupoid
@@ -197,22 +197,16 @@ library
     Data.Semigroupoid.Ob
     Data.Semigroupoid.Static
     Data.Traversable.Instances
+    Semigroupoids.Do
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
 
   if impl(ghc >= 7.10)
     ghc-options: -fno-warn-trustworthy-safe
 
-test-suite doctests
-  type:             exitcode-stdio-1.0
-  main-is:          doctests.hs
-  hs-source-dirs:   test
-  ghc-options:      -Wall -fno-warn-warnings-deprecations
+  if impl(ghc >= 9.0)
+    -- these flags may abort compilation with GHC-8.10
+    -- https://gitlab.haskell.org/ghc/ghc/-/merge_requests/3295
+    ghc-options: -Winferred-safe-imports -Wmissing-safe-haskell-mode
 
-  if !flag(doctests)
-    buildable: False
-  else
-    build-depends:
-      base      >= 4      && < 5,
-      doctest   >= 0.11.1 && < 0.17,
-      semigroupoids
+  default-language: Haskell2010
