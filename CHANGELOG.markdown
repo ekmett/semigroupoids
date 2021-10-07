@@ -1,4 +1,4 @@
-5.3.6 [????.??.??]
+5.3.6 [2021.10.07]
 ------------------
 * Allow building with GHC 9.2.
 * Allow building with `transformers-0.6.*`.
