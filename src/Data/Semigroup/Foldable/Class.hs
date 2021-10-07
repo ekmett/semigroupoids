@@ -45,10 +45,6 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Complex
 #endif
 
-#if !(MIN_VERSION_base(4,11,0))
-import Data.Semigroup (Option(..))
-#endif
-
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif

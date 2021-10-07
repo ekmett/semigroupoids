@@ -24,7 +24,7 @@ module Data.Semigroupoid.Categorical (
 
 import Control.Category (Category (id, (.)))
 import Data.Semigroupoid (Semigroupoid (o))
-import Prelude hiding (id, (.))
+import Prelude ()
 
 -- | Attaches an identity.
 --
