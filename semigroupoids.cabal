@@ -193,6 +193,7 @@ library
     Data.Semigroup.Traversable
     Data.Semigroup.Traversable.Class
     Data.Semigroupoid
+    Data.Semigroupoid.Categorical
     Data.Semigroupoid.Dual
     Data.Semigroupoid.Ob
     Data.Semigroupoid.Static
