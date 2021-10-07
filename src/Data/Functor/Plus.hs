@@ -86,8 +86,8 @@ class Alt f => Plus f where
 
 -- | The sum of a collection of actions, generalizing 'concat'.
 --
--- > asum [Just "Hello", Nothing, Just "World"]
--- >   -- Just "Hello"
+-- >>> psum [Just "Hello", Nothing, Just "World"]
+-- Just "Hello"
 --
 -- @since 5.3.6
 psum :: (Foldable t, Plus f) => t (f a) -> f a
