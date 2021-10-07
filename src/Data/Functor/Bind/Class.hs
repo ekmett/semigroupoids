@@ -60,6 +60,11 @@ import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
+import Semigroupoids.Internal
+#endif
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
@@ -364,7 +369,6 @@ instance (Functor m, Monad m) => Apply (ExceptT e m) where
 instance Apply m => Apply (ReaderT e m) where
   ReaderT f <.> ReaderT a = ReaderT $ \e -> f e <.> a e
 
-
 -- unfortunately, WriterT has its wrapped product in the wrong order to just use (<.>) instead of flap
 -- | A @'Strict.WriterT' w m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
@@ -375,6 +379,13 @@ instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
 instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Bind m) => Apply (CPS.WriterT w m) where
+  mf <.> mx = mkWriterT $ \w ->
+    unWriterT mf w >>- \(f, w') -> unWriterT (f <$> mx) w'
+#endif
 
 instance Bind m => Apply (Strict.StateT s m) where
   (<.>) = apDefault
@@ -389,6 +400,13 @@ instance (Bind m, Semigroup w) => Apply (Strict.RWST r w s m) where
 -- | An @'Lazy.RWST' r w s m@ is not 'Applicative' unless its @w@ is a 'Monoid', but it is an instance of 'Apply'
 instance (Bind m, Semigroup w) => Apply (Lazy.RWST r w s m) where
   (<.>) = apDefault
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Bind m) => Apply (CPS.RWST r w s m) where
+  mf <.> mx = mkRWST $ \ r s w ->
+    unRWST mf r s w >>- \(f, s', w') -> unRWST (f <$> mx) r s' w'
+#endif
 
 instance Apply (ContT r m) where
   ContT f <.> ContT v = ContT $ \k -> f $ \g -> v (k . g)
@@ -663,6 +681,13 @@ instance (Bind m, Semigroup w) => Bind (Strict.WriterT w m) where
     Strict.runWriterT (k a) `returning` \ (b, w') ->
       (b, w <> w')
 
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Bind m) => Bind (CPS.WriterT w m) where
+  m >>- k = mkWriterT $ \ w ->
+    unWriterT m w >>- \(a, w') -> unWriterT (k a) w'
+#endif
+
 instance Bind m => Bind (Lazy.StateT s m) where
   m >>- k = Lazy.StateT $ \s ->
     Lazy.runStateT m s >>- \ ~(a, s') ->
@@ -687,13 +712,15 @@ instance (Bind m, Semigroup w) => Bind (Strict.RWST r w s m) where
     Strict.runRWST (k a) r s' `returning` \ (b, s'', w') ->
       (b, s'', w <> w')
 
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Bind m) => Bind (CPS.RWST r w s m) where
+  m >>- k = mkRWST $ \ r s w ->
+    unRWST m r s w >>- \(a, s', w') -> unRWST (k a) r s' w'
+#endif
+
 instance Bind (ContT r m) where
   m >>- k = ContT $ \c -> runContT m $ \a -> runContT (k a) c
-
-{-
-instance ArrowApply a => Bind (WrappedArrow a b) where
-  (>>-) = (>>=)
--}
 
 #if MIN_VERSION_base(4,4,0)
 instance Bind Complex where

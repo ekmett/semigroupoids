@@ -8,6 +8,8 @@
   to defined `Traversable1` instances for data types that have fields with a
   combination of `Traversable` and `Traversable1` instances.
 * Add `Semigroupoids.Do` module with overloads for use with `QualifiedDo`.
+* Add `Apply`, `Alt`, `Plus`, `Bind` and `BindTrans` instances for the CPS
+  versions of `WriterT` and `RWST`.
 * Add `psum` function to `Data.Functor.Plus`.
 
 5.3.5 [2020.12.31]

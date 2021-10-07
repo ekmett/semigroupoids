@@ -29,6 +29,11 @@ import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
+import Semigroupoids.Internal
+#endif
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
@@ -179,11 +184,23 @@ instance Plus f => Plus (Strict.WriterT w f) where
 instance Plus f => Plus (Lazy.WriterT w f) where
   zero = Lazy.WriterT zero
 
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Plus f) => Plus (CPS.WriterT w f) where
+  zero = mkWriterT $ const zero
+#endif
+
 instance Plus f => Plus (Strict.RWST r w s f) where
   zero = Strict.RWST $ \_ _ -> zero
 
 instance Plus f => Plus (Lazy.RWST r w s f) where
   zero = Lazy.RWST $ \_ _ -> zero
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Plus f) => Plus (CPS.RWST r w s f) where
+  zero = mkRWST $ \_ _ _ -> zero 
+#endif
 
 instance Plus f => Plus (Backwards f) where
   zero = Backwards zero

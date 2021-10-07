@@ -38,6 +38,11 @@ import Control.Monad.Trans.Identity
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
+import Semigroupoids.Internal
+#endif
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
@@ -287,11 +292,23 @@ instance Alt f => Alt (Strict.WriterT w f) where
 instance Alt f => Alt (Lazy.WriterT w f) where
   Lazy.WriterT m <!> Lazy.WriterT n = Lazy.WriterT $ m <!> n
 
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Alt f) => Alt (CPS.WriterT w f) where
+  m <!> n = mkWriterT $ \w -> unWriterT m w <!> unWriterT n w
+#endif
+
 instance Alt f => Alt (Strict.RWST r w s f) where
   Strict.RWST m <!> Strict.RWST n = Strict.RWST $ \r s -> m r s <!> n r s
 
 instance Alt f => Alt (Lazy.RWST r w s f) where
   Lazy.RWST m <!> Lazy.RWST n = Lazy.RWST $ \r s -> m r s <!> n r s
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 5.3.6
+instance (Alt f) => Alt (CPS.RWST r w s f) where
+  m <!> n = mkRWST $ \r s w -> unRWST m r s w <!> unRWST n r s w
+#endif
 
 instance Alt f => Alt (Backwards f) where
   Backwards a <!> Backwards b = Backwards (a <!> b)
