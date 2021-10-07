@@ -198,6 +198,8 @@ library
     Data.Semigroupoid.Static
     Data.Traversable.Instances
     Semigroupoids.Do
+  other-modules:
+    Semigroupoids.Internal
 
   ghc-options: -Wall -fno-warn-warnings-deprecations
 
