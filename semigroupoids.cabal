@@ -54,7 +54,7 @@ description:
   indicate a subclass relationship that actually exists; dashed edges indicate a
   subclass relationship that /should/ exist, but currently doesn't.
   .
-  <<img/classes.svg Relationships among type classes from this package and others>>
+  <<https://raw.githubusercontent.com/ekmett/semigroupoids/master/img/classes.svg Relationships among type classes from this package and others>>
   .
   Apply, Bind, and Extend (not shown) give rise the Static, Kleisli and Cokleisli semigroupoids respectively.
   .
