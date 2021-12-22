@@ -50,7 +50,6 @@ import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Functor.Apply
-import Data.Functor.Bind
 import Data.Functor.Compose
 import Data.Functor.Identity (Identity (Identity))
 import Data.Functor.Product
@@ -253,7 +252,7 @@ instance Alt f => Alt (IdentityT f) where
 instance Alt f => Alt (ReaderT e f) where
   ReaderT a <!> ReaderT b = ReaderT $ \e -> a e <!> b e
 
-instance (Bind f, Monad f) => Alt (MaybeT f) where
+instance (Functor f, Monad f) => Alt (MaybeT f) where
   MaybeT a <!> MaybeT b = MaybeT $ do
     v <- a
     case v of
@@ -261,7 +260,7 @@ instance (Bind f, Monad f) => Alt (MaybeT f) where
       Just _ -> return v
 
 #if !(MIN_VERSION_transformers(0,6,0))
-instance (Bind f, Monad f) => Alt (ErrorT e f) where
+instance (Functor f, Monad f) => Alt (ErrorT e f) where
   ErrorT m <!> ErrorT n = ErrorT $ do
     a <- m
     case a of
@@ -272,7 +271,7 @@ instance Apply f => Alt (ListT f) where
   ListT a <!> ListT b = ListT $ (<!>) <$> a <.> b
 #endif
 
-instance (Bind f, Monad f, Semigroup e) => Alt (ExceptT e f) where
+instance (Functor f, Monad f, Semigroup e) => Alt (ExceptT e f) where
   ExceptT m <!> ExceptT n = ExceptT $ do
     a <- m
     case a of
