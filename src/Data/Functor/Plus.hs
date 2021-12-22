@@ -43,7 +43,6 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import Data.Foldable hiding (asum)
 import Data.Functor.Apply
 import Data.Functor.Alt
-import Data.Functor.Bind
 import Data.Functor.Compose
 import Data.Functor.Product
 import Data.Functor.Reverse
@@ -158,18 +157,18 @@ instance Plus f => Plus (IdentityT f) where
 instance Plus f => Plus (ReaderT e f) where
   zero = ReaderT $ \_ -> zero
 
-instance (Bind f, Monad f) => Plus (MaybeT f) where
+instance (Functor f, Monad f) => Plus (MaybeT f) where
   zero = MaybeT $ return zero
 
 #if !(MIN_VERSION_transformers(0,6,0))
-instance (Bind f, Monad f, Error e) => Plus (ErrorT e f) where
+instance (Functor f, Monad f, Error e) => Plus (ErrorT e f) where
   zero = ErrorT $ return $ Left noMsg
 
 instance (Apply f, Applicative f) => Plus (ListT f) where
   zero = ListT $ pure []
 #endif
 
-instance (Bind f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
+instance (Functor f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f) where
   zero = ExceptT $ return $ Left mempty
 
 instance Plus f => Plus (Strict.StateT e f) where
