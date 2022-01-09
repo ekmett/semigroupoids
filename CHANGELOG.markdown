@@ -1,3 +1,25 @@
+next [????.??.??]
+-----------------
+* Relax the `Bind` constraints in the following instances to `Functor`:
+
+  ```diff
+  -instance (Bind f,    Monad f) => Alt  (MaybeT f)
+  -instance (Bind f,    Monad f) => Plus (MaybeT f)
+  +instance (Functor f, Monad f) => Alt  (MaybeT f)
+  +instance (Functor f, Monad f) => Plus (MaybeT f)
+
+  -instance (Bind f,    Monad f, Semigroup e)           => Alt  (ExceptT e f)
+  -instance (Bind f,    Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f)
+  +instance (Functor f, Monad f, Semigroup e)           => Alt  (ExceptT e f)
+  +instance (Functor f, Monad f, Semigroup e, Monoid e) => Plus (ExceptT e f)
+
+   -- If building with transformers-0.5.* or older
+  -instance (Bind f,    Monad f)          => Alt  (ErrorT e f)
+  -instance (Bind f,    Monad f, Error e) => Plus (ErrorT e f
+  +instance (Functor f, Monad f)          => Alt  (ErrorT e f)
+  +instance (Functor f, Monad f, Error e) => Plus (ErrorT e f)
+  ```
+
 5.3.6 [2021.10.07]
 ------------------
 * Allow building with GHC 9.2.
