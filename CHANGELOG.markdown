@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+5.3.7 [2022.01.09]
+------------------
 * Relax the `Bind` constraints in the following instances to `Functor`:
 
   ```diff
