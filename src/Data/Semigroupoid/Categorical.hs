@@ -5,6 +5,7 @@
 {-# LANGUAGE Trustworthy #-}
 #endif
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 
 -----------------------------------------------------------------------------
 -- |
