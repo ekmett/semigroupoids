@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 #if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
 #elif __GLASGOW_HASKELL__ >= 702
@@ -19,6 +20,7 @@ module Data.Semigroup.Traversable
   -- * Defining Traversable1 instances
   -- $traversable1instances
   , traverse1Maybe
+  , gtraverse1
   -- * Default superclass instance helpers
   , foldMap1Default
   ) where
@@ -29,10 +31,18 @@ import Data.Semigroup
 #endif
 import Data.Semigroup.Traversable.Class
 import Data.Functor.Bind.Class
+import GHC.Generics (Rep1, Generic1, to1, from1)
 
 -- | Default implementation of 'foldMap1' given an implementation of 'Traversable1'.
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
+
+gtraverse1 ::
+  (Traversable1 (Rep1 t), Apply f, Generic1 t) =>
+  (a -> f b) ->
+  t a ->
+  f (t b)
+gtraverse1 f x = to1 <$> traverse1 f (from1 x)
 
 -- $traversable1instances
 -- Defining 'Traversable1' instances for types with both 'Traversable1' and 'Traversable'
