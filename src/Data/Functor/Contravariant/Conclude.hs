@@ -4,6 +4,7 @@
 #elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 
 -----------------------------------------------------------------------------
@@ -18,7 +19,9 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Conclude (
     Conclude(..)
+  , gconclude
   , concluded
+  , gconcluded
   ) where
 
 import Control.Applicative.Backwards
@@ -96,6 +99,15 @@ class Decide f => Conclude f where
     -- | The consumer that cannot ever receive /any/ input.
     conclude :: (a -> Void) -> f a
 
+-- | Generic 'conclude'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ contains fields that do not mention its type variable.
+--
+-- @since 5.3.8
+gconclude :: (Generic1 f, Conclude (Rep1 f)) => (a -> Void) -> f a
+gconclude f = to1 $ conclude f
+
 -- | A potentially more meaningful form of 'conclude', the consumer that cannot
 -- ever receive /any/ input.  That is because it expects only input of type
 -- 'Void', but such a type has no values.
@@ -107,6 +119,15 @@ class Decide f => Conclude f where
 -- @since 5.3.6
 concluded :: Conclude f => f Void
 concluded = conclude id
+
+-- | Generic 'concluded'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ contains fields that do not mention its type variable.
+--
+-- @since 5.3.8
+gconcluded :: (Generic1 f, Conclude (Rep1 f)) => f Void
+gconcluded = to1 concluded
 
 -- | @since 5.3.6
 instance Decidable f => Conclude (WrappedDivisible f) where
