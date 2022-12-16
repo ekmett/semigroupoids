@@ -3,6 +3,7 @@
 
 * Add `Generic1`-based functions for many classes:
   - `Data.Functor.Alt.(<!>)` -> `Data.Functor.Alt.galt`
+  - `Data.Functor.Apply.{liftF2,liftF3}` -> `Data.Functor.Apply.{gliftF2,gliftF3}`
 
 5.3.7 [2022.01.09]
 ------------------
