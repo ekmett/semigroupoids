@@ -99,7 +99,13 @@ class Alt f => Plus f where
 psum :: (Foldable t, Plus f) => t (f a) -> f a
 psum = foldr (<!>) zero
 
--- | @since 5.3.8
+-- | Generic 'zero'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ is a recursive type.
+--   3. Any types where the @a@ does not appear must have a 'Monoid' instance.
+--
+-- @since 5.3.8
 gzero :: (Plus (Rep1 f), Generic1 f) => f a
 gzero = to1 zero
 
@@ -108,6 +114,10 @@ instance Plus Proxy where
 
 instance Plus U1 where
   zero = U1
+
+-- | @since 5.3.8
+instance Monoid c => Plus (K1 i c) where
+  zero = K1 mempty
 
 instance (Plus f, Plus g) => Plus (f :*: g) where
   zero = zero :*: zero
@@ -204,7 +214,7 @@ instance Plus f => Plus (Lazy.RWST r w s f) where
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 5.3.6
 instance (Plus f) => Plus (CPS.RWST r w s f) where
-  zero = mkRWST $ \_ _ _ -> zero 
+  zero = mkRWST $ \_ _ _ -> zero
 #endif
 
 instance Plus f => Plus (Backwards f) where
