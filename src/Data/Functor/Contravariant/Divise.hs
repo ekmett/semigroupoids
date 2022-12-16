@@ -1,6 +1,7 @@
 {-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE CPP           #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
 #if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
 #elif __GLASGOW_HASKELL__ >= 702
@@ -23,6 +24,7 @@
 module Data.Functor.Contravariant.Divise (
     Divise(..)
   , divised
+  , gdivise
   , WrappedDivisible(..)
   ) where
 
@@ -116,6 +118,10 @@ class Contravariant f => Divise f where
 -- @since 5.3.6
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
+
+-- | @since 5.3.8
+gdivise :: (Divise (Rep1 f), Generic1 f) => (a -> (b, c)) -> f b -> f c -> f a
+gdivise f x y = to1 $ divise f (from1 x) (from1 y)
 
 -- | Wrap a 'Divisible' to be used as a member of 'Divise'
 --

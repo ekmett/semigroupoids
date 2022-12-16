@@ -7,6 +7,7 @@
 
 #if __GLASGOW_HASKELL__ >= 708
 {-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE FlexibleContexts #-}
 #endif
 -----------------------------------------------------------------------------
 -- |
@@ -23,6 +24,8 @@ module Data.Functor.Extend
   ( -- * Extendable Functors
     -- $definition
     Extend(..)
+  , gduplicated
+  , gextended
   ) where
 
 import Prelude hiding (id, (.))
@@ -79,6 +82,14 @@ class Functor w => Extend w where
 #if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL duplicated | extended #-}
 #endif
+
+-- | @since 5.3.8
+gduplicated :: (Extend (Rep1 w), Generic1 w) => w a -> w (w a)
+gduplicated = to1 . fmap to1 . duplicated . from1
+
+-- | @since 5.3.8
+gextended :: (Extend (Rep1 w), Generic1 w) => (w a -> b) -> w a -> w b
+gextended f = to1 . extended (f . to1) . from1
 
 -- * Extends for Prelude types:
 --

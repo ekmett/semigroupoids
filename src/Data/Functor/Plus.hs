@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -17,6 +18,7 @@
 module Data.Functor.Plus
   ( Plus(..)
   , psum
+  , gzero
   , module Data.Functor.Alt
   ) where
 
@@ -96,6 +98,10 @@ class Alt f => Plus f where
 -- @since 5.3.6
 psum :: (Foldable t, Plus f) => t (f a) -> f a
 psum = foldr (<!>) zero
+
+-- | @since 5.3.8
+gzero :: (Plus (Rep1 f), Generic1 f) => f a
+gzero = to1 zero
 
 instance Plus Proxy where
   zero = Proxy

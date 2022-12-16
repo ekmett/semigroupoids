@@ -21,6 +21,7 @@ module Data.Semigroup.Traversable
   -- $traversable1instances
   , traverse1Maybe
   , gtraverse1
+  , gsequence1
   -- * Default superclass instance helpers
   , foldMap1Default
   ) where
@@ -37,12 +38,27 @@ import GHC.Generics (Rep1, Generic1, to1, from1)
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
 
+-- | Generic implementation of 'traverse1'.
+-- 
+-- There are some caveats:
+--
+--   1. It doesn't compile if 't' is an empty constructor
+--   2. It doesn't compile if 't' has some fields that don't mention 'a', for exmaple @data Bar a = MkBar a Int@
+--
+-- @since 5.3.8
 gtraverse1 ::
   (Traversable1 (Rep1 t), Apply f, Generic1 t) =>
   (a -> f b) ->
   t a ->
   f (t b)
 gtraverse1 f x = to1 <$> traverse1 f (from1 x)
+
+-- | @since 5.3.8
+gsequence1 ::
+  (Traversable1 (Rep1 t), Apply f, Generic1 t) =>
+  t (f b) ->
+  f (t b)
+gsequence1 = fmap to1 . sequence1 . from1
 
 -- $traversable1instances
 -- Defining 'Traversable1' instances for types with both 'Traversable1' and 'Traversable'
