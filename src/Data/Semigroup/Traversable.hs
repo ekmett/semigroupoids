@@ -42,8 +42,8 @@ foldMap1Default f = getConst . traverse1 (Const . f)
 --
 -- There are some caveats:
 --
---   1. It doesn't compile if 't' is an empty constructor
---   2. It doesn't compile if 't' has some fields that don't mention 'a', for exmaple @data Bar a = MkBar a Int@
+--   1. It doesn't compile if @t@ is an empty constructor
+--   2. It doesn't compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
 --
 -- @since 5.3.8
 gtraverse1 ::
@@ -53,7 +53,10 @@ gtraverse1 ::
   f (t b)
 gtraverse1 f x = to1 <$> traverse1 f (from1 x)
 
--- | @since 5.3.8
+-- | Generic implementation of 'sequence1'
+--
+-- See 'gtraverse1' for some caveats.
+-- @since 5.3.8
 gsequence1 ::
   (Traversable1 (Rep1 t), Apply f, Generic1 t) =>
   t (f b) ->

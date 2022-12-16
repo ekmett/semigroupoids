@@ -147,14 +147,23 @@ foldlM1 f t = foldlM f x xs
   where
     x:|xs = toNonEmpty t
 
--- | @since 5.3.8
+-- | Generic implementation of 'fold1'
+--
+-- See 'gtraverse1' for some caveats.
+-- @since 5.3.8
 gfold1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => t m -> m
 gfold1 = fold1 . from1
 
--- | @since 5.3.8
+-- | Generic implementation of 'foldMap1'
+--
+-- See 'gtraverse1' for some caveats.
+-- @since 5.3.8
 gfoldMap1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => (a -> m) -> t a -> m
 gfoldMap1 f = foldMap1 f . from1
 
--- | @since 5.3.8
+-- | Generic implementation of 'toNonEmpty'
+--
+-- See 'gtraverse1' for some caveats.
+-- @since 5.3.8
 gtoNonEmpty :: (Foldable1 (Rep1 t), Generic1 t) => t a -> NonEmpty a
 gtoNonEmpty = toNonEmpty . from1
