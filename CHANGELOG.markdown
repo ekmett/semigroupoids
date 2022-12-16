@@ -1,3 +1,9 @@
+5.3.8 [unreleased]
+------------------
+
+* Add `Generic1`-based functions for many classes:
+  - `Data.Functor.Alt.(<!>)` -> `Data.Functor.Alt.galt`
+
 5.3.7 [2022.01.09]
 ------------------
 * Relax the `Bind` constraints in the following instances to `Functor`:

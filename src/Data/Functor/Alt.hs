@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -25,6 +26,7 @@
 module Data.Functor.Alt
   ( Alt(..)
   , optional
+  , galt
   , module Data.Functor.Apply
   ) where
 
@@ -153,6 +155,16 @@ class Functor f => Alt f where
 optional :: (Alt f, Applicative f) => f a -> f (Maybe a)
 optional v = Just <$> v <!> pure Nothing
 
+-- | Generic ('<!>'). Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ is a recursive type.
+--   3. Any types where the @a@ does not appear must have a 'Semigroup' instance.
+--
+-- @since 5.3.8
+galt :: (Generic1 f, Alt (Rep1 f)) => f a -> f a -> f a
+galt as bs = to1 $ from1 as <!> from1 bs
+
 instance (Alt f, Alt g) => Alt (f :*: g) where
   (as :*: bs) <!> (cs :*: ds) = (as <!> cs) :*: (bs <!> ds)
 
@@ -167,6 +179,10 @@ instance Alt f => Alt (Rec1 f) where
   Rec1 f <!> Rec1 g = Rec1 (f <!> g)
   some = runMagic (unsafeCoerce (Magic some :: Magic f))
   many = runMagic (unsafeCoerce (Magic many :: Magic f))
+
+-- | @since 5.3.8@
+instance Semigroup c => Alt (K1 i c) where
+  K1 c1 <!> K1 c2 = K1 $ c1 <> c2
 
 instance Alt U1 where
   _ <!> _ = U1
