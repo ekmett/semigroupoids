@@ -6,6 +6,7 @@
   - `Data.Functor.Apply.{liftF2,liftF3}` -> `Data.Functor.Apply.{gliftF2,gliftF3}`
   - `Data.Functor.Bind.(>>-)` -> `Data.Functor.Bind.gbind`
   - `Data.Functor.Contravariant.Conclude.{conclude,concluded}` -> `Data.Functor.Contravariant.Conclude.{gconclude,gconcluded}`
+  - `Data.Functor.Contravariant.Decide.{decide,decided}` -> `Data.Functor.Contravariant.Decide.{gdecide,gdecided}`
 
 5.3.7 [2022.01.09]
 ------------------
