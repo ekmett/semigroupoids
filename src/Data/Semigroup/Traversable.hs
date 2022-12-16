@@ -39,7 +39,7 @@ foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
 
 -- | Generic implementation of 'traverse1'.
--- 
+--
 -- There are some caveats:
 --
 --   1. It doesn't compile if 't' is an empty constructor
@@ -70,4 +70,3 @@ gsequence1 = fmap to1 . sequence1 . from1
 -- >   traverse1 f (Foo ma ma' a as) = Foo <$> traverseMaybe ma <*> traverseMaybe ma' <*.> f a <.*> traverseMaybe as
 -- > instance Foldable1 Foo where
 -- >   foldMap1 = foldMap1Default
-
