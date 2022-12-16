@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 #if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
@@ -31,6 +32,7 @@ module Data.Functor.Bind (
   , MaybeApply(..)
   -- * Bindable functors
   , Bind(..)
+  , gbind
   , (-<<)
   , (-<-)
   , (->-)
@@ -40,6 +42,18 @@ module Data.Functor.Bind (
 
 import Data.Functor.Apply
 import Data.Functor.Bind.Class
+import GHC.Generics
+
+-- | Generic '(>>-)'. Caveats:
+--
+--   1. Will not compile if @m@ is a sum type.
+--   2. Will not compile if @m@ contains fields that do not mention its type variable.
+--   3. Will not compile if @m@ is a recursive type.
+--   4. May do redundant work, due to the nature of the 'Bind' instance for (':*:')
+--
+-- @since 5.3.8
+gbind :: (Generic1 m, Bind (Rep1 m)) => m a -> (a -> m b) -> m b
+gbind m f = to1 $ from1 m >>- (\a -> from1 $ f a)
 
 infixr 1 -<<, -<-, ->-
 
@@ -51,5 +65,3 @@ f ->- g = \a -> f a >>- g
 
 (-<-) :: Bind m => (b -> m c) -> (a -> m b) -> a -> m c
 g -<- f = \a -> f a >>- g
-
-
