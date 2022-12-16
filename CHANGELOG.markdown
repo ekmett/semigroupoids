@@ -7,6 +7,10 @@
   - `Data.Functor.Bind.(>>-)` -> `Data.Functor.Bind.gbind`
   - `Data.Functor.Contravariant.Conclude.{conclude,concluded}` -> `Data.Functor.Contravariant.Conclude.{gconclude,gconcluded}`
   - `Data.Functor.Contravariant.Decide.{decide,decided}` -> `Data.Functor.Contravariant.Decide.{gdecide,gdecided}`
+  - `Data.Functor.Extend.{duplicated,extended}` -> `Data.Functor.Extend.{gduplicated,gextended}`
+  - `Data.Functor.Plus.zero` -> `Data.Functor.Plus.gzero`
+  - `Data.Semigroup.Foldable.{fold1,foldMap1,toNonEmpty}` -> `Data.Semigroup.Foldable.{gfold1,gfoldMap1,gtoNonEmpty}`
+  - `Data.Semigroup.Traversable.{traverse1,sequence1}` -> `Data.Semigroup.Traversable.{gtraverse1,gsequence1}`
 
 5.3.7 [2022.01.09]
 ------------------
