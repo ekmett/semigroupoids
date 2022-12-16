@@ -38,12 +38,10 @@ import GHC.Generics (Rep1, Generic1, to1, from1)
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m
 foldMap1Default f = getConst . traverse1 (Const . f)
 
--- | Generic implementation of 'traverse1'.
+-- | Generic implementation of 'traverse1'. Caveats:
 --
--- There are some caveats:
---
---   1. It doesn't compile if @t@ is an empty constructor
---   2. It doesn't compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
+--   1. Will not compile if @t@ is an empty constructor
+--   2. Will not compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
 --
 -- @since 5.3.8
 gtraverse1 ::
