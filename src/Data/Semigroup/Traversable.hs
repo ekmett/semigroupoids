@@ -32,7 +32,11 @@ import Data.Semigroup
 #endif
 import Data.Semigroup.Traversable.Class
 import Data.Functor.Bind.Class
-import GHC.Generics (Rep1, Generic1, to1, from1)
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
+import GHC.Generics
+#endif
 
 -- | Default implementation of 'foldMap1' given an implementation of 'Traversable1'.
 foldMap1Default :: (Traversable1 f, Semigroup m) => (a -> m) -> f a -> m

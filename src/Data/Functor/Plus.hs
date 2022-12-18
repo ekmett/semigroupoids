@@ -116,7 +116,11 @@ instance Plus U1 where
   zero = U1
 
 -- | @since 5.3.8
-instance Monoid c => Plus (K1 i c) where
+instance (Monoid c
+#if !(MIN_VERSION_base(4,11,0))
+         , Semigroup c
+#endif
+  ) => Plus (K1 i c) where
   zero = K1 mempty
 
 instance (Plus f, Plus g) => Plus (f :*: g) where

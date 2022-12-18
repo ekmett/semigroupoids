@@ -37,7 +37,11 @@ module Data.Functor.Apply (
 
 import Data.Functor
 import Data.Functor.Bind.Class
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
+#endif
 
 infixl 4 <..>
 

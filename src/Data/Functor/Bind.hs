@@ -42,7 +42,11 @@ module Data.Functor.Bind (
 
 import Data.Functor.Apply
 import Data.Functor.Bind.Class
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
+#endif
 
 -- | Generic '(>>-)'. Caveats:
 --
