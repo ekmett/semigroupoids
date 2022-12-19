@@ -158,8 +158,7 @@ optional v = Just <$> v <!> pure Nothing
 -- | Generic ('<!>'). Caveats:
 --
 --   1. Will not compile if @f@ is a sum type.
---   2. Will not compile if @f@ is a recursive type.
---   3. Any types where the @a@ does not appear must have a 'Semigroup' instance.
+--   2. Any types where the @a@ does not appear must have a 'Semigroup' instance.
 --
 -- @since 5.3.8
 galt :: (Generic1 f, Alt (Rep1 f)) => f a -> f a -> f a
@@ -167,6 +166,10 @@ galt as bs = to1 $ from1 as <!> from1 bs
 
 instance (Alt f, Alt g) => Alt (f :*: g) where
   (as :*: bs) <!> (cs :*: ds) = (as <!> cs) :*: (bs <!> ds)
+
+-- | @since 5.3.8
+instance (Alt f, Functor g) => Alt (f :.: g) where
+  Comp1 as <!> Comp1 bs = Comp1 (as <!> bs)
 
 newtype Magic f = Magic { runMagic :: forall a. Applicative f => f a -> f [a] }
 

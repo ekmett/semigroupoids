@@ -102,8 +102,7 @@ psum = foldr (<!>) zero
 -- | Generic 'zero'. Caveats:
 --
 --   1. Will not compile if @f@ is a sum type.
---   2. Will not compile if @f@ is a recursive type.
---   3. Any types where the @a@ does not appear must have a 'Monoid' instance.
+--   2. Any types where the @a@ does not appear must have a 'Monoid' instance.
 --
 -- @since 5.3.8
 gzero :: (Plus (Rep1 f), Generic1 f) => f a
@@ -125,6 +124,10 @@ instance (Monoid c
 
 instance (Plus f, Plus g) => Plus (f :*: g) where
   zero = zero :*: zero
+
+-- | @since 5.3.8
+instance (Plus f, Functor g) => Plus (f :.: g) where
+  zero = Comp1 zero
 
 instance Plus f => Plus (M1 i c f) where
   zero = M1 zero
