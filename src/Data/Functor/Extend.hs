@@ -86,7 +86,7 @@ class Functor w => Extend w where
 -- | Generic 'duplicated'. Caveats:
 --
 --   1. Will not compile if @w@ is a product type.
---   2. Will not compile if @w@ is a recursive type.
+--   2. Will not compile if @w@ contains fields where the type variable appears underneath the composition of type constructors (e.g., @f (g a)@).
 --
 -- @since 5.3.8
 gduplicated :: (Extend (Rep1 w), Generic1 w) => w a -> w (w a)
@@ -95,7 +95,7 @@ gduplicated = to1 . fmap to1 . duplicated . from1
 -- | Generic 'extended'. Caveats:
 --
 --   1. Will not compile if @w@ is a product type.
---   2. Will not compile if @w@ is a recursive type.
+--   2. Will not compile if @w@ contains fields where the type variable appears underneath the composition of type constructors (e.g., @f (g a)@).
 --
 -- @since 5.3.8
 gextended :: (Extend (Rep1 w), Generic1 w) => (w a -> b) -> w a -> w b

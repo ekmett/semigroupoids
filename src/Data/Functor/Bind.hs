@@ -52,7 +52,7 @@ import GHC.Generics
 --
 --   1. Will not compile if @m@ is a sum type.
 --   2. Will not compile if @m@ contains fields that do not mention its type variable.
---   3. Will not compile if @m@ is a recursive type.
+--   3. Will not compile if @m@ contains fields where the type variable appears underneath the composition of type constructors (e.g., @f (g a)@).
 --   4. May do redundant work, due to the nature of the 'Bind' instance for (':*:')
 --
 -- @since 5.3.8
