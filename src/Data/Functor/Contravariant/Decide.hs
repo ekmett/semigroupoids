@@ -65,8 +65,9 @@ import Data.Proxy
 import Data.StateVar
 #endif
 
-#if __GLASGOW_HASKELL__ >= 702
-#define GHC_GENERICS
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
 #endif
 
