@@ -781,6 +781,29 @@ instance Bind Generics.V1 where
   m >>- _ = m `seq` undefined
 #endif
 
+-- | @since 5.3.8
+instance Bind Generics.U1 where (>>-)=(>>=)
+
+-- | @since 5.3.8
+instance Bind f => Bind (Generics.M1 i c f) where
+  M1 m >>- f = M1 $ m >>- \a -> case f a of
+    M1 m' -> m'
+
+-- | @since 5.3.8
+instance Bind m => Bind (Generics.Rec1 m) where
+  Rec1 m >>- f = Rec1 $ m >>- \a -> case f a of
+    Rec1 m' -> m'
+
+-- | @since 5.3.8
+instance Bind Generics.Par1 where
+  Par1 m >>- f = f m
+
+-- | @since 5.3.8
+instance (Bind f, Bind g) => Bind (f :*: g) where
+  m :*: n >>- f = (m >>- fstP . f) :*: (n >>- sndP . f) where
+    fstP (a :*: _) = a
+    sndP (_ :*: b) = b
+
 infixl 4 <<.>>, <<., .>>
 
 class Bifunctor p => Biapply p where

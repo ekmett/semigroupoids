@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702
@@ -17,6 +18,7 @@
 module Data.Functor.Plus
   ( Plus(..)
   , psum
+  , gzero
   , module Data.Functor.Alt
   ) where
 
@@ -97,14 +99,35 @@ class Alt f => Plus f where
 psum :: (Foldable t, Plus f) => t (f a) -> f a
 psum = foldr (<!>) zero
 
+-- | Generic 'zero'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Any types where the @a@ does not appear must have a 'Monoid' instance.
+--
+-- @since 5.3.8
+gzero :: (Plus (Rep1 f), Generic1 f) => f a
+gzero = to1 zero
+
 instance Plus Proxy where
   zero = Proxy
 
 instance Plus U1 where
   zero = U1
 
+-- | @since 5.3.8
+instance (Monoid c
+#if !(MIN_VERSION_base(4,11,0))
+         , Semigroup c
+#endif
+  ) => Plus (K1 i c) where
+  zero = K1 mempty
+
 instance (Plus f, Plus g) => Plus (f :*: g) where
   zero = zero :*: zero
+
+-- | @since 5.3.8
+instance (Plus f, Functor g) => Plus (f :.: g) where
+  zero = Comp1 zero
 
 instance Plus f => Plus (M1 i c f) where
   zero = M1 zero
@@ -198,7 +221,7 @@ instance Plus f => Plus (Lazy.RWST r w s f) where
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 5.3.6
 instance (Plus f) => Plus (CPS.RWST r w s f) where
-  zero = mkRWST $ \_ _ _ -> zero 
+  zero = mkRWST $ \_ _ _ -> zero
 #endif
 
 instance Plus f => Plus (Backwards f) where

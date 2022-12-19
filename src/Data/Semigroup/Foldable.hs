@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 #if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
 #elif __GLASGOW_HASKELL__ >= 702
@@ -25,6 +26,9 @@ module Data.Semigroup.Foldable
   , asum1
   , foldrM1
   , foldlM1
+  , gfold1
+  , gfoldMap1
+  , gtoNonEmpty
   ) where
 
 import Data.Foldable
@@ -35,6 +39,12 @@ import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
+
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
+import GHC.Generics
+#endif
 
 -- $setup
 -- >>> import Data.List.NonEmpty (NonEmpty (..))
@@ -136,3 +146,24 @@ foldlM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
 foldlM1 f t = foldlM f x xs
   where
     x:|xs = toNonEmpty t
+
+-- | Generic 'fold1'. Caveats:
+--
+--   1. Will not compile if @t@ is an empty constructor.
+--   2. Will not compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
+--
+-- @since 5.3.8
+gfold1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => t m -> m
+gfold1 = fold1 . from1
+
+-- | Generic 'foldMap1'. Caveats are the same as for 'gfold1'.
+--
+-- @since 5.3.8
+gfoldMap1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => (a -> m) -> t a -> m
+gfoldMap1 f = foldMap1 f . from1
+
+-- | Generic 'toNonEmpty'. Caveats are the same as for 'gfold1'.
+--
+-- @since 5.3.8
+gtoNonEmpty :: (Foldable1 (Rep1 t), Generic1 t) => t a -> NonEmpty a
+gtoNonEmpty = toNonEmpty . from1

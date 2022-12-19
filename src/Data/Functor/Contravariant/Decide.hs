@@ -1,13 +1,14 @@
-{-# LANGUAGE BangPatterns  #-}
-{-# LANGUAGE CPP           #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE BangPatterns     #-}
+{-# LANGUAGE CPP              #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeOperators    #-}
 #if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
 #elif __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
 #endif
 #if MIN_VERSION_base(4,7,0)
-{-# LANGUAGE EmptyCase     #-}
+{-# LANGUAGE EmptyCase #-}
 #endif
 
 -----------------------------------------------------------------------------
@@ -22,7 +23,9 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Decide (
     Decide(..)
+  , gdecide
   , decided
+  , gdecided
   ) where
 
 import Control.Applicative.Backwards
@@ -62,8 +65,9 @@ import Data.Proxy
 import Data.StateVar
 #endif
 
-#if __GLASGOW_HASKELL__ >= 702
-#define GHC_GENERICS
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
 #endif
 
@@ -89,12 +93,28 @@ class Contravariant f => Decide f where
     -- returns the wrapped/combined consumer.
     decide :: (a -> Either b c) -> f b -> f c -> f a
 
+-- | Generic 'decide'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ contains fields that do not mention its type variable.
+--   3. @-XDeriveGeneric@ is not smart enough to make instances where the type variable appears in negative position.
+--
+-- @since 5.3.8
+gdecide :: (Generic1 f, Decide (Rep1 f)) => (a -> Either b c) -> f b -> f c -> f a
+gdecide f fb fc = to1 $ decide f (from1 fb) (from1 fc)
+
 -- | For @'decided' x y@, the resulting @f ('Either' b c)@ will direct
 -- 'Left's to be consumed by @x@, and 'Right's to be consumed by y.
 --
 -- @since 5.3.6
 decided :: Decide f => f b -> f c -> f (Either b c)
 decided = decide id
+
+-- | Generic 'decided'. Caveats are the same as for 'gdecide'.
+--
+-- @since 5.3.8
+gdecided :: (Generic1 f, Decide (Rep1 f)) => f b -> f c -> f (Either b c)
+gdecided fb fc = gdecide id fb fc
 
 -- | @since 5.3.6
 instance Decidable f => Decide (WrappedDivisible f) where

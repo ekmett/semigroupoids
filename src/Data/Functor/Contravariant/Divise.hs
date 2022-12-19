@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE CPP           #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 #if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
@@ -22,7 +23,9 @@
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Divise (
     Divise(..)
+  , gdivise
   , divised
+  , gdivised
   , WrappedDivisible(..)
   ) where
 
@@ -71,8 +74,9 @@ import Data.Proxy
 import Data.StateVar
 #endif
 
-#if __GLASGOW_HASKELL__ >= 702
-#define GHC_GENERICS
+#ifdef MIN_VERSION_generic_deriving
+import Generics.Deriving.Base
+#else
 import GHC.Generics
 #endif
 
@@ -106,6 +110,16 @@ class Contravariant f => Divise f where
     -- returns the wrapped/combined consumer.
     divise :: (a -> (b, c)) -> f b -> f c -> f a
 
+-- | Generic 'divise'. Caveats:
+--
+--   1. Will not compile if @f@ is a sum type.
+--   2. Will not compile if @f@ contains fields that do not mention its type variable.
+--   3. @-XDeriveGeneric@ is not smart enough to make instances where the type variable appears in negative position.
+--
+-- @since 5.3.8
+gdivise :: (Divise (Rep1 f), Generic1 f) => (a -> (b, c)) -> f b -> f c -> f a
+gdivise f x y = to1 $ divise f (from1 x) (from1 y)
+
 -- | Combine a consumer of @a@ with a consumer of @b@ to get a consumer of
 -- @(a, b)@.
 --
@@ -116,6 +130,12 @@ class Contravariant f => Divise f where
 -- @since 5.3.6
 divised :: Divise f => f a -> f b -> f (a, b)
 divised = divise id
+
+-- | Generic 'divised'. Caveats are the same as for 'gdivise'.
+--
+-- @since 5.3.8
+gdivised :: (Generic1 f, Divise (Rep1 f)) => f a -> f b -> f (a, b)
+gdivised fa fb = gdivise id fa fb
 
 -- | Wrap a 'Divisible' to be used as a member of 'Divise'
 --

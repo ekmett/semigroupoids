@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 
 #if __GLASGOW_HASKELL__ >= 702
@@ -23,6 +24,8 @@ module Data.Functor.Extend
   ( -- * Extendable Functors
     -- $definition
     Extend(..)
+  , gduplicated
+  , gextended
   ) where
 
 import Prelude hiding (id, (.))
@@ -79,6 +82,21 @@ class Functor w => Extend w where
 #if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL duplicated | extended #-}
 #endif
+
+-- | Generic 'duplicated'. Caveats:
+--
+--   1. Will not compile if @w@ is a product type.
+--   2. Will not compile if @w@ contains fields where the type variable appears underneath the composition of type constructors (e.g., @f (g a)@).
+--
+-- @since 5.3.8
+gduplicated :: (Extend (Rep1 w), Generic1 w) => w a -> w (w a)
+gduplicated = to1 . fmap to1 . duplicated . from1
+
+-- | Generic 'extended'. Caveats are the same as for 'gduplicated'.
+--
+-- @since 5.3.8
+gextended :: (Extend (Rep1 w), Generic1 w) => (w a -> b) -> w a -> w b
+gextended f = to1 . extended (f . to1) . from1
 
 -- * Extends for Prelude types:
 --
@@ -176,6 +194,10 @@ instance (Extend f, Extend g) => Extend (Functor.Sum f g) where
 instance (Extend f, Extend g) => Extend (f :+: g) where
   extended f (L1 l) = L1 (extended (f . L1) l)
   extended f (R1 r) = R1 (extended (f . R1) r)
+
+-- | @since 5.3.8
+instance Extend (Generics.K1 i c) where
+  duplicated (K1 c) = K1 c
 
 instance Extend Generics.U1 where
   extended _ U1 = U1
