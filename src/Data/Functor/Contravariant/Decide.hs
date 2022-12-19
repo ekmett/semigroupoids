@@ -110,10 +110,7 @@ gdecide f fb fc = to1 $ decide f (from1 fb) (from1 fc)
 decided :: Decide f => f b -> f c -> f (Either b c)
 decided = decide id
 
--- | Generic 'decided'. Caveats:
---
---   1. Will not compile if @f@ is a sum type.
---   2. Will not compile if @f@ contains fields that do not mention its type variable.
+-- | Generic 'decided'. Caveats are the same as for 'gdecide'.
 --
 -- @since 5.3.8
 gdecided :: (Generic1 f, Decide (Rep1 f)) => f b -> f c -> f (Either b c)

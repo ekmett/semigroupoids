@@ -147,23 +147,23 @@ foldlM1 f t = foldlM f x xs
   where
     x:|xs = toNonEmpty t
 
--- | Generic implementation of 'fold1'
+-- | Generic 'fold1'. Caveats:
 --
--- See 'gtraverse1' for some caveats.
+--   1. Will not compile if @t@ is an empty constructor.
+--   2. Will not compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
+--
 -- @since 5.3.8
 gfold1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => t m -> m
 gfold1 = fold1 . from1
 
--- | Generic implementation of 'foldMap1'
+-- | Generic 'foldMap1'. Caveats are the same as for 'gfold1'.
 --
--- See 'gtraverse1' for some caveats.
 -- @since 5.3.8
 gfoldMap1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => (a -> m) -> t a -> m
 gfoldMap1 f = foldMap1 f . from1
 
--- | Generic implementation of 'toNonEmpty'
+-- | Generic 'toNonEmpty'. Caveats are the same as for 'gfold1'.
 --
--- See 'gtraverse1' for some caveats.
 -- @since 5.3.8
 gtoNonEmpty :: (Foldable1 (Rep1 t), Generic1 t) => t a -> NonEmpty a
 gtoNonEmpty = toNonEmpty . from1

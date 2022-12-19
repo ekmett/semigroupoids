@@ -65,10 +65,7 @@ liftF3 f a b c = f <$> a <.> b <.> c
 gliftF2 :: (Generic1 w, Apply (Rep1 w)) => (a -> b -> c) -> w a -> w b -> w c
 gliftF2 f wa wb = to1 $ liftF2 f (from1 wa) (from1 wb)
 
--- | Generic 'liftF3'. Caveats:
---
---   1. Will not compile if @w@ is a sum type.
---   2. Types in @w@ that do not mention the type variable must be instances of 'Semigroup'.
+-- | Generic 'liftF3'. Caveats are the same as for 'gliftF2'.
 --
 -- @since 5.3.8
 gliftF3 :: (Generic1 w, Apply (Rep1 w)) => (a -> b -> c -> d) -> w a -> w b -> w c -> w d

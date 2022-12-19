@@ -121,10 +121,7 @@ gconclude f = to1 $ conclude f
 concluded :: Conclude f => f Void
 concluded = conclude id
 
--- | Generic 'concluded'. Caveats:
---
---   1. Will not compile if @f@ is a sum type.
---   2. Will not compile if @f@ contains fields that do not mention its type variable.
+-- | Generic 'concluded'. Caveats are the same as for 'gconclude'.
 --
 -- @since 5.3.8
 gconcluded :: (Generic1 f, Conclude (Rep1 f)) => f Void
