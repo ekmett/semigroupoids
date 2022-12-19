@@ -96,6 +96,7 @@ class Contravariant f => Decide f where
 --
 --   1. Will not compile if @f@ is a sum type.
 --   2. Will not compile if @f@ contains fields that do not mention its type variable.
+--   3. @-XDeriveGeneric@ is not smart enough to make instances where the type variable appears in negative position.
 --
 -- @since 5.3.8
 gdecide :: (Generic1 f, Decide (Rep1 f)) => (a -> Either b c) -> f b -> f c -> f a
