@@ -1,10 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-#if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -38,13 +34,8 @@ import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
 import Data.Semigroup.Foldable.Class
-import Prelude hiding (foldr)
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
 import GHC.Generics
-#endif
+import Prelude hiding (foldr)
 
 -- $setup
 -- >>> import Data.List.NonEmpty (NonEmpty (..))

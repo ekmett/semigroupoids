@@ -1,13 +1,5 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
-
-#if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
-{-# OPTIONS_GHC -fno-warn-amp #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -42,11 +34,7 @@ module Data.Functor.Bind (
 
 import Data.Functor.Apply
 import Data.Functor.Bind.Class
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
 import GHC.Generics
-#endif
 
 -- | Generic '(>>-)'. Caveats:
 --

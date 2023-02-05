@@ -1,6 +1,6 @@
-5.3.8 [unreleased]
-------------------
-
+5.4 [unreleased]
+----------------
+* Drop support for GHC 7.10 and earlier.
 * Add `Generic1`-based functions for many classes, useful for writing instances:
   - `Data.Functor.Alt.(<!>)` -> `Data.Functor.Alt.galt`
   - `Data.Functor.Apply.{liftF2,liftF3}` -> `Data.Functor.Apply.{gliftF2,gliftF3}`

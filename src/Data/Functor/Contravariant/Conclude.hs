@@ -1,11 +1,7 @@
 {-# LANGUAGE CPP           #-}
-#if __GLASGOW_HASKELL__ >= 704
-{-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE Safe #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -43,30 +39,17 @@ import Data.Functor.Contravariant.Divise
 import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
+import Data.Monoid (Alt(..))
+import Data.Proxy
 import Data.Void
+import GHC.Generics
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.List
 #endif
 
-#if MIN_VERSION_base(4,8,0)
-import Data.Monoid (Alt(..))
-#else
-import Control.Applicative
-#endif
-
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
-import Data.Proxy
-#endif
-
 #ifdef MIN_VERSION_StateVar
 import Data.StateVar
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
 #endif
 
 -- | The contravariant analogue of 'Plus'.  Adds on to 'Decide' the ability
@@ -144,23 +127,18 @@ instance Conclude Predicate where conclude = lose
 instance Conclude (Op r) where
   conclude f = Op $ absurd . f
 
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 -- | @since 5.3.6
 instance Conclude Proxy where conclude = lose
-#endif
 
 #ifdef MIN_VERSION_StateVar
 -- | @since 5.3.6
 instance Conclude SettableStateVar where conclude = lose
 #endif
 
-#if MIN_VERSION_base(4,8,0)
 -- | @since 5.3.6
 instance Conclude f => Conclude (Alt f) where
   conclude = Alt . conclude
-#endif
 
-#ifdef GHC_GENERICS
 -- | @since 5.3.6
 instance Conclude U1 where conclude = lose
 
@@ -179,7 +157,6 @@ instance (Conclude f, Conclude g) => Conclude (f :*: g) where
 -- | @since 5.3.6
 instance (Apply f, Applicative f, Conclude g) => Conclude (f :.: g) where
   conclude = Comp1 . pure . conclude
-#endif
 
 -- | @since 5.3.6
 instance Conclude f => Conclude (Backwards f) where

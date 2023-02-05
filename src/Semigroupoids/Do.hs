@@ -1,18 +1,8 @@
-{-# LANGUAGE CPP #-}
-
-#if __GLASGOW_HASKELL__ >= 704
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
-
-#if __GLASGOW_HASKELL__ == 708
-{-# OPTIONS_GHC -fno-warn-amp #-}
-#endif
 
 {-|
 
-This module re-exports operators from "Data.Functor.Apply" and 
+This module re-exports operators from "Data.Functor.Apply" and
 "Data.Functor.Bind", but under the same
 names as their 'Applicative' and 'Monad' counterparts. This makes it convenient
 to use do-notation on a type that is a 'Bind' but not a monad (or an 'Apply'
@@ -52,12 +42,7 @@ module Semigroupoids.Do
   )
 where
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (pure)
-import Prelude (String, fmap, return)
-#else
 import Prelude (String, fmap, pure, return)
-#endif
 import Data.Functor.Apply (Apply, (<.), (.>), (<.>))
 import Data.Functor.Bind (Bind, (>>-), join)
 import Data.Functor.Plus (Plus, zero)

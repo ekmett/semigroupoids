@@ -1,17 +1,11 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstrainedClassMethods #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
-
-#if __GLASGOW_HASKELL__ >= 711
-{-# LANGUAGE ConstrainedClassMethods #-}
-#endif
-{-# options_ghc -fno-warn-deprecations #-}
+{-# options_ghc -Wno-deprecations #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Alt
@@ -58,20 +52,16 @@ import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
+import Data.Proxy
 import Data.Semigroup (Semigroup(..))
 import qualified Data.Semigroup as Semigroup
-import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat)
+import GHC.Generics
+import Prelude (($),Either(..),Maybe(..),const,IO,(++),(.),either,seq,undefined,repeat,mappend)
 import Unsafe.Coerce
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.List
-#endif
-
-#if MIN_VERSION_base(4,8,0)
-import Prelude (mappend)
-#else
-import Data.Monoid (mappend)
 #endif
 
 #if !(MIN_VERSION_base(4,16,0))
@@ -87,23 +77,12 @@ import Data.Map (Map)
 import Prelude (Ord)
 #endif
 
-#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
-import Data.Proxy
-#endif
-
 #ifdef MIN_VERSION_unordered_containers
 import Data.Hashable
 import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
 import Prelude (Eq)
 #endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
-#endif
-
 
 infixl 3 <!>
 
@@ -197,12 +176,10 @@ instance Alt V1 where
   some v = v `seq` undefined
   many v = v `seq` undefined
 
-#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
 instance Alt Proxy where
   _ <!> _ = Proxy
   some _ = Proxy
   many _ = Proxy
-#endif
 
 instance Alt (Either a) where
   Left _ <!> b = b

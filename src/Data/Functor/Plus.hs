@@ -1,10 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
+{-# LANGUAGE TypeOperators #-}
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -49,7 +46,9 @@ import Data.Functor.Compose
 import Data.Functor.Product
 import Data.Functor.Reverse
 import qualified Data.Monoid as Monoid
+import Data.Proxy
 import Data.Semigroup hiding (Product)
+import GHC.Generics
 import Prelude hiding (id, (.), foldr)
 
 #if !(MIN_VERSION_transformers(0,6,0))
@@ -65,20 +64,10 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 #endif
 
-#if defined(MIN_VERSION_tagged) || (MIN_VERSION_base(4,7,0))
-import Data.Proxy
-#endif
-
 #ifdef MIN_VERSION_unordered_containers
 import Data.Hashable
 import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
 #endif
 
 -- | Laws:

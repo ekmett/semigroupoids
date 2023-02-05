@@ -1,8 +1,5 @@
 {-# LANGUAGE CPP #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -31,18 +28,11 @@ import Data.Semigroup
 import Data.Semigroupoid
 import Prelude hiding ((.), id)
 
-#ifdef LANGUAGE_DeriveDataTypeable
-import Data.Typeable
-#endif
-
 #ifdef MIN_VERSION_comonad
 import Control.Comonad
 #endif
 
 newtype Static f a b = Static { runStatic :: f (a -> b) }
-#ifdef LANGUAGE_DeriveDataTypeable
-  deriving (Typeable)
-#endif
 
 instance Functor f => Functor (Static f a) where
   fmap f = Static . fmap (f .) . runStatic

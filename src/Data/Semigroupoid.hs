@@ -1,13 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
-
-#if __GLASGOW_HASKELL__ >= 706
 {-# LANGUAGE PolyKinds #-}
-#endif
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -30,9 +24,11 @@ module Data.Semigroupoid
 
 import Control.Applicative
 import Control.Arrow
+import Control.Category
 import Data.Functor.Bind
 import Data.Semigroup
-import Control.Category
+import qualified Data.Type.Coercion as Co
+import qualified Data.Type.Equality as Eq
 import Prelude hiding (id, (.))
 
 #ifdef MIN_VERSION_contravariant
@@ -46,11 +42,6 @@ import Control.Comonad
 
 #ifdef MIN_VERSION_tagged
 import Data.Tagged (Tagged (..))
-#endif
-
-#if MIN_VERSION_base(4,7,0)
-import qualified Data.Type.Coercion as Co
-import qualified Data.Type.Equality as Eq
 #endif
 
 -- | 'Control.Category.Category' sans 'Control.Category.id'
@@ -103,13 +94,11 @@ instance Semigroupoid Tagged where
   Tagged b `o` _ = Tagged b
 #endif
 
-#if MIN_VERSION_base(4,7,0)
 instance Semigroupoid Co.Coercion where
   o = flip Co.trans
 
 instance Semigroupoid (Eq.:~:) where
   o = flip Eq.trans
-#endif
 
 #if MIN_VERSION_base(4,10,0)
 instance Semigroupoid (Eq.:~~:) where

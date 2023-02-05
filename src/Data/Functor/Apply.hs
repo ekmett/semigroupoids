@@ -1,9 +1,5 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -37,11 +33,7 @@ module Data.Functor.Apply (
 
 import Data.Functor
 import Data.Functor.Bind.Class
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
 import GHC.Generics
-#endif
 
 infixl 4 <..>
 
@@ -70,13 +62,3 @@ gliftF2 f wa wb = to1 $ liftF2 f (from1 wa) (from1 wb)
 -- @since 5.3.8
 gliftF3 :: (Generic1 w, Apply (Rep1 w)) => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
 gliftF3 f wa wb wc = to1 $ liftF3 f (from1 wa) (from1 wb) (from1 wc)
-
-#if !(MIN_VERSION_base(4,7,0))
-
-infixl 4 $>
-
--- | Replace the contents of a functor uniformly with a constant value.
-($>) :: Functor f => f a -> b -> f b
-($>) = flip (<$)
-
-#endif

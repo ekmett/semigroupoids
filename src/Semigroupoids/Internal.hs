@@ -1,7 +1,5 @@
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 
 module Semigroupoids.Internal where
 
@@ -11,7 +9,7 @@ import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Unsafe.Coerce (unsafeCoerce)
 #endif
 
--- This is designed to avoid both https://hub.darcs.net/ross/transformers/issue/67 
+-- This is designed to avoid both https://hub.darcs.net/ross/transformers/issue/67
 -- and also the unnecessary Monoid constraints that the CPS versions of WriterT
 -- and RWST require.
 

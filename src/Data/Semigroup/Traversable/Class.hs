@@ -1,8 +1,5 @@
 {-# LANGUAGE CPP, TypeOperators #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -35,6 +32,7 @@ import Data.Bifunctor.Wrapped
 import Data.Functor.Apply
 import Data.Functor.Compose
 
+import Data.Complex
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Reverse
@@ -48,23 +46,11 @@ import Data.Semigroup.Bifoldable
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif
-#if __GLASGOW_HASKELL__ < 710
-import Data.Traversable
-#endif
 import Data.Traversable.Instances ()
-
-#if MIN_VERSION_base(4,4,0)
-import Data.Complex
-#endif
+import GHC.Generics
 
 #ifdef MIN_VERSION_containers
 import Data.Tree
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
 #endif
 
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
@@ -76,9 +62,7 @@ class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   bisequence1 = bitraverse1 id id
   {-# INLINE bisequence1 #-}
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL bitraverse1 | bisequence1 #-}
-#endif
 
 instance Bitraversable1 Arg where
   bitraverse1 f g (Arg a b) = Arg <$> f a <.> g b
@@ -156,9 +140,7 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
   sequence1 = traverse1 id
   traverse1 f = sequence1 . fmap f
 
-#if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL traverse1 | sequence1 #-}
-#endif
 
 instance Traversable1 f => Traversable1 (Rec1 f) where
   traverse1 f (Rec1 as) = Rec1 <$> traverse1 f as
@@ -208,11 +190,9 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) wher
   traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
   traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
 
-#if MIN_VERSION_base(4,4,0)
 instance Traversable1 Complex where
   traverse1 f (a :+ b) = (:+) <$> f a <.> f b
   {-# INLINE traverse1 #-}
-#endif
 
 #ifdef MIN_VERSION_tagged
 instance Traversable1 (Tagged a) where
@@ -244,10 +224,8 @@ instance Traversable1 Monoid.Product where
 instance Traversable1 Monoid.Dual where
   traverse1 g (Monoid.Dual a) = Monoid.Dual <$> g a
 
-#if MIN_VERSION_base(4,8,0)
 instance Traversable1 f => Traversable1 (Monoid.Alt f) where
   traverse1 g (Monoid.Alt m) = Monoid.Alt <$> traverse1 g m
-#endif
 
 instance Traversable1 Semigroup.First where
   traverse1 g (Semigroup.First a) = Semigroup.First <$> g a
