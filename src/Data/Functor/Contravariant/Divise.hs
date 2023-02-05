@@ -1,15 +1,9 @@
 {-# LANGUAGE BangPatterns  #-}
 {-# LANGUAGE CPP           #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-#if __GLASGOW_HASKELL__ >= 704
-{-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
-#if MIN_VERSION_base(4,7,0)
 {-# LANGUAGE EmptyCase     #-}
-#endif
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE TypeOperators #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -50,34 +44,21 @@ import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
+import Data.Monoid (Alt(..))
+import Data.Proxy
+import GHC.Generics
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.List
 #endif
 
-#if MIN_VERSION_base(4,8,0)
-import Data.Monoid (Alt(..))
-#else
-import Data.Monoid (Monoid(..))
-#endif
-
-#if MIN_VERSION_base(4,9,0) && !MIN_VERSION_base(4,12,0)
+#if !MIN_VERSION_base(4,12,0)
 import Data.Semigroup (Semigroup(..))
-#endif
-
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
-import Data.Proxy
 #endif
 
 #ifdef MIN_VERSION_StateVar
 import Data.StateVar
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
 #endif
 
 -- | The contravariant analogue of 'Apply'; it is
@@ -150,7 +131,6 @@ instance Contravariant f => Contravariant (WrappedDivisible f) where
 instance Divisible f => Divise (WrappedDivisible f) where
   divise f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (divide f x y)
 
-#if MIN_VERSION_base(4,9,0)
 -- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
 --
 -- @since 5.3.6
@@ -169,16 +149,6 @@ instance Semigroup m => Divise (Const m) where
 -- @since 5.3.6
 instance Semigroup m => Divise (Constant m) where
     divise _ (Constant a) (Constant b) = Constant (a <> b)
-#else
--- | @since 5.3.6
-instance Monoid r => Divise (Op r) where divise = divide
-
--- | @since 5.3.6
-instance Monoid m => Divise (Const m) where divise = divide
-
--- | @since 5.3.6
-instance Monoid m => Divise (Constant m) where divise = divide
-#endif
 
 -- | @since 5.3.6
 instance Divise Comparison where divise = divide
@@ -189,34 +159,25 @@ instance Divise Equivalence where divise = divide
 -- | @since 5.3.6
 instance Divise Predicate where divise = divide
 
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 -- | @since 5.3.6
 instance Divise Proxy where divise = divide
-#endif
 
 #ifdef MIN_VERSION_StateVar
 -- | @since 5.3.6
 instance Divise SettableStateVar where divise = divide
 #endif
 
-#if MIN_VERSION_base(4,8,0)
 -- | @since 5.3.6
 instance Divise f => Divise (Alt f) where
   divise f (Alt l) (Alt r) = Alt $ divise f l r
-#endif
 
-#ifdef GHC_GENERICS
 -- | @since 5.3.6
 instance Divise U1 where divise = divide
 
 -- | Has no 'Divisible' instance.
 --
 -- @since 5.3.6
-#if MIN_VERSION_base(4,7,0)
 instance Divise V1 where divise _ x = case x of {}
-#else
-instance Divise V1 where divise _ !_ = error "V1"
-#endif
 
 -- | @since 5.3.6
 instance Divise f => Divise (Rec1 f) where
@@ -235,7 +196,6 @@ instance (Divise f, Divise g) => Divise (f :*: g) where
 -- @since 5.3.6
 instance (Apply f, Divise g) => Divise (f :.: g) where
   divise f (Comp1 l) (Comp1 r) = Comp1 (liftF2 (divise f) l r)
-#endif
 
 -- | @since 5.3.6
 instance Divise f => Divise (Backwards f) where

@@ -1,15 +1,9 @@
 {-# LANGUAGE CPP #-}
-#if __GLASGOW_HASKELL__ >= 706
-{-# LANGUAGE PolyKinds #-}
-#endif
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-#if __GLASGOW_HASKELL__ >= 704
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett

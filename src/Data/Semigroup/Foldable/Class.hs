@@ -1,8 +1,5 @@
 {-# LANGUAGE CPP, TypeOperators #-}
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -32,7 +29,15 @@ import Data.Bifunctor.Product as Bifunctor
 import Data.Bifunctor.Joker
 import Data.Bifunctor.Tannen
 import Data.Bifunctor.Wrapped
+import Data.Complex
 import Data.Foldable
+-- import Data.Ord -- missing Foldable, https://ghc.haskell.org/trac/ghc/ticket/15098#ticket
+import Data.Orphans ()
+import Data.Semigroup as Semigroup hiding (Product, Sum)
+import qualified Data.Monoid as Monoid
+import Data.Traversable.Instances ()
+import GHC.Generics
+import Prelude hiding (foldr)
 
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
@@ -41,32 +46,13 @@ import Data.Functor.Sum as Functor
 import Data.Functor.Compose
 import Data.List.NonEmpty (NonEmpty(..))
 
-#if MIN_VERSION_base(4,4,0)
-import Data.Complex
-#endif
-
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif
 
-import Data.Traversable.Instances ()
-
 #ifdef MIN_VERSION_containers
 import Data.Tree
 #endif
-
-import qualified Data.Monoid as Monoid
-import Data.Semigroup as Semigroup hiding (Product, Sum)
-import Data.Orphans ()
--- import Data.Ord -- missing Foldable, https://ghc.haskell.org/trac/ghc/ticket/15098#ticket
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
-#endif
-
-import Prelude hiding (foldr)
 
 class Foldable t => Foldable1 t where
   fold1 :: Semigroup m => t m -> m
@@ -86,10 +72,8 @@ instance Foldable1 Monoid.Product where
 instance Foldable1 Monoid.Dual where
   foldMap1 f (Monoid.Dual a) = f a
 
-#if MIN_VERSION_base(4,8,0)
 instance Foldable1 f => Foldable1 (Monoid.Alt f) where
   foldMap1 g (Monoid.Alt m) = foldMap1 g m
-#endif
 
 instance Foldable1 Semigroup.First where
   foldMap1 f (Semigroup.First a) = f a
@@ -202,11 +186,9 @@ instance Bifoldable1 p => Bifoldable1 (WrappedBifunctor p) where
   bifoldMap1 f g = bifoldMap1 f g . unwrapBifunctor
   {-# INLINE bifoldMap1 #-}
 
-#if MIN_VERSION_base(4,4,0)
 instance Foldable1 Complex where
   foldMap1 f (a :+ b) = f a <> f b
   {-# INLINE foldMap1 #-}
-#endif
 
 #ifdef MIN_VERSION_containers
 instance Foldable1 Tree where

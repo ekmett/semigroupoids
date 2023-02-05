@@ -1,15 +1,9 @@
 {-# LANGUAGE BangPatterns     #-}
 {-# LANGUAGE CPP              #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators    #-}
-#if __GLASGOW_HASKELL__ >= 704
-{-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
-#if MIN_VERSION_base(4,7,0)
 {-# LANGUAGE EmptyCase #-}
-#endif
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE TypeOperators    #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -46,6 +40,9 @@ import Data.Functor.Contravariant.Divise
 import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
+import Data.Monoid (Alt(..))
+import Data.Proxy
+import GHC.Generics
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Arrow
@@ -53,22 +50,8 @@ import Control.Monad.Trans.List
 import Data.Either
 #endif
 
-#if MIN_VERSION_base(4,8,0)
-import Data.Monoid (Alt(..))
-#endif
-
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
-import Data.Proxy
-#endif
-
 #ifdef MIN_VERSION_StateVar
 import Data.StateVar
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base
-#else
-import GHC.Generics
 #endif
 
 -- | The contravariant analogue of 'Alt'.
@@ -135,24 +118,17 @@ instance Decide Predicate where decide = choose
 instance Decide (Op r) where
   decide f (Op g) (Op h) = Op $ either g h . f
 
-#if MIN_VERSION_base(4,8,0)
 -- | @since 5.3.6
 instance Decide f => Decide (Alt f) where
   decide f (Alt l) (Alt r) = Alt $ decide f l r
-#endif
 
-#ifdef GHC_GENERICS
 -- | @since 5.3.6
 instance Decide U1 where decide = choose
 
 -- | Has no 'Decidable' or 'Conclude' instance.
 --
 -- @since 5.3.6
-#if MIN_VERSION_base(4,7,0)
 instance Decide V1 where decide _ x = case x of {}
-#else
-instance Decide V1 where decide _ x = case x of !_ -> error "V1"
-#endif
 
 -- | @since 5.3.6
 instance Decide f => Decide (Rec1 f) where
@@ -171,7 +147,6 @@ instance (Decide f, Decide g) => Decide (f :*: g) where
 -- @since 5.3.6
 instance (Apply f, Decide g) => Decide (f :.: g) where
   decide f (Comp1 l) (Comp1 r) = Comp1 (liftF2 (decide f) l r)
-#endif
 
 -- | @since 5.3.6
 instance Decide f => Decide (Backwards f) where
@@ -257,11 +232,9 @@ betuple s a = (a, s)
 betuple3 :: s -> w -> a -> (a, s, w)
 betuple3 s w a = (a, s, w)
 
-#if MIN_VERSION_base(4,7,0) || defined(MIN_VERSION_tagged)
 -- | @since 5.3.6
 instance Decide Proxy where
   decide _ Proxy Proxy = Proxy
-#endif
 
 #ifdef MIN_VERSION_StateVar
 -- | @since 5.3.6

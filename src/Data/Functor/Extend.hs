@@ -1,14 +1,9 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE TypeOperators #-}
 
-#if __GLASGOW_HASKELL__ >= 702
-{-# LANGUAGE Trustworthy #-}
-#endif
-
-#if __GLASGOW_HASKELL__ >= 708
-{-# LANGUAGE EmptyCase #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.Functor.Extend
@@ -35,13 +30,17 @@ import Data.Functor.Identity
 import Data.Functor.Sum as Functor (Sum(..))
 import Data.List (tails)
 import Data.List.NonEmpty (NonEmpty(..), toList)
+import Data.Orphans ()
+import qualified Data.Monoid as Monoid
+import Data.Proxy
+import Data.Semigroup as Semigroup
+import GHC.Generics as Generics
 
 #ifdef MIN_VERSION_containers
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Tree
 #endif
-
 
 #ifdef MIN_VERSION_comonad
 import Control.Comonad.Trans.Env
@@ -52,20 +51,6 @@ import Control.Comonad.Trans.Traced
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
 #endif
-
-#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
-import Data.Proxy
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base as Generics
-#else
-import GHC.Generics as Generics
-#endif
-
-import Data.Orphans ()
-import qualified Data.Monoid as Monoid
-import Data.Semigroup as Semigroup
 
 class Functor w => Extend w where
   -- |
@@ -79,9 +64,7 @@ class Functor w => Extend w where
   extended f = fmap f . duplicated
   duplicated = extended id
 
-#if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL duplicated | extended #-}
-#endif
 
 -- | Generic 'duplicated'. Caveats:
 --
@@ -117,11 +100,9 @@ instance Extend (Tagged a) where
   duplicated = Tagged
 #endif
 
-#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
 instance Extend Proxy where
   duplicated _ = Proxy
   extended _ _ = Proxy
-#endif
 
 instance Extend Maybe where
   duplicated Nothing = Nothing
@@ -203,11 +184,7 @@ instance Extend Generics.U1 where
   extended _ U1 = U1
 
 instance Extend Generics.V1 where
-#if __GLASGOW_HASKELL__ >= 708
   extended _ e = case e of {}
-#else
-  extended _ e = seq e undefined
-#endif
 
 instance Extend f => Extend (Generics.M1 i t f) where
   extended f = M1 . extended (f . M1) . unM1
@@ -227,10 +204,8 @@ instance Extend Monoid.Product where
 instance Extend Monoid.Dual where
   extended f w@Monoid.Dual{} = Monoid.Dual (f w)
 
-#if MIN_VERSION_base(4,8,0)
 instance Extend f => Extend (Monoid.Alt f) where
   extended f = Monoid.Alt . extended (f . Monoid.Alt) . Monoid.getAlt
-#endif
 
 -- in GHC 8.6 we'll have to deal with Apply f => Apply (Ap f) the same way
 instance Extend Semigroup.First where

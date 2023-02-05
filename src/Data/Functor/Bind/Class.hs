@@ -1,22 +1,11 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeOperators #-}
-#if __GLASGOW_HASKELL__ >= 708
-{-# LANGUAGE EmptyCase #-}
-#endif
-
-#if __GLASGOW_HASKELL__ >= 702
 {-# LANGUAGE Trustworthy #-}
-#endif
-
+{-# LANGUAGE TypeOperators #-}
+{-# OPTIONS_GHC -Wno-deprecations #-}
 {-# OPTIONS_HADDOCK not-home #-}
-
-#if __GLASGOW_HASKELL__ >= 708 && __GLASGOW_HASKELL__ < 710
-{-# OPTIONS_GHC -fno-warn-amp #-}
-#endif
-
-{-# OPTIONS_GHC -fno-warn-deprecations #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -80,6 +69,7 @@ import Data.Bifunctor.Join
 import Data.Bifunctor.Product as Bifunctor
 import Data.Bifunctor.Tannen
 import Data.Bifunctor.Wrapped
+import Data.Complex
 import Data.Functor.Compose
 import Data.Functor.Constant
 import Data.Functor.Identity
@@ -87,26 +77,18 @@ import Data.Functor.Product as Functor
 import Data.Functor.Reverse
 import Data.Functor.Extend
 import Data.List.NonEmpty (NonEmpty)
+import Data.Ord (Down (..))
+import Data.Proxy
 import Data.Semigroup as Semigroup
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
+import GHC.Generics as Generics
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
 #if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.List
-#endif
-
-#if MIN_VERSION_base(4,6,0)
-import Data.Ord (Down (..))
-#else
-import GHC.Exts (Down (..))
-#endif
-
-
-#if MIN_VERSION_base(4,4,0)
-import Data.Complex
 #endif
 
 #ifdef MIN_VERSION_containers
@@ -122,24 +104,10 @@ import Data.Tree (Tree)
 import Data.Tagged
 #endif
 
-#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
-import Data.Proxy
-#endif
-
 #ifdef MIN_VERSION_unordered_containers
 import Data.Hashable
 import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HashMap
-#endif
-
-#ifdef MIN_VERSION_generic_deriving
-import Generics.Deriving.Base as Generics
-#else
-import GHC.Generics as Generics
-#endif
-
-#if __GLASGOW_HASKELL__ < 710
-import Data.Traversable
 #endif
 
 #ifdef MIN_VERSION_comonad
@@ -192,9 +160,7 @@ class Functor f => Apply f where
   liftF2 f a b = f <$> a <.> b
   {-# INLINE liftF2 #-}
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL (<.>) | liftF2 #-}
-#endif
 
 #ifdef MIN_VERSION_tagged
 instance Apply (Tagged a) where
@@ -203,12 +169,10 @@ instance Apply (Tagged a) where
   (.>) = (*>)
 #endif
 
-#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
 instance Apply Proxy where
   (<.>) = (<*>)
   (<.) = (<*)
   (.>) = (*>)
-#endif
 
 instance Apply f => Apply (Backwards f) where
   Backwards f <.> Backwards a = Backwards (flip id <$> a <.> f)
@@ -312,10 +276,8 @@ instance Arrow a => Apply (WrappedArrow a b) where
   (<. ) = (<* )
   ( .>) = ( *>)
 
-#if MIN_VERSION_base(4,4,0)
 instance Apply Complex where
   (a :+ b) <.> (c :+ d) = a c :+ b d
-#endif
 
 -- Applicative Q was only added in template-haskell 2.7 (GHC 7.4), so
 -- define in terms of Monad instead.
@@ -510,9 +472,7 @@ instance Apply Monoid.Product where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Monoid.Dual where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Monoid.First where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Monoid.Last where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
-#if MIN_VERSION_base(4,8,0)
 deriving instance Apply f => Apply (Monoid.Alt f)
-#endif
 -- in GHC 8.6 we'll have to deal with Apply f => Apply (Ap f) the same way
 instance Apply Semigroup.First where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 instance Apply Semigroup.Last where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
@@ -539,11 +499,7 @@ instance Apply Par1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 
 -- | A 'V1' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply Generics.V1 where
-#if __GLASGOW_HASKELL__ >= 708
   e <.> _ = case e of {}
-#else
-  e <.> _ = e `seq` undefined
-#endif
 
 -- | A 'Monad' sans 'return'.
 --
@@ -575,9 +531,7 @@ class Apply m => Bind m where
   join :: m (m a) -> m a
   join = (>>- id)
 
-#if __GLASGOW_HASKELL__ >= 708
   {-# MINIMAL (>>-) | join #-}
-#endif
 
 returning :: Functor f => f a -> (a -> b) -> f b
 returning = flip fmap
@@ -595,11 +549,9 @@ instance Bind (Tagged a) where
   join (Tagged a) = a
 #endif
 
-#if defined(MIN_VERSION_tagged) || MIN_VERSION_base(4,7,0)
 instance Bind Proxy where
   _ >>- _ = Proxy
   join _ = Proxy
-#endif
 
 instance Bind (Either a) where
   Left a  >>- _ = Left a
@@ -722,13 +674,11 @@ instance (Bind m) => Bind (CPS.RWST r w s m) where
 instance Bind (ContT r m) where
   m >>- k = ContT $ \c -> runContT m $ \a -> runContT (k a) c
 
-#if MIN_VERSION_base(4,4,0)
 instance Bind Complex where
   (a :+ b) >>- f = a' :+ b' where
     a' :+ _  = f a
     _  :+ b' = f b
   {-# INLINE (>>-) #-}
-#endif
 
 #ifdef MIN_VERSION_containers
 -- | A 'Map k' is not a 'Monad', but it is an instance of 'Bind'
@@ -764,10 +714,8 @@ instance Bind Monoid.Product where (>>-) = (>>=)
 instance Bind Monoid.Dual where (>>-) = (>>=)
 instance Bind Monoid.First where (>>-) = (>>=)
 instance Bind Monoid.Last where (>>-) = (>>=)
-#if MIN_VERSION_base(4,8,0)
 instance Bind f => Bind (Monoid.Alt f) where
   Monoid.Alt m >>- k = Monoid.Alt (m >>- Monoid.getAlt . k)
-#endif
 -- in GHC 8.6 we'll have to deal with Bind f => Bind (Ap f) the same way
 instance Bind Semigroup.First where (>>-) = (>>=)
 instance Bind Semigroup.Last where (>>-) = (>>=)
@@ -775,11 +723,7 @@ instance Bind Semigroup.Min where (>>-) = (>>=)
 instance Bind Semigroup.Max where (>>-) = (>>=)
 -- | A 'V1' is not a 'Monad', but it is an instance of 'Bind'
 instance Bind Generics.V1 where
-#if __GLASGOW_HASKELL__ >= 708
   m >>- _ = case m of {}
-#else
-  m >>- _ = m `seq` undefined
-#endif
 
 -- | @since 5.3.8
 instance Bind Generics.U1 where (>>-)=(>>=)
