@@ -10,30 +10,38 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
+-- Re-exports a subset of the "Data.Foldable1" module along with some additional
+-- combinators that require 'Foldable1' constraints.
+--
 ----------------------------------------------------------------------------
 module Data.Semigroup.Foldable
-  ( Foldable1(..)
+  ( -- @Data.Foldable1@ re-exports
+    Foldable1(fold1, foldMap1, toNonEmpty)
   , intercalate1
+  , foldrM1
+  , foldlM1
+
+    -- Additional @Foldable1@ functionality
   , intercalateMap1
   , traverse1_
   , for1_
   , sequenceA1_
   , foldMapDefault1
   , asum1
-  , foldrM1
-  , foldlM1
+
+    -- Generic defaults
   , gfold1
   , gfoldMap1
   , gtoNonEmpty
   ) where
 
 import Data.Foldable
+import Data.Foldable1
 import Data.Functor.Alt (Alt(..))
 import Data.Functor.Apply
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Traversable.Instances ()
 import Data.Semigroup hiding (Product, Sum)
-import Data.Semigroup.Foldable.Class
 import GHC.Generics
 import Prelude hiding (foldr)
 
@@ -45,21 +53,6 @@ newtype JoinWith a = JoinWith {joinee :: (a -> a)}
 
 instance Semigroup a => Semigroup (JoinWith a) where
   JoinWith a <> JoinWith b = JoinWith $ \j -> a j <> j <> b j
-
--- | Insert an @m@ between each pair of @t m@.  Equivalent to
--- 'intercalateMap1' with 'id' as the second argument.
---
--- >>> intercalate1 ", " $ "hello" :| ["how", "are", "you"]
--- "hello, how, are, you"
---
--- >>> intercalate1 ", " $ "hello" :| []
--- "hello"
---
--- >>> intercalate1 mempty $ "I" :| ["Am", "Fine", "You?"]
--- "IAmFineYou?"
-intercalate1 :: (Foldable1 t, Semigroup m) => m -> t m -> m
-intercalate1 = flip intercalateMap1 id
-{-# INLINE intercalate1 #-}
 
 -- | Insert @m@ between each pair of @m@ derived from @a@.
 --
@@ -110,33 +103,6 @@ instance Alt f => Semigroup (Alt_ f a) where
 asum1 :: (Foldable1 t, Alt m) => t (m a) -> m a
 asum1 = getAlt_ . foldMap1 Alt_
 {-# INLINE asum1 #-}
-
--- | Monadic fold over the elements of a non-empty structure,
--- associating to the right, i.e. from right to left.
---
--- > let g = (=<<) . f
--- > in foldrM1 f (x1 :| [x2, ..., xn]) == x1 `g` (x2 `g` ... (xn-1 `f` xn)...)
---
-foldrM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
-foldrM1 f = go . toNonEmpty
-  where
-    g = (=<<) . f
-
-    go (e:|es) =
-      case es of
-        []   -> return e
-        x:xs -> e `g` (go (x:|xs))
-
--- | Monadic fold over the elements of a non-empty structure,
--- associating to the left, i.e. from left to right.
---
--- > let g = flip $ (=<<) . f
--- > in foldlM1 f (x1 :| [x2, ..., xn]) == (...((x1 `f` x2) `g` x2) `g`...) `g` xn
---
-foldlM1 :: (Foldable1 t, Monad m) => (a -> a -> m a) -> t a -> m a
-foldlM1 f t = foldlM f x xs
-  where
-    x:|xs = toNonEmpty t
 
 -- | Generic 'fold1'. Caveats:
 --

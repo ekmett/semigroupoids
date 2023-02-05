@@ -1,7 +1,7 @@
 cabal-version: 1.24
 name:          semigroupoids
 category:      Control, Comonads
-version:       5.4
+version:       6
 license:       BSD2
 license-file:  LICENSE
 author:        Edward A. Kmett
@@ -17,8 +17,9 @@ tested-with:   GHC == 8.0.2
              , GHC == 8.8.4
              , GHC == 8.10.7
              , GHC == 9.0.2
-             , GHC == 9.2.5
+             , GHC == 9.2.7
              , GHC == 9.4.4
+             , GHC == 9.6.1
 build-type:    Simple
 synopsis:      Semigroupoids: Category sans id
 extra-source-files:
@@ -126,10 +127,13 @@ library
   build-depends:
     base                >= 4.9     && < 5,
     base-orphans        >= 0.8.4   && < 1,
-    bifunctors          >= 5.5.9   && < 6,
+    bifunctors          >= 5.6     && < 6,
     template-haskell    >= 0.2.11,
     transformers        >= 0.5     && < 0.7,
     transformers-compat >= 0.6     && < 0.8
+
+  if !impl(ghc >= 9.6)
+    build-depends: foldable1-classes-compat >= 0.1 && < 0.2
 
   if flag(containers)
     build-depends: containers >= 0.5.7.1 && < 0.7
@@ -144,7 +148,7 @@ library
     build-depends: comonad >= 5.0.8 && < 6
 
   if flag(tagged)
-    build-depends: tagged >= 0.8.6.1 && < 1
+    build-depends: tagged >= 0.8.7 && < 1
 
   if flag(unordered-containers)
     build-depends: hashable >= 1.2.7.0 && < 1.5,

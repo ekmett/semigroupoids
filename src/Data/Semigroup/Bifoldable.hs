@@ -8,9 +8,15 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
+-- Re-exports a subset of the "Data.Bifoldable1" module along with some
+-- additional combinators that require 'Bifoldable1' constraints.
+--
 ----------------------------------------------------------------------------
 module Data.Semigroup.Bifoldable
-  ( Bifoldable1(..)
+  ( -- @Data.Bifoldable1@ re-exports
+    Bifoldable1(bifold1, bifoldMap1)
+
+    -- Additional @Bifoldable1@ functionality
   , bitraverse1_
   , bifor1_
   , bisequenceA1_
@@ -19,9 +25,9 @@ module Data.Semigroup.Bifoldable
 
 import Control.Applicative
 import Data.Bifoldable
+import Data.Bifoldable1
 import Data.Functor.Apply
 import Data.Semigroup
-import Data.Semigroup.Foldable.Class
 import Prelude hiding (foldr)
 
 newtype Act f a = Act { getAct :: f a }

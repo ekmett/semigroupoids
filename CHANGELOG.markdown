@@ -1,6 +1,70 @@
-5.4 [unreleased]
-----------------
+6 [unreleased]
+--------------
 * Drop support for GHC 7.10 and earlier.
+* The `Foldable1` and `Bifoldable1` classes have been migrated:
+  * When building with `base-4.18` or later, `semigroupoids` re-exports
+    `Foldable1` and `Bifoldable1` from `base`. (These classes were added to
+    `base-4.18` as a result of
+    [this Core Libraries proposal](haskell/core-libraries-committee#9).)
+  * When building with older versions of `base`, `semigroupoids` re-exports
+    `Foldable1` and `Bifoldable1` from the
+    [`foldable1-classes-compat`](https://github.com/haskell-compat/foldable1-classes-compat)
+    compatibility package.
+
+  Note that the version of `Foldable1` that `semigroupoids` defined in previous
+  releases only had three class methods: `fold1`, `foldMap1`, and `toNonEmpty`.
+  Moreover, `foldMap1` had a default implementation in terms of a `Foldable`
+  constraint. `base`'s version of `Foldable1`, however, has some notable
+  differences:
+
+  1. It has many more methods than the three listed above, such as the
+     `foldrMap1` method.
+  2. `foldMap1` now has a default implementation in terms of `foldrMap1` instead
+     of in terms of a `Foldable` constraint.
+
+  To avoid (1) causing issues when upgrading to `semigroupoids-6`,
+  `Data.Semigroup.Foldable` only re-exports the `fold1`, `foldMap1`, and
+  `toNonEmpty` methods, which reflects the API in previous `semigroupoids`
+  releases. If you want to use the other, new class methods of `Foldable1`,
+  consider importing it from `Data.Foldable1` (its home in `base`) instead.
+
+  Difference (2) is trickier, because it is possible that existing code that
+  defines valid `Foldable1` instances will need to be migrated. If you have an
+  instance like this:
+
+  ```hs
+  import Data.Semigroup.Foldable
+
+  data T a = MkT a
+
+  instance Foldable T where
+    foldMap f (MkT x) = f x
+
+  instance Foldable1 T -- Relying on Foldable-based defaults
+  ```
+
+  Then calling `foldMap1` on `T` will throw an error with `semigroupoids-6`, as
+  `foldMap1`'s default implementation no longer uses `Foldable`. To migrate this
+  code, change the instance to explicitly define `foldMap1`:
+
+  ```hs
+  instance Foldable1 T where
+    foldMap1 f (MkT x) = f x
+  ```
+
+  This approach should be backwards-compatible with previous `semigroupoids`
+  releases.
+
+  Some other side effects of this migration include:
+
+  * The `Data.Semigroup.Foldable.Class` module has been deprecated. It no
+    longer serves a useful role, as it simply re-exports a limited subset of
+    the `Data.Foldable1` and `Data.Bifoldable1` API.
+  * All of the `Foldable1` and `Bifoldable1` instances that were previously
+    defined in `semigroupoids` have now been migrated to downstream libraries
+    (`base`, `bifunctors`, `containers`, `tagged`, and `transformers`), so it
+    is no longer strictly necessary to depend on `semigroupoids` to make use of
+    these instances.
 * Add `Generic1`-based functions for many classes, useful for writing instances:
   - `Data.Functor.Alt.(<!>)` -> `Data.Functor.Alt.galt`
   - `Data.Functor.Apply.{liftF2,liftF3}` -> `Data.Functor.Apply.{gliftF2,gliftF3}`
