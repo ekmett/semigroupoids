@@ -1,5 +1,22 @@
 {-# LANGUAGE CPP, TypeOperators #-}
 {-# LANGUAGE Trustworthy #-}
+
+#ifdef MIN_VERSION_containers
+# if MIN_VERSION_base(4,18,0)
+#  define HAS_FOLDABLE1_CONTAINERS MIN_VERSION_containers(0,6,7)
+# else
+#  define HAS_FOLDABLE1_CONTAINERS 1
+# endif
+#else
+# define HAS_FOLDABLE1_CONTAINERS 0
+#endif
+
+#if MIN_VERSION_base(4,18,0)
+# define HAS_FOLDABLE1_TRANSFORMERS MIN_VERSION_transformers(0,6,1)
+#else
+# define HAS_FOLDABLE1_TRANSFORMERS 1
+#endif
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   :  (C) 2011-2015 Edward Kmett
@@ -16,9 +33,6 @@ module Data.Semigroup.Traversable.Class
   ) where
 
 import Control.Applicative
-import Control.Applicative.Backwards
-import Control.Applicative.Lift
-import Control.Monad.Trans.Identity
 import Data.Bitraversable
 import Data.Bifunctor
 import Data.Bifunctor.Biff
@@ -35,7 +49,6 @@ import Data.Functor.Compose
 import Data.Complex
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
-import Data.Functor.Reverse
 import Data.Functor.Sum as Functor
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Monoid as Monoid
@@ -49,8 +62,15 @@ import Data.Tagged
 import Data.Traversable.Instances ()
 import GHC.Generics
 
-#ifdef MIN_VERSION_containers
+#if HAS_FOLDABLE1_CONTAINERS
 import Data.Tree
+#endif
+
+#if HAS_FOLDABLE1_TRANSFORMERS
+import Control.Applicative.Backwards
+import Control.Applicative.Lift
+import Control.Monad.Trans.Identity
+import Data.Functor.Reverse
 #endif
 
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
@@ -167,28 +187,30 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (f :.: g) where
 instance Traversable1 Identity where
   traverse1 f = fmap Identity . f . runIdentity
 
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Product f g) where
+  traverse1 f (Functor.Pair a b) = Functor.Pair <$> traverse1 f a <.> traverse1 f b
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
+  traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
+  traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
+
+instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
+  traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
+
+#if HAS_FOLDABLE1_TRANSFORMERS
 instance Traversable1 f => Traversable1 (IdentityT f) where
   traverse1 f = fmap IdentityT . traverse1 f . runIdentityT
 
 instance Traversable1 f => Traversable1 (Backwards f) where
   traverse1 f = fmap Backwards . traverse1 f . forwards
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
-  traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
-
 instance Traversable1 f => Traversable1 (Lift f) where
   traverse1 f (Pure x)  = Pure <$> f x
   traverse1 f (Other y) = Other <$> traverse1 f y
 
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Product f g) where
-  traverse1 f (Functor.Pair a b) = Functor.Pair <$> traverse1 f a <.> traverse1 f b
-
 instance Traversable1 f => Traversable1 (Reverse f) where
   traverse1 f = fmap Reverse . forwards . traverse1 (Backwards . f) . getReverse
-
-instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) where
-  traverse1 f (Functor.InL x) = Functor.InL <$> traverse1 f x
-  traverse1 f (Functor.InR y) = Functor.InR <$> traverse1 f y
+#endif
 
 instance Traversable1 Complex where
   traverse1 f (a :+ b) = (:+) <$> f a <.> f b
@@ -199,7 +221,7 @@ instance Traversable1 (Tagged a) where
   traverse1 f (Tagged a) = Tagged <$> f a
 #endif
 
-#ifdef MIN_VERSION_containers
+#if HAS_FOLDABLE1_CONTAINERS
 instance Traversable1 Tree where
   traverse1 f (Node a []) = (`Node`[]) <$> f a
   traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
