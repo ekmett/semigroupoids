@@ -1,4 +1,4 @@
-6 [unreleased]
+6 [2023.03.12]
 --------------
 * Drop support for GHC 7.10 and earlier.
 * The `Foldable1` and `Bifoldable1` classes have been migrated:
