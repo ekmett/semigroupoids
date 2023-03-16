@@ -11,11 +11,6 @@
 # define HAS_FOLDABLE1_CONTAINERS 0
 #endif
 
-#if MIN_VERSION_base(4,18,0)
-# define HAS_FOLDABLE1_TRANSFORMERS MIN_VERSION_transformers(0,6,1)
-#else
-# define HAS_FOLDABLE1_TRANSFORMERS 1
-#endif
 
 -----------------------------------------------------------------------------
 -- |
@@ -66,12 +61,10 @@ import GHC.Generics
 import Data.Tree
 #endif
 
-#if HAS_FOLDABLE1_TRANSFORMERS
 import Control.Applicative.Backwards
 import Control.Applicative.Lift
 import Control.Monad.Trans.Identity
 import Data.Functor.Reverse
-#endif
 
 class (Bifoldable1 t, Bitraversable t) => Bitraversable1 t where
   bitraverse1 :: Apply f => (a -> f b) -> (c -> f d) -> t a c -> f (t b d)
@@ -197,7 +190,6 @@ instance (Traversable1 f, Traversable1 g) => Traversable1 (Functor.Sum f g) wher
 instance (Traversable1 f, Traversable1 g) => Traversable1 (Compose f g) where
   traverse1 f = fmap Compose . traverse1 (traverse1 f) . getCompose
 
-#if HAS_FOLDABLE1_TRANSFORMERS
 instance Traversable1 f => Traversable1 (IdentityT f) where
   traverse1 f = fmap IdentityT . traverse1 f . runIdentityT
 
@@ -210,7 +202,6 @@ instance Traversable1 f => Traversable1 (Lift f) where
 
 instance Traversable1 f => Traversable1 (Reverse f) where
   traverse1 f = fmap Reverse . forwards . traverse1 (Backwards . f) . getReverse
-#endif
 
 instance Traversable1 Complex where
   traverse1 f (a :+ b) = (:+) <$> f a <.> f b

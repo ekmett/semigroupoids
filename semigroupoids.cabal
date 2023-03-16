@@ -135,6 +135,11 @@ library
   if !impl(ghc >= 9.6)
     build-depends: foldable1-classes-compat >= 0.1 && < 0.2
 
+  -- On GHC-9.6&base-4.18 we require recent enough transformers
+  -- with Foldable1 instances.
+  if impl(ghc >= 9.6)
+    build-depends: transformers >= 0.6.1.0
+
   if flag(containers)
     build-depends: containers >= 0.5.7.1 && < 0.7
 
