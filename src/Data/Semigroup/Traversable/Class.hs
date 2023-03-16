@@ -1,16 +1,6 @@
 {-# LANGUAGE CPP, TypeOperators #-}
 {-# LANGUAGE Trustworthy #-}
 
-#ifdef MIN_VERSION_containers
-# if MIN_VERSION_base(4,18,0)
-#  define HAS_FOLDABLE1_CONTAINERS MIN_VERSION_containers(0,6,7)
-# else
-#  define HAS_FOLDABLE1_CONTAINERS 1
-# endif
-#else
-# define HAS_FOLDABLE1_CONTAINERS 0
-#endif
-
 
 -----------------------------------------------------------------------------
 -- |
@@ -57,7 +47,7 @@ import Data.Tagged
 import Data.Traversable.Instances ()
 import GHC.Generics
 
-#if HAS_FOLDABLE1_CONTAINERS
+#ifdef MIN_VERSION_containers
 import Data.Tree
 #endif
 
@@ -212,7 +202,7 @@ instance Traversable1 (Tagged a) where
   traverse1 f (Tagged a) = Tagged <$> f a
 #endif
 
-#if HAS_FOLDABLE1_CONTAINERS
+#ifdef MIN_VERSION_containers
 instance Traversable1 Tree where
   traverse1 f (Node a []) = (`Node`[]) <$> f a
   traverse1 f (Node a (x:xs)) = (\b (y:|ys) -> Node b (y:ys)) <$> f a <.> traverse1 (traverse1 f) (x :| xs)
