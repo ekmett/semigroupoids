@@ -1,3 +1,10 @@
+6.0.0.1 [2023.03.16]
+--------------------
+* When building with GHC 9.6, require `transformers >= 0.6.1` and
+  `containers >= 0.6.7`. This ensures that `semigroupoids` always provides
+  `Traversable1` instances for data types from `transformers` and `containers`
+  unconditionally.
+
 6 [2023.03.12]
 --------------
 * Drop support for GHC 7.10 and earlier.
