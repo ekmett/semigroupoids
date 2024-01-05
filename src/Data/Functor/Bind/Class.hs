@@ -60,6 +60,7 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Strict as Strict
+import Data.Bifunctor
 import Data.Biapplicative
 import Data.Bifunctor.Biff
 import Data.Bifunctor.Clown
