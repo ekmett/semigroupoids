@@ -10,3 +10,6 @@ constraint-set no-comonad
 
 constraint-set no-containers
   constraints: semigroupoids -containers
+
+constraint-set no-contravariant
+  constraints: semigroupoids -contravariant

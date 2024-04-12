@@ -12,6 +12,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
+-- This module is only available if building with GHC 8.6 or later, or if the
+-- @+contravariant@ @cabal@ build flag is available.
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Conclude (
     Conclude(..)
@@ -22,7 +24,6 @@ module Data.Functor.Contravariant.Conclude (
 
 import Control.Applicative.Backwards
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.Maybe
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy
 import qualified Control.Monad.Trans.RWS.Strict as Strict
 import Control.Monad.Trans.Reader
@@ -35,8 +36,6 @@ import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Decide
-import Data.Functor.Contravariant.Divise
-import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Monoid (Alt(..))
@@ -44,8 +43,13 @@ import Data.Proxy
 import Data.Void
 import GHC.Generics
 
-#if !(MIN_VERSION_transformers(0,6,0))
+#if defined(MIN_VERSION_contravariant)
+# if !(MIN_VERSION_transformers(0,6,0))
 import Control.Monad.Trans.List
+# endif
+import Control.Monad.Trans.Maybe
+import Data.Functor.Contravariant.Divise
+import Data.Functor.Contravariant.Divisible
 #endif
 
 #ifdef MIN_VERSION_StateVar
@@ -110,29 +114,39 @@ concluded = conclude id
 gconcluded :: (Generic1 f, Conclude (Rep1 f)) => f Void
 gconcluded = to1 concluded
 
--- | @since 5.3.6
+#if defined(MIN_VERSION_contravariant)
+-- | This instance is only available if the @+contravariant@ @cabal@ flag is
+-- enabled.
+--
+-- @since 5.3.6
 instance Decidable f => Conclude (WrappedDivisible f) where
     conclude f = WrapDivisible (lose f)
+#endif
 
 -- | @since 5.3.6
-instance Conclude Comparison where conclude = lose
+instance Conclude Comparison where
+  conclude f = Comparison $ \a _ -> absurd (f a)
 
 -- | @since 5.3.6
-instance Conclude Equivalence where conclude = lose
+instance Conclude Equivalence where
+  conclude f = Equivalence $ absurd . f
 
 -- | @since 5.3.6
-instance Conclude Predicate where conclude = lose
+instance Conclude Predicate where
+  conclude f = Predicate $ absurd . f
 
 -- | @since 5.3.6
 instance Conclude (Op r) where
   conclude f = Op $ absurd . f
 
 -- | @since 5.3.6
-instance Conclude Proxy where conclude = lose
+instance Conclude Proxy where
+  conclude _ = Proxy
 
 #ifdef MIN_VERSION_StateVar
 -- | @since 5.3.6
-instance Conclude SettableStateVar where conclude = lose
+instance Conclude SettableStateVar where
+  conclude k = SettableStateVar (absurd . k)
 #endif
 
 -- | @since 5.3.6
@@ -140,7 +154,8 @@ instance Conclude f => Conclude (Alt f) where
   conclude = Alt . conclude
 
 -- | @since 5.3.6
-instance Conclude U1 where conclude = lose
+instance Conclude U1 where
+  conclude _ = U1
 
 -- | @since 5.3.6
 instance Conclude f => Conclude (Rec1 f) where
@@ -178,15 +193,23 @@ instance Conclude m => Conclude (Lazy.RWST r w s m) where
 instance Conclude m => Conclude (Strict.RWST r w s m) where
   conclude f = Strict.RWST $ \_ _ -> contramap (\(a, _, _) -> a) (conclude f)
 
-#if !(MIN_VERSION_transformers(0,6,0))
--- | @since 5.3.6
+#if defined(MIN_VERSION_contravariant)
+# if !(MIN_VERSION_transformers(0,6,0))
+-- | This instance is only available if the @+contravariant@ @cabal@ flag is
+-- enabled.
+--
+-- @since 5.3.6
 instance (Divisible m, Divise m) => Conclude (ListT m) where
   conclude _ = ListT conquer
-#endif
+# endif
 
--- | @since 5.3.6
+-- | This instance is only available if the @+contravariant@ @cabal@ flag is
+-- enabled.
+--
+-- @since 5.3.6
 instance (Divisible m, Divise m) => Conclude (MaybeT m) where
   conclude _ = MaybeT conquer
+#endif
 
 -- | @since 5.3.6
 instance Conclude m => Conclude (Lazy.StateT s m) where

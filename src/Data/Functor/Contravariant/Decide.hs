@@ -14,6 +14,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
+-- This module is only available if building with GHC 8.6 or later, or if the
+-- @+contravariant@ @cabal@ build flag is available.
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Decide (
     Decide(..)
@@ -37,7 +39,6 @@ import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Divise
-import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Monoid (Alt(..))
@@ -48,6 +49,10 @@ import GHC.Generics
 import Control.Arrow
 import Control.Monad.Trans.List
 import Data.Either
+#endif
+
+#if defined(MIN_VERSION_contravariant)
+import Data.Functor.Contravariant.Divisible
 #endif
 
 #ifdef MIN_VERSION_StateVar
@@ -99,18 +104,38 @@ decided = decide id
 gdecided :: (Generic1 f, Decide (Rep1 f)) => f b -> f c -> f (Either b c)
 gdecided fb fc = gdecide id fb fc
 
--- | @since 5.3.6
+#if defined(MIN_VERSION_contravariant)
+-- | This instance is only available if the @+contravariant@ @cabal@ flag is
+-- enabled.
+--
+-- @since 5.3.6
 instance Decidable f => Decide (WrappedDivisible f) where
     decide f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (choose f x y)
+#endif
 
 -- | @since 5.3.6
-instance Decide Comparison where decide = choose
+instance Decide Comparison where
+  decide f (Comparison g) (Comparison h) = Comparison $ \a b -> case f a of
+    Left c -> case f b of
+      Left d -> g c d
+      Right{} -> LT
+    Right c -> case f b of
+      Left{} -> GT
+      Right d -> h c d
 
 -- | @since 5.3.6
-instance Decide Equivalence where decide = choose
+instance Decide Equivalence where
+  decide f (Equivalence g) (Equivalence h) = Equivalence $ \a b -> case f a of
+    Left c -> case f b of
+      Left d -> g c d
+      Right{} -> False
+    Right c -> case f b of
+      Left{} -> False
+      Right d -> h c d
 
 -- | @since 5.3.6
-instance Decide Predicate where decide = choose
+instance Decide Predicate where
+  decide f (Predicate g) (Predicate h) = Predicate $ either g h . f
 
 -- | Unlike 'Decidable', requires no constraint on @r@.
 --
@@ -123,7 +148,8 @@ instance Decide f => Decide (Alt f) where
   decide f (Alt l) (Alt r) = Alt $ decide f l r
 
 -- | @since 5.3.6
-instance Decide U1 where decide = choose
+instance Decide U1 where
+  decide _ U1 U1 = U1
 
 -- | Has no 'Decidable' or 'Conclude' instance.
 --
