@@ -14,6 +14,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
+-- This module is only available if building with GHC 8.6 or later, or if the
+-- @+contravariant@ @cabal@ build flag is available.
 ----------------------------------------------------------------------------
 module Data.Functor.Contravariant.Divise (
     Divise(..)
@@ -41,7 +43,6 @@ import Data.Functor.Apply
 import Data.Functor.Compose
 import Data.Functor.Constant
 import Data.Functor.Contravariant
-import Data.Functor.Contravariant.Divisible
 import Data.Functor.Product
 import Data.Functor.Reverse
 import Data.Monoid (Alt(..))
@@ -55,6 +56,10 @@ import Control.Monad.Trans.List
 
 #if !MIN_VERSION_base(4,12,0)
 import Data.Semigroup (Semigroup(..))
+#endif
+
+#if defined(MIN_VERSION_contravariant)
+import Data.Functor.Contravariant.Divisible
 #endif
 
 #ifdef MIN_VERSION_StateVar
@@ -127,9 +132,14 @@ newtype WrappedDivisible f a = WrapDivisible { unwrapDivisible :: f a }
 instance Contravariant f => Contravariant (WrappedDivisible f) where
   contramap f (WrapDivisible a) = WrapDivisible (contramap f a)
 
--- | @since 5.3.6
+#if defined(MIN_VERSION_contravariant)
+-- | This instance is only available if the @+contravariant@ @cabal@ flag is
+-- enabled.
+--
+-- @since 5.3.6
 instance Divisible f => Divise (WrappedDivisible f) where
   divise f (WrapDivisible x) (WrapDivisible y) = WrapDivisible (divide f x y)
+#endif
 
 -- | Unlike 'Divisible', requires only 'Semigroup' on @r@.
 --
@@ -151,20 +161,31 @@ instance Semigroup m => Divise (Constant m) where
     divise _ (Constant a) (Constant b) = Constant (a <> b)
 
 -- | @since 5.3.6
-instance Divise Comparison where divise = divide
+instance Divise Comparison where
+  divise f (Comparison g) (Comparison h) = Comparison $ \a b -> case f a of
+    (a',a'') -> case f b of
+      (b',b'') -> g a' b' `mappend` h a'' b''
 
 -- | @since 5.3.6
-instance Divise Equivalence where divise = divide
+instance Divise Equivalence where
+  divise f (Equivalence g) (Equivalence h) = Equivalence $ \a b -> case f a of
+    (a',a'') -> case f b of
+      (b',b'') -> g a' b' && h a'' b''
 
 -- | @since 5.3.6
-instance Divise Predicate where divise = divide
+instance Divise Predicate where
+  divise f (Predicate g) (Predicate h) = Predicate $ \a -> case f a of
+    (b, c) -> g b && h c
 
 -- | @since 5.3.6
-instance Divise Proxy where divise = divide
+instance Divise Proxy where
+  divise _ Proxy Proxy = Proxy
 
 #ifdef MIN_VERSION_StateVar
 -- | @since 5.3.6
-instance Divise SettableStateVar where divise = divide
+instance Divise SettableStateVar where
+  divise k (SettableStateVar l) (SettableStateVar r) = SettableStateVar $ \ a -> case k a of
+    (b, c) -> l b >> r c
 #endif
 
 -- | @since 5.3.6
@@ -172,7 +193,8 @@ instance Divise f => Divise (Alt f) where
   divise f (Alt l) (Alt r) = Alt $ divise f l r
 
 -- | @since 5.3.6
-instance Divise U1 where divise = divide
+instance Divise U1 where
+  divise _ U1 U1 = U1
 
 -- | Has no 'Divisible' instance.
 --
