@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE Trustworthy #-}
@@ -22,6 +23,9 @@ module Data.Semigroupoid.Categorical (
 
 import Control.Category (Category (id, (.)))
 import Data.Semigroupoid (Semigroupoid (o))
+#if __GLASGOW_HASKELL__ >= 904
+import Data.Type.Equality (type (~))
+#endif
 import Prelude ()
 
 -- | Attaches an identity.
