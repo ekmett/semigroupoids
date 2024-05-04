@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Fix a build error when compiling with `-f-contravariant`.
+
 6.0.0.1 [2023.03.16]
 --------------------
 * When building with GHC 9.6, require `transformers >= 0.6.1` and
