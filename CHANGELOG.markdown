@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+6.0.1 [2024.05.04]
+------------------
 * Fix a build error when compiling with `-f-contravariant`.
 
 6.0.0.1 [2023.03.16]
