@@ -158,7 +158,7 @@ library
     build-depends: tagged >= 0.8.7 && < 1
 
   if flag(unordered-containers)
-    build-depends: hashable >= 1.2.7.0 && < 1.5,
+    build-depends: hashable >= 1.2.7.0 && < 1.6,
                    unordered-containers >= 0.2.8.0  && < 0.3
 
   hs-source-dirs: src
