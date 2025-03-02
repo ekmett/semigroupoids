@@ -143,7 +143,7 @@ library
       build-depends: containers >= 0.6.7
 
   if flag(containers)
-    build-depends: containers >= 0.5.7.1 && < 0.8
+    build-depends: containers >= 0.5.7.1 && < 0.9
 
   if flag(contravariant)
     build-depends: contravariant >= 1.5.3 && < 2
