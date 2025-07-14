@@ -37,7 +37,7 @@ foldMap1Default f = getConst . traverse1 (Const . f)
 -- | Generic 'traverse1'. Caveats:
 --
 --   1. Will not compile if @t@ is an empty constructor.
---   2. Will not compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
+--   2. Will not compile if @t@ has some fields that don't mention @a@, for example @data Bar a = MkBar a Int@
 --
 -- @since 5.3.8
 gtraverse1 ::
