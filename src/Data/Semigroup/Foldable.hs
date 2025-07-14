@@ -107,7 +107,7 @@ asum1 = getAlt_ . foldMap1 Alt_
 -- | Generic 'fold1'. Caveats:
 --
 --   1. Will not compile if @t@ is an empty constructor.
---   2. Will not compile if @t@ has some fields that don't mention @a@, for exmaple @data Bar a = MkBar a Int@
+--   2. Will not compile if @t@ has some fields that don't mention @a@, for example @data Bar a = MkBar a Int@
 --
 -- @since 5.3.8
 gfold1 :: (Foldable1 (Rep1 t), Generic1 t, Semigroup m) => t m -> m
