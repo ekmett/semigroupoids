@@ -580,6 +580,9 @@ instance Bind NonEmpty where
 instance Bind IO where
   (>>-) = (>>=)
 
+instance Bind (ST s) where
+  (>>-) = (>>=)
+
 instance Bind Maybe where
   (>>-) = (>>=)
 
