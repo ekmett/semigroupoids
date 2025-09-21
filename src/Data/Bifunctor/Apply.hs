@@ -20,6 +20,7 @@ module Data.Bifunctor.Apply (
   ) where
 
 import Data.Functor.Bind.Class
+import Data.Bifunctor
 import Data.Biapplicative
 
 infixl 4 <<..>>
