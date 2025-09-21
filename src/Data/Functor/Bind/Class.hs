@@ -44,6 +44,7 @@ import Control.Applicative.Lift
 import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
+import Control.Monad.ST
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
@@ -341,6 +342,11 @@ instance (Apply m, Semigroup w) => Apply (Strict.WriterT w m) where
 instance (Apply m, Semigroup w) => Apply (Lazy.WriterT w m) where
   Lazy.WriterT f <.> Lazy.WriterT a = Lazy.WriterT $ flap <$> f <.> a where
     flap ~(x,m) ~(y,n) = (x y, m <> n)
+
+instance Apply (ST s) where
+  (<.>) = (<*>)
+  (<.) = (<*)
+  (.>) = (*>)
 
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 5.3.6
