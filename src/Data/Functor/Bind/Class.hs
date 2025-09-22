@@ -45,6 +45,7 @@ import Control.Arrow
 import Control.Category
 import Control.Monad (ap)
 import Control.Monad.ST
+import qualified Control.Monad.ST.Lazy as Lazy
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
@@ -348,6 +349,12 @@ instance Apply (ST s) where
   (<.) = (<*)
   (.>) = (*>)
 
+instance Apply (Lazy.ST s) where
+  (<.>) = (<*>)
+  (<.) = (<*)
+  (.>) = (*>)
+
+
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 5.3.6
 instance (Bind m) => Apply (CPS.WriterT w m) where
@@ -581,6 +588,9 @@ instance Bind IO where
   (>>-) = (>>=)
 
 instance Bind (ST s) where
+  (>>-) = (>>=)
+
+instance Bind (Lazy.ST s) where
   (>>-) = (>>=)
 
 instance Bind Maybe where
