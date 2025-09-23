@@ -1,3 +1,7 @@
+next [????.??.??]
+-----------------
+* Add `Apply` and `Bind` instances for strict and lazy `ST`.
+
 6.0.1 [2024.05.04]
 ------------------
 * Fix a build error when compiling with `-f-contravariant`.
