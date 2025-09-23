@@ -64,7 +64,7 @@ description:
 
 source-repository head
   type: git
-  location: git://github.com/ekmett/semigroupoids.git
+  location: https://github.com/ekmett/semigroupoids.git
 
 flag containers
   description:
