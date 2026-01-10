@@ -1,6 +1,7 @@
 next [????.??.??]
 -----------------
 * Add `Apply` and `Bind` instances for strict and lazy `ST`.
+* Remove unused `distributive` dependency.
 
 6.0.1 [2024.05.04]
 ------------------
