@@ -1,5 +1,5 @@
-next [????.??.??]
------------------
+6.0.2 [2026.01.10]
+------------------
 * Add `Apply` and `Bind` instances for strict and lazy `ST`.
 * Remove unused `distributive` dependency.
 
