@@ -32,7 +32,7 @@ in the table.
 |`Alt`|`semigroupoids`|`Plus`||
 |`Apply`|`semigroupoids`|`Bind`|`Applicative`|
 |`Traversable`|`base`|`Traversable1`||
-|`Foldable1`|`semigroupoids`|`Traversable1`||
+|`Foldable1`|`base`|`Traversable1`||
 |`Biapply`|`semigroupoids`|||
 |`Divise`|`semigroupoids`||`Divisible`|
 |`Decide`|`semigroupoids`|`Conclude`|`Decidable`|
