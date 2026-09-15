@@ -289,13 +289,13 @@ instance Apply Q where
 #ifdef MIN_VERSION_containers
 -- | A 'Map k' is not 'Applicative', but it is an instance of 'Apply'
 instance Ord k => Apply (Map k) where
-  (<.>) = Map.intersectionWith id
+  liftF2 = Map.intersectionWith
   (<. ) = Map.intersectionWith const
   ( .>) = Map.intersectionWith (const id)
 
 -- | An 'IntMap' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply IntMap where
-  (<.>) = IntMap.intersectionWith id
+  liftF2 = IntMap.intersectionWith
   (<. ) = IntMap.intersectionWith const
   ( .>) = IntMap.intersectionWith (const id)
 
@@ -311,7 +311,7 @@ instance Apply Tree where
 #ifdef MIN_VERSION_unordered_containers
 -- | A 'HashMap k' is not 'Applicative', but it is an instance of 'Apply'
 instance (Hashable k, Eq k) => Apply (HashMap k) where
-  (<.>) = HashMap.intersectionWith id
+  liftF2 = HashMap.intersectionWith
 #endif
 
 -- MaybeT is _not_ the same as Compose f Maybe
