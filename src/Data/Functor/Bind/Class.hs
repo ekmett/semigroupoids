@@ -87,6 +87,9 @@ import Data.Semigroup as Semigroup
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import GHC.Generics as Generics
+#if !MIN_VERSION_base(4,17,0)
+import GHC.Generics.Generically as Generics
+#endif
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
