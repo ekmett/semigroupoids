@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE Trustworthy #-}
@@ -513,6 +515,10 @@ instance Apply Par1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 -- | A 'V1' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply Generics.V1 where
   e <.> _ = case e of {}
+
+instance (Generic1 f, Apply (Rep1 f)) => Apply (Generically1 f) where
+  Generically1 f <.> Generically1 a = Generically1 $ to1 $ from1 f <.> from1 a
+  liftF2 f (Generically1 a) (Generically1 b) = Generically1 $ to1 $ liftF2 f (from1 a) (from1 b)
 
 -- | A 'Monad' sans 'return'.
 --
