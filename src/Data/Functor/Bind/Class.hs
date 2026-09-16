@@ -1,9 +1,11 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-deprecations #-}
 {-# OPTIONS_HADDOCK not-home #-}
 
@@ -85,6 +87,9 @@ import Data.Semigroup as Semigroup
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import GHC.Generics as Generics
+#if !MIN_VERSION_base(4,17,0)
+import GHC.Generics.Generically as Generics
+#endif
 import Language.Haskell.TH (Q)
 import Prelude hiding (id, (.))
 
@@ -513,6 +518,10 @@ instance Apply Par1 where (<.>)=(<*>);(.>)=(*>);(<.)=(<*)
 -- | A 'V1' is not 'Applicative', but it is an instance of 'Apply'
 instance Apply Generics.V1 where
   e <.> _ = case e of {}
+
+instance (Generic1 f, Apply (Rep1 f)) => Apply (Generically1 f) where
+  Generically1 f <.> Generically1 a = Generically1 $ to1 $ from1 f <.> from1 a
+  liftF2 f (Generically1 a) (Generically1 b) = Generically1 $ to1 $ liftF2 f (from1 a) (from1 b)
 
 -- | A 'Monad' sans 'return'.
 --

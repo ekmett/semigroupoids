@@ -135,6 +135,9 @@ library
     if flag(containers)
       build-depends: containers >= 0.6.7
 
+  if !impl(ghc >= 9.4)
+    build-depends: generically >= 0.1 && < 0.2
+
   if flag(containers)
     build-depends: containers >= 0.5.7.1 && < 0.9
 
