@@ -200,6 +200,7 @@ library
 
 test-suite test
   type: exitcode-stdio-1.0
+  default-language: Haskell2010
   ghc-options: -with-rtsopts=-T
   build-depends: base, semigroupoids, tasty-bench
   hs-source-dirs: test
