@@ -35,11 +35,12 @@ import Data.Complex
 import Data.Functor.Identity
 import Data.Functor.Product as Functor
 import Data.Functor.Sum as Functor
+import Data.Foldable1
 import Data.List.NonEmpty (NonEmpty(..))
+import qualified Data.List.NonEmpty as N
 import qualified Data.Monoid as Monoid
 import Data.Orphans ()
 import Data.Semigroup as Semigroup
-import Data.Semigroup.Foldable
 import Data.Semigroup.Bifoldable
 #ifdef MIN_VERSION_tagged
 import Data.Tagged
@@ -141,7 +142,9 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
   sequence1 :: Apply f => t (f b) -> f (t b)
 
   sequence1 = traverse1 id
+  {-# INLINE sequence1 #-}
   traverse1 f = sequence1 . fmap f
+  {-# INLINE traverse1 #-}
 
   {-# MINIMAL traverse1 | sequence1 #-}
 
@@ -209,7 +212,8 @@ instance Traversable1 Tree where
 #endif
 
 instance Traversable1 NonEmpty where
-  traverse1 f (a :| as) = foldr (\b g x -> (\a' (b':| bs') -> a' :| b': bs') <$> f x <.> g b) (fmap (:|[]) . f) as a
+  traverse1 f = foldrMap1 (fmap (:| []) . f) (liftF2 (\ x xs -> x :| N.toList xs) . f)
+  {-# INLINE traverse1 #-}
 
 instance Traversable1 ((,) a) where
   traverse1 f (a, b) = (,) a <$> f b
