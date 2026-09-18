@@ -142,7 +142,9 @@ class (Foldable1 t, Traversable t) => Traversable1 t where
   sequence1 :: Apply f => t (f b) -> f (t b)
 
   sequence1 = traverse1 id
+  {-# INLINE sequence1 #-}
   traverse1 f = sequence1 . fmap f
+  {-# INLINE traverse1 #-}
 
   {-# MINIMAL traverse1 | sequence1 #-}
 
