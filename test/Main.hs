@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveFoldable #-}
@@ -10,6 +11,9 @@ import Data.Semigroup.Traversable
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as N
 import GHC.Generics
+#if !MIN_VERSION_base(4,17,0)
+import GHC.Generics.Generically
+#endif
 import Test.Tasty.Bench
 
 data V2 a = V2 a a
