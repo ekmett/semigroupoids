@@ -2,6 +2,8 @@ next [????.??.??]
 -----------------
 * Deprecate the `Data.Traversable.Instances` module, which is empty and simply
   re-exports orphan instances from `base-orphans` and `transformers-compat`.
+* Speed up the `Apply` instances for `Map`, `IntMap`, and `HashMap` by defining
+  them in terms of `liftF2` instead of `(<.>)`.
 
 6.0.2 [2026.01.10]
 ------------------
