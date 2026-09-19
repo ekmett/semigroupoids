@@ -1,3 +1,8 @@
+next [????.??.??]
+-----------------
+* Deprecate the `Data.Traversable.Instances` module, which is empty and simply
+  re-exports orphan instances from `base-orphans` and `transformers-compat`.
+
 6.0.2 [2026.01.10]
 ------------------
 * Add `Apply` and `Bind` instances for strict and lazy `ST`.
