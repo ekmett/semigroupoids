@@ -4,6 +4,7 @@ next [????.??.??]
   re-exports orphan instances from `base-orphans` and `transformers-compat`.
 * Speed up the `Apply` instances for `Map`, `IntMap`, and `HashMap` by defining
   them in terms of `liftF2` instead of `(<.>)`.
+* Add an `Apply` instance for `Generically1`.
 
 6.0.2 [2026.01.10]
 ------------------
