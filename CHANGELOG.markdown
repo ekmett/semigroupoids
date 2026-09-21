@@ -6,6 +6,7 @@ next [????.??.??]
   them in terms of `liftF2` instead of `(<.>)`.
 * Add an `Apply` instance for `Generically1`.
 * Optimize the performance of the `Traversable1 NonEmpty` instance.
+* Define `liftF3` in terms of `liftF2` to avoid an extra `fmap`.
 
 6.0.2 [2026.01.10]
 ------------------
