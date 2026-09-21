@@ -45,7 +45,7 @@ infixl 4 <..>
 
 -- | Lift a ternary function into a comonad with zipping
 liftF3 :: Apply w => (a -> b -> c -> d) -> w a -> w b -> w c -> w d
-liftF3 f a b c = f <$> a <.> b <.> c
+liftF3 f a b c = liftF2 f a b <.> c
 {-# INLINE liftF3 #-}
 
 -- | Generic 'liftF2'. Caveats:
